@@ -40,4 +40,4 @@ Este projeto tem como objetivo oferecer um site de acompanhamento para mães rec
     ```bash
     npm run dev
     ```
-3. Acesse o link gerado no terminal para visualizar a aplicação. Lembre-se de estar rodando o back.
+OBS: Acesse o link gerado no terminal para visualizar a aplicação. Lembre-se de estar rodando o back.
