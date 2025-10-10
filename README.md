@@ -1,4 +1,4 @@
-# perpouras
+# Pérpouras
 Este projeto tem como objetivo oferecer um site de acompanhamento para mães recentes, centralizando informações essenciais para o cuidado com o bebê e a saúde da mãe. O site oferece funcionalidades como perfil de usuário, calendário de consultas e conteúdo educacional.
 
 ## Funcionalidades
