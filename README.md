@@ -1,4 +1,4 @@
-# perpouras
+# Pérpouras
 Este projeto tem como objetivo oferecer um site de acompanhamento para mães recentes, centralizando informações essenciais para o cuidado com o bebê e a saúde da mãe. O site oferece funcionalidades como perfil de usuário, calendário de consultas e conteúdo educacional.
 
 ## Funcionalidades
@@ -40,4 +40,4 @@ Este projeto tem como objetivo oferecer um site de acompanhamento para mães rec
     ```bash
     npm run dev
     ```
-3. Acesse o link gerado no terminal para visualizar a aplicação. Lembre-se de estar rodando o back.
+OBS: Acesse o link gerado no terminal para visualizar a aplicação. Lembre-se de estar rodando o back.
