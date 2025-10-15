@@ -8,16 +8,11 @@ Este projeto tem como objetivo oferecer um site de acompanhamento para mães rec
 - Seção de conteúdo educativo e interativo.
 - Notificações e lembretes de compromissos.
 
-## Tecnologias Utilizadas
-
-- **Frontend**: React.js
-- **Backend**: Node.js com Express.js
-- **Banco de Dados**: MongoDB
-- **Autenticação**: JWT (JSON Web Tokens)
-
 ## Como Rodar o Projeto
 
 ### Backend
+
+> Para detalhes técnicos sobre a API (tecnologias, arquitetura, scripts e configuração do banco de dados), consulte o [README da API](./api/README.md).
 
 1. Instale as dependências:
    ```bash
@@ -26,7 +21,7 @@ Este projeto tem como objetivo oferecer um site de acompanhamento para mães rec
 
 2. Rode o projeto:
     ```bash
-    
+    npm run dev
     ```
 
 ### Frontend
