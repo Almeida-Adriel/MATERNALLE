@@ -1,4 +1,4 @@
-# Meu Projeto API - Express + Prisma + Supabase
+# MATERNALLE API - Express + Prisma + Supabase
 
 Este projeto é uma API construída com **Express.js** e **Prisma ORM**, utilizando **PostgreSQL via Supabase** como banco de dados.  
 
@@ -13,7 +13,6 @@ O objetivo é fornecer uma API organizada, escalável e de fácil manutenção, 
 - **Prisma**: ORM para interagir com o banco PostgreSQL de forma tipada e segura.  
 - **Supabase (PostgreSQL)**: banco de dados relacional hospedado na nuvem.  
 - **Nodemon**: para desenvolvimento, reinicia o servidor automaticamente ao salvar alterações.  
-- **Prisma Studio**: interface visual para visualizar e editar os dados do banco.  
 
 ---
 
@@ -42,8 +41,14 @@ O projeto utiliza **duas URLs diferentes** para o PostgreSQL:
     "start": "node api/server.js", 
     "dev": "nodemon api/server.js", 
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "DATABASE_URL=$DIRECT_URL npx prisma migrate dev --name init",
-    "prisma:studio": "DATABASE_URL=$DIRECT_URL npx prisma studio"
+    "prisma:migrate": "set DATABASE_URL=%DIRECT_URL% && npx prisma migrate dev --name init",
   }
 }
 
+| Script            | Comando                                                       | O que faz                                                                                                                |
+| ----------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `start`           | `node api/server.js`                                          | Inicia a API normalmente em modo produção ou desenvolvimento simples.                                                    |
+| `dev`             | `nodemon api/server.js`                                       | Inicia a API em modo desenvolvimento, reiniciando automaticamente ao salvar alterações.                                  |
+| `prisma:generate` | `prisma generate`                                             | Gera o **Prisma Client** após alterações no schema, permitindo que você interaja com o banco via código.                 |
+| `prisma:migrate`  | `DATABASE_URL=$DIRECT_URL npx prisma migrate dev --name init` | Executa as migrações usando a **conexão direta** (DIRECT_URL), criando ou alterando tabelas e colunas no banco de dados. |
+| `prisma:studio`   | `DATABASE_URL=$DIRECT_URL npx prisma studio`                  | Abre o **Prisma Studio**, uma interface web para visualizar, editar e gerenciar os dados do banco diretamente.           |
