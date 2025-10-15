@@ -50,5 +50,4 @@ O projeto utiliza **duas URLs diferentes** para o PostgreSQL:
 | `start`           | `node api/server.js`                                          | Inicia a API normalmente em modo produção ou desenvolvimento simples.                                                    |
 | `dev`             | `nodemon api/server.js`                                       | Inicia a API em modo desenvolvimento, reiniciando automaticamente ao salvar alterações.                                  |
 | `prisma:generate` | `prisma generate`                                             | Gera o **Prisma Client** após alterações no schema, permitindo que você interaja com o banco via código.                 |
-| `prisma:migrate`  | `DATABASE_URL=$DIRECT_URL npx prisma migrate dev --name init` | Executa as migrações usando a **conexão direta** (DIRECT_URL), criando ou alterando tabelas e colunas no banco de dados. |
-| `prisma:studio`   | `DATABASE_URL=$DIRECT_URL npx prisma studio`                  | Abre o **Prisma Studio**, uma interface web para visualizar, editar e gerenciar os dados do banco diretamente.           |
+| `prisma:migrate`  | `set DATABASE_URL=%DIRECT_URL% && npx prisma migrate dev --name init` | Executa as migrações usando a **conexão direta** (DIRECT_URL), criando ou alterando tabelas e colunas no banco de dados. |
