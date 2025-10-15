@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 // Listar todos os usuários
 const getAllUsuarios = async (req, res) => {
@@ -25,4 +25,4 @@ const createUsuario = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsuarios, createUsuario };
+export { getAllUsuarios, createUsuario };

@@ -11,7 +11,7 @@ model Usuarios {
   id              String    @id @default(uuid())
   cpf             String
   nome            String
-  data_nascimento Date
+  data_nascimento DateTime
   email           String
   senha           String
   recem_nascidos  Recem_nascidos[]
@@ -22,7 +22,7 @@ model Recem_nascidos {
   id              String    @id @default(uuid())
   id_usuario      String
   nome            String
-  data_nascimento Date
+  data_nascimento DateTime
   usuario         Usuarios  @relation(fields: [id_usuario], references: [id])
 }
 
@@ -31,6 +31,6 @@ model Notas {
   id_usuario      String
   titulo          String
   descricao       String
-  data            Date
+  data            DateTime
   usuario         Usuarios  @relation(fields: [id_usuario], references: [id])
 }
