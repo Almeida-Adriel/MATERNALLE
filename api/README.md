@@ -44,7 +44,7 @@ O projeto utiliza **duas URLs diferentes** para o PostgreSQL:
     "prisma:migrate": "set DATABASE_URL=%DIRECT_URL% && npx prisma migrate dev --name init",
   }
 }
-
+```
 | Script            | Comando                                                       | O que faz                                                                                                                |
 | ----------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | `start`           | `node api/server.js`                                          | Inicia a API normalmente em modo produção ou desenvolvimento simples.                                                    |
