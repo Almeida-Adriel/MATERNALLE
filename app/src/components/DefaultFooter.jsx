@@ -2,10 +2,18 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-pink-100 mt-auto py-6 shadow-inner">
-      <div className="container mx-auto text-center text-pink-700 font-medium">
-        &copy; {new Date().getFullYear()} MATERNALLE. Todos os direitos reservados.
-      </div>
+    <footer class="bg-white border-t border-brand-100 flex">
+        <div class="flex justify-between items-center w-full text-xs text-slate-500 py-2 px-10">
+            <div>
+                <p class="text-brand-600">© 2025 MATERNALLE. Todos os direitos reservados.</p>
+            </div>
+            <div class="-ml-14">
+                <img src="logo.png" alt="Logo Maternalle" class="h-12 w-24 mx-auto bg-white" />
+            </div>
+            <div class="text-brand-600 text-right">
+                <p>Desenvolvido por Adriel Almeida</p>
+            </div>
+        </div>
     </footer>
   );
 };

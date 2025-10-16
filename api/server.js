@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 
 // Importar rotas
 import usuariosRoutes from './routes/usuarios.js';
+import usuarioRegister from './routes/auth.js';
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.use('/usuarios', usuariosRoutes);
+app.use('/auth/register', usuarioRegister);
+app.use('/auth/login', usuarioRegister);
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

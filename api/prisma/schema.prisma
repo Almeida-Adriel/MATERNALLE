@@ -9,11 +9,11 @@ generator client {
 
 model Usuarios {
   id              String    @id @default(uuid())
-  cpf             String
   nome            String
-  data_nascimento DateTime
-  email           String
-  senha           String
+  data_nascimento DateTime  @db.Date
+  email           String    @unique
+  passwordHash    String
+  lastLoginAt      DateTime @db.Date
   recem_nascidos  Recem_nascidos[]
   notas           Notas[]
 }
@@ -22,8 +22,10 @@ model Recem_nascidos {
   id              String    @id @default(uuid())
   id_usuario      String
   nome            String
-  data_nascimento DateTime
+  data_nascimento DateTime  @db.Date
   usuario         Usuarios  @relation(fields: [id_usuario], references: [id])
+
+  @@index([id_usuario])
 }
 
 model Notas {
@@ -31,6 +33,8 @@ model Notas {
   id_usuario      String
   titulo          String
   descricao       String
-  data            DateTime
+  data            DateTime  @db.Date
   usuario         Usuarios  @relation(fields: [id_usuario], references: [id])
+
+  @@index([id_usuario])
 }
