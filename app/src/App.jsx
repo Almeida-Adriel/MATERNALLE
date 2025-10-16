@@ -23,11 +23,9 @@ function App() {
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/" element={<Home />} />
         <Route
-          path="/*"
+          path="/layout"
           element={
-            <PrivateRoute>
               <Layout />
-            </PrivateRoute>
           }
         />
       </Routes>
