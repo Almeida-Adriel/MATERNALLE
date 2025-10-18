@@ -1,14 +1,28 @@
-import React from "react";
+import React, { Suspense } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Header from "./DefaultHeader";
 import Footer from "./DefaultFooter";
+import routes from "../utils/routes";
 
-const Layout = ({ children }) => {
+const Layout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-pink-50">
       <Header />
-      {/* Espaço para outras telas */}
       <main className="flex-1 container mx-auto px-6 py-8">
-        {children}
+        <Suspense fallback={<div>Carregando...</div>}>
+          <Routes>
+            {routes.map((route, idx) => 
+              route.component ? (
+                <Route
+                  key={idx}
+                  path={route.path}
+                  element={<route.component />}
+                />
+              ) : null
+            )}
+            <Route path="/" element={<Navigate to='/Home' replace/>} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </div>
