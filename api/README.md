@@ -45,9 +45,9 @@ O projeto utiliza **duas URLs diferentes** para o PostgreSQL:
   }
 }
 ```
-| Script            | Comando                                                       | O que faz                                                                                                                |
-| ----------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `start`           | `node server.js`                                          | Inicia a API normalmente em modo produção ou desenvolvimento simples.                                                    |
-| `dev`             | `nodemon server.js`                                       | Inicia a API em modo desenvolvimento, reiniciando automaticamente ao salvar alterações.                                  |
-| `prisma:generate` | `prisma generate`                                             | Gera o **Prisma Client** após alterações no schema, permitindo que você interaja com o banco via código.                 |
-| `prisma:migrate`  | `set DATABASE_URL=%DIRECT_URL% && npx prisma migrate dev --name init` | Executa as migrações usando a **conexão direta** (DIRECT_URL), criando ou alterando tabelas e colunas no banco de dados. |
+| Script            | Comando                                                   | O que faz                                                                               |
+| ----------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `start`           | `node server.js`                                          | Inicia a API normalmente em modo produção ou desenvolvimento simples.                   |
+| `dev`             | `nodemon server.js`                                       | Inicia a API em modo desenvolvimento, reiniciando automaticamente ao salvar alterações. |
+| `prisma:generate` | `prisma generate`                                         | Gera o **Prisma Client**, permitindo que você interaja com o banco via código.          |
+| `prisma:migrate`  | `set DATABASE_URL=%DIRECT_URL% && npx prisma migrate dev --name init` | Executa as migrações usando a **conexão direta**, criando/alterando tabelas e colunas no banco de dados. |
