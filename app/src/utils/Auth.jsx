@@ -1,18 +1,27 @@
 import React from 'react';
-import { notification } from 'antd';
+import Cookies from 'js-cookie';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 class Auth {
     constructor() {
         // this.TOKEN_EXPIRATION_TIME = 6000  // 6 segundos para teste
-        this.TOKEN_EXPIRATION_TIME = 3600000 * 24 * 7 // 7 dias
+        this.TOKEN_EXPIRATION_TIME = 3600000 * 24;
+
+        this.COOKIE_EXPIRATION_DAYS = 1;
+    }
+
+    _getCookie(key) {
+        // Cookies.get() retorna undefined se o cookie não existir
+        return Cookies.get(key); 
     }
 
     isAuthenticated() {
-        let token = localStorage.getItem('token')
-        let email = localStorage.getItem('userEmail')
-        let lastLogin = localStorage.getItem('lastLogin');
+        let token = this._getCookie('token');
+        let email = this._getCookie('userEmail');
+        let lastLogin = this._getCookie('lastLogin');
 
-        let validation = (!!token && token.length > 100 && email.includes("@"))
+        let validation = (!!token && token.length > 100 && (email && email.includes("@")))
         
         // Verifica tempo de expiração
         const timeValidation = lastLogin && (Date.now() - parseInt(lastLogin)) < this.TOKEN_EXPIRATION_TIME;
@@ -27,33 +36,36 @@ class Auth {
 
     getToken() {
         if(this.isAuthenticated()){
-            return localStorage.getItem('token').toString()
+            return this._getCookie('token'); 
         }
     }
 
     saveDataLogin(data) {
         if (!!data) {
-            localStorage.setItem('token', data.token)
-            localStorage.setItem('userEmail', data.userEmail)
-            localStorage.setItem('lastLogin', Date.now().toString());
+            const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'Strict' };
+            
+            // Define o cookie com opções de segurança e tempo de vida (1 dia)
+            Cookies.set('token', data.token, options)
+            Cookies.set('userEmail', data.userEmail, options)
+            // O tempo de login deve expirar junto com o cookie
+            Cookies.set('lastLogin', Date.now().toString(), options); 
         }
     }
 
     clear(){
-        localStorage.clear()
+        Cookies.remove('token')
+        Cookies.remove('userEmail')
+        Cookies.remove('lastLogin')
     }
 
     showSessionExpiredNotification() {
-        notification.warning({
-            message: <span style={{ color: '#fa8c16' }}>Sessão Expirada</span>,
-            description: "Por questões de segurança, sua sessão foi encerrada automaticamente. Faça login novamente.",
-            placement: 'topLeft',
-            duration: 6.5,
-            style: {
-                width: 400,
-                borderLeft: '3px solid #fa8c16',
-            },
-        });
+        return (
+            <Stack sx={{ width: '100%' }} spacing={2}>
+                <Alert variant="outlined" severity="warning">
+                    Sessão Expirada: Por questões de segurança, sua sessão foi encerrada automaticamente. Faça login novamente.
+                </Alert>
+            </Stack>
+        );
     }
 }
 
