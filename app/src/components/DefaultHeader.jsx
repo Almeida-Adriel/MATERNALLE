@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import Collapse from '@mui/material/Collapse';
 import Perfil from "../../public/gravida.png";
 import Logo from "../../public/logo.png";
@@ -17,7 +16,7 @@ const auth = new Auth();
 
 const Header = () => {
 
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
     const [menu, setMenu] = useState([]);
     const [userId, setUserId] = useState(auth.getId())
 
@@ -25,6 +24,11 @@ const Header = () => {
 
     const handleClick = () => {
         setOpen(!open);
+    };
+
+    const handleLogout = () => {
+        service.logout();
+        navigate('/login');
     };
 
     useEffect(() => {
@@ -78,7 +82,7 @@ const Header = () => {
             </div>
 
             <div className="relative flex items-center gap-3">
-                {auth.isAuthenticated() ? (
+                {userId ? (
                     <ListItemButton 
                         onClick={handleClick}
                         className="p-0 min-w-0" // Remove padding e largura mínima do MUI
@@ -96,6 +100,23 @@ const Header = () => {
                         className="hidden md:inline-block px-4 py-2 rounded-full bg-brand-500 text-white hover:bg-brand-600">
                         Entrar
                     </a>
+                )}
+                {userId && (
+                    <Collapse 
+                        in={open} 
+                        timeout="auto" 
+                        unmountOnExit 
+                        className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+                    >
+                        <List component="div" disablePadding> 
+                            <ListItemButton 
+                                onClick={handleLogout}
+                                className="hover:bg-gray-100"
+                            >
+                                <ListItemText primary="Sair" />
+                            </ListItemButton>
+                        </List>
+                    </Collapse>
                 )}
             </div>
         </nav>

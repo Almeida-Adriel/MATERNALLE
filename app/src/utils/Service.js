@@ -1,9 +1,11 @@
 import axios from "axios";
+import Auth from "./Auth";
 
 // "http://localhost:5000/" // Testes locais
 // const BASE_URL = "http://srv-bd:64943/"; // Producao
 
 const BASE_URL = "http://localhost:5000/";
+const auth = new Auth();
 
 const handle401Error = (error) => {
     // Verifica se a resposta existe e se o status é 401 (Unauthorized)
@@ -81,6 +83,23 @@ class Service {
   login(email, password) {
     const data = { email, password }; 
     return publicApi.post('auth/login', data);
+  }
+  
+  async logout() {
+    try {
+        const response = await publicApi.post('auth/logout'); 
+        
+        if (response.status === 200) { 
+          auth.clear();
+          return true;
+        } 
+    } catch (error) {
+      console.error('Erro ao tentar logout:', error);
+      
+      auth.clear();
+      
+      return false;
+    }
   }
 }
 
