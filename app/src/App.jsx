@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
-import './App.css';
 import Layout from './components/DefaultLayout';
 import Cadastro from './pages/Cadastro';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Auth from './utils/Auth';
+import './App.css';
 
 const autentication = new Auth()
 

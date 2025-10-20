@@ -100,8 +100,13 @@ const Login = ({ onLoginSuccess }) => {
               Entrar
             </Button>
           </form>
+        <div className="text-center pt-4">
+          <a href="/cadastro" className="text-sm text-brand-600 hover:text-brand-800 transition duration-150">
+            Não tem uma conta? Cadastre-se
+          </a>
+        </div>
         <div className="text-center pt-2">
-          <a href="#" className="text-sm text-brand-600 hover:text-brand-800 transition duration-150">
+          <a href="/esqueci_minha_senha" className="text-sm text-brand-600 hover:text-brand-800 transition duration-150">
             Esqueceu a senha?
           </a>
         </div>
