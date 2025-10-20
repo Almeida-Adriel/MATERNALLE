@@ -1,16 +1,27 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
-import { ThemeProvider } from '@mui/material/styles';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
+import { ThemeProvider } from '@mui/material/styles';
 import customTheme from '../utils/CustomTheme';
+import Service from '../utils/Service';
+import Auth from '../utils/Auth';
 
-const Login = () => {
+const service = new Service();
+const auth = new Auth();
+
+const Login = ({ onLoginSuccess }) => {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Por favor, preencha todos os campos para continuar.');
@@ -18,8 +29,27 @@ const Login = () => {
     }
 
     setLoading(true);
+    setError('');
 
+    try {
+      const response = await service.login(email, password);
+      auth.saveDataLogin({ userEmail: response.data.userEmail });
 
+       if (onLoginSuccess) {
+          onLoginSuccess();
+        }
+
+      navigate('/dashboard', { replace: true });
+    } catch (error) {
+      const errorMessage = 
+        typeof error === 'object' && error !== null && error.error 
+        ? error.error 
+        : 'Erro ao tentar fazer login. Verifique suas credenciais.';
+      setError(errorMessage);
+    
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,6 +58,13 @@ const Login = () => {
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-center text-3xl font-semibold text-brand-700 mb-6">Login</h2>
           <form onSubmit={handleSubmit}>
+            {error && (
+                <Stack sx={{ width: '100%', mb: 2 }} spacing={2}>
+                    <Alert variant="outlined" severity="error" onClose={() => setError('')}>
+                        {error}
+                    </Alert>
+                </Stack>
+            )}
             <div className="mb-4">
               <TextField
                 id="email-input"

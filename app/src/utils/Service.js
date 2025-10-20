@@ -1,222 +1,86 @@
 import axios from "axios";
-import Auth from "/Auth";
+
 // "http://localhost:5000/" // Testes locais
-// const url = "http://srv-bd:64943/"; // Producao
+// const BASE_URL = "http://srv-bd:64943/"; // Producao
 
-const url = "http://localhost:5000/";
+const BASE_URL = "http://localhost:5000/";
 
-const autentication = new Auth();
+const handle401Error = (error) => {
+    // Verifica se a resposta existe e se o status é 401 (Unauthorized)
+    if (error.response && error.response.status === 401) {
+      console.warn("Sessão expirada ou acesso não autorizado (401). Recarregando...");
+        window.location.reload(); 
+    }
+    return Promise.reject(error.response?.data || error); 
+};
+
+const api = axios.create({
+    baseURL: BASE_URL,
+    withCredentials: true, 
+});
+
+// Adiciona o interceptor de resposta para tratar erros 401 em todas as requisições 'api'
+api.interceptors.response.use(
+    (response) => response,
+    handle401Error
+);
+
+// Instância para Requisições PÚBLICAS (Login/Cadastro)
+const publicApi = axios.create({
+    baseURL: BASE_URL,
+    withCredentials: true, // Ainda é bom para receber o cookie de login
+});
+publicApi.interceptors.response.use(
+    (response) => response,
+    (error) => Promise.reject(error.response?.data || error)
+);
 
 class Service {
   get(rota, id) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}/${!!id ? `${id}` : ""}`;
-      axios
-        .get(path, {
-          headers: {
-            Authorization: "Bearer ".concat(autentication.getToken()),
-          },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject();
-        });
-    });
-  }
-
-  getUrlParam(rota, param, filter) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}/${
-        !!param && !!filter ? `?${param}=${filter}` : ""
-      }`;
-      axios
-        .get(path, {
-          headers: {
-            Authorization: "Bearer ".concat(autentication.getToken()),
-          },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject();
-        });
-    });
-  }
-
-  postUrlParam(rota, param, filter) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}/${
-        !!param && !!filter ? `?${param}=${filter}` : ""
-      }`;
-      axios
-        .post(path, null, {
-          headers: { Authorization: `Bearer ${autentication.getToken()}` },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject();
-        });
-    });
-  }
-
-  postParam(rota, param) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}/${!!param ? `?${param}` : ""}`;
-      axios
-        .post(path, null, {
-          headers: { Authorization: `Bearer ${autentication.getToken()}` },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject();
-        });
-    });
+    const path = id ? `${rota}?id=${id}` : rota; 
+    return api.get(path);
   }
 
   post(rota, data) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}`;
-      axios
-        .post(path, data, {
-          headers: { Authorization: `Bearer ${autentication.getToken()}` },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject(error.response && error.response.data ? error.response.data : error);
-        });
+    return api.post(rota, data);
+  }
+
+  put(rota, data) {
+    return api.put(rota, data);
+  }
+
+  delete(rota, id) {
+    const path = id ? `${rota}/${id}` : rota;
+    return api.delete(path);
+  }
+
+  requestWithParams(method, rota, params = {}) {
+    return api.request({
+        method: method,
+        url: rota,
+        params: params, // Axios formata automaticamente como ?param1=valor1&param2=valor2
+    });
+  }
+
+  getWithParams(rota, params = {}) {
+    return this.requestWithParams('get', rota, params);
+  }
+
+  deleteWithParams(rota, params = {}) {
+    return api.request({
+        method: 'delete',
+        url: rota,
+        params: params // Parâmetros vão para a URL: /rota?id=5
     });
   }
 
   postNoAuth(rota, data) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}`;
-      axios
-        .post(path, data)
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject();
-        });
-    });
+    return publicApi.post(rota, data);
   }
 
-  put(rota, data) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}`;
-      axios
-        .put(path, data, {
-          headers: {
-            Authorization: "Bearer ".concat(autentication.getToken()),
-          },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject(error.response && error.response.data ? error.response.data : error);
-        });
-    });
-  }
-
-  delete(rota, param, filter) {
-    return new Promise((resolve, reject) => {
-      const path = `${url}/${rota}/${
-        !!param && !!filter ? `?${param}=${filter}` : ""
-      }`;
-      axios
-        .delete(path, {
-          headers: {
-            Authorization: "Bearer ".concat(autentication.getToken()),
-          },
-        })
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            if (error.response.status === "401") {
-              localStorage.clear();
-              window.location.reload();
-            }
-          }
-          reject();
-        });
-    });
-  }
-
-  login(user, pass) {
-    return new Promise((resolve, reject) => {
-      const bodyParams = {
-        grant_type: "password",
-        username: user,
-        password: pass,
-      };
-
-      const qs = require("qs");
-      const path = `${url}token`;
-
-      axios
-        .post(path, qs.stringify(bodyParams))
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          autentication.clear();
-          reject(error);
-        });
-    });
+  login(email, password) {
+    const data = { email, password }; 
+    return publicApi.post('auth/login', data);
   }
 }
 

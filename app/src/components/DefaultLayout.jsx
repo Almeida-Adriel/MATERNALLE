@@ -6,12 +6,12 @@ import routes from "../utils/routes";
 
 const Layout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-pink-50">
+    <div className="flex flex-col min-h-screen bg-gradient-to-t from-white via-brand-100 to-from-white">
       <Header />
-      <main className="flex-1 container mx-auto px-6 py-8">
+      <main className="flex-grow container mx-auto px-6 py-8">
         <Suspense fallback={<div>Carregando...</div>}>
           <Routes>
-            {routes.map((route, idx) => 
+            {routes.map((route, idx) =>
               route.component ? (
                 <Route
                   key={idx}
@@ -20,7 +20,7 @@ const Layout = () => {
                 />
               ) : null
             )}
-            <Route path="/" element={<Navigate to='/Home' replace/>} />
+            <Route path="/*" element={<Navigate to="/dasboard" replace />} />
           </Routes>
         </Suspense>
       </main>

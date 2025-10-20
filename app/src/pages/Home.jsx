@@ -19,12 +19,8 @@ const Home = () => {
                         feito para a rotina da mãe recente.
                     </p>
                     <div className="mt-6 flex gap-3">
-                        <a className="px-5 py-3 rounded-full bg-brand-500 text-white hover:bg-brand-600" href="#">
+                        <a className="px-5 py-3 rounded-full bg-brand-500 text-white hover:bg-brand-600" href="/login">
                             Começar agora
-                        </a>
-                        <a className="px-5 py-3 rounded-full border border-brand-300 text-brand-700 hover:bg-brand-100"
-                            href="#">
-                            Ver conteúdos
                         </a>
                     </div>
                 </div>

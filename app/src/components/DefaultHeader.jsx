@@ -1,30 +1,102 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Collapse from '@mui/material/Collapse';
+import Perfil from "../../public/gravida.png";
+import Logo from "../../public/logo.png";
+import Auth from "../utils/Auth";
+import Service from "../utils/Service";
+import clienteMenu from "../menu/cliente";
+import adminMenu from "../menu/admin";
+
+const service = new Service();
+const auth = new Auth();
 
 const Header = () => {
+
+    const [open, setOpen] = useState(true);
+    const [menu, setMenu] = useState([]);
+    const [userId, setUserId] = useState(auth.getId())
+
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        setOpen(!open);
+    };
+
+    useEffect(() => {
+        if (!auth.isAuthenticated() || !userId) {
+            // Se não estiver autenticado, define um menu padrão ou sai.
+            setMenu(clienteMenu.menu); 
+            return;
+        }
+
+        const fetchUserRole = async () => {
+            try {
+                const response = await service.get('/usuario', userId); 
+                
+                const role = response.data?.role;
+                
+                switch (role) {
+                    case 'admin':
+                        setMenu(adminMenu.menu);
+                        break;
+                    case 'cliente':
+                        setMenu(clienteMenu.menu);
+                        break;
+                    default:
+                        setMenu(clienteMenu.menu);
+                        break;
+                }
+            } catch (error) {
+                console.error("Erro ao buscar perfil do usuário:", error);
+                setMenu(clienteMenu.menu);
+            }
+        };
+
+        fetchUserRole();
+        
+    }, [userId]);
+
   return (
-    <header className="bg-white/80 backdrop-blur border-b border-brand-100 sticky top-0 z-50">
-        <nav className="max-w-6xl mx-auto flex items-center justify-between p-4">
-            <a href="#" className="flex items-center gap-2">
-                <span className="inline-block h-8 w-8 rounded-full bg-brand-500"></span>
-                <span className="font-semibold text-brand-700">Maternalle</span>
-            </a>
-
-            <div className="hidden md:flex items-center gap-6">
-                <a className="hover:text-brand-700" href="#">Início</a>
-                <a className="hover:text-brand-700" href="#">Conteúdos</a>
-                <a className="hover:text-brand-700" href="#">Postos de Saúde</a>
-                <a className="hover:text-brand-700" href="#">Escala de Edimburgo</a>
-            </div>
-
-            <div className="flex items-center gap-3">
-                <button className="md:hidden p-2 rounded hover:bg-brand-100" id="menuBtn" aria-label="Abrir menu">
+    <header className="bg-brand-50/10 backdrop-blur border-b border-brand-100 sticky top-0 z-50">
+        <nav className="max-w mx-auto flex items-center justify-between px-10 py-1">
+            <div className="flex gap-6">
+                <button className="cursor-pointer">
                     ☰
                 </button>
-                <a href="#login"
-                    className="hidden md:inline-block px-4 py-2 rounded-full bg-brand-500 text-white hover:bg-brand-600">
-                    Entrar
-                </a>
+                <Link to={`${userId ? '/dasboard' : '/'}`} className="flex items-center">
+                    <img 
+                        src={Logo} 
+                        alt="Perfil" 
+                        className="h-12 w-22 cursor-pointer"
+                    />
+                </Link>
+            </div>
+
+            <div className="relative flex items-center gap-3">
+                {auth.isAuthenticated() ? (
+                    <ListItemButton 
+                        onClick={handleClick}
+                        className="p-0 min-w-0" // Remove padding e largura mínima do MUI
+                        style={{ padding: 0, minWidth: 0, width: 'auto' }} 
+                    >
+                        <img 
+                            src={Perfil} 
+                            alt="Perfil" 
+                            className="h-10 w-10 rounded-full border border-brand-300 cursor-pointer"
+                        />
+                    </ListItemButton>
+                ) : (
+                    // Exibe o botão Entrar se não estiver autenticado
+                    <a href="/login"
+                        className="hidden md:inline-block px-4 py-2 rounded-full bg-brand-500 text-white hover:bg-brand-600">
+                        Entrar
+                    </a>
+                )}
             </div>
         </nav>
 
