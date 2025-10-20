@@ -81,16 +81,19 @@ const loginUser = async (req, res) => {
 
         const maxAge = 1000 * 60 * 60 * 24; // 1 dia em milissegundos
 
-        const cookieOptions = {
+        res.cookie('token', token, {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
             maxAge: maxAge, // Tempo de vida do cookie
             secure: process.env.NODE_ENV === 'production', // Use 'true' em produção (HTTPS)
             sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
-        };
+        });
 
-        res.cookie('token', token, cookieOptions);
-
-        res.cookie('userId', user.id, cookieOptions);
+        res.cookie('userId', user.id, {
+            httpOnly: false, // Pode ser acessado via JavaScript
+            maxAge: maxAge, // Tempo de vida do cookie
+            secure: process.env.NODE_ENV === 'production', // Use 'true' em produção (HTTPS)
+            sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
+        });
 
         await prisma.usuarios.update({
             where: { id: user.id },
@@ -113,6 +116,12 @@ const logoutUser = async (req, res) => {
     res.cookie('token', '', {
         httpOnly: true,
         expires: new Date(0), // Data no passado
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+    });
+    res.cookie('userId', '', { 
+        httpOnly: true,
+        expires: new Date(0),
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'Lax',
     });
