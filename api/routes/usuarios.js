@@ -1,9 +1,10 @@
 import express from 'express';
-import { getAllUsuarios, createUsuario } from '../controllers/usuarios.js';
+import { getAllUsuarios, getUsuario } from '../controllers/usuarios.js';
+import authMiddleware from '../utils/middleaware.js';
 
 const router = express.Router();
 
-router.get('/', getAllUsuarios);
-router.post('/', createUsuario);
+router.get('/', authMiddleware, getAllUsuarios);
+router.get('/usuario', authMiddleware, getUsuario);
 
 export default router;

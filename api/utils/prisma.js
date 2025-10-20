@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
-// Prefer DIRECT_URL (used by prisma schema/migrations). Fall back to DATABASE_URL for runtime.
-const connectionUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+const connectionUrl = process.env.DATABASE_URL;
 
 if (!connectionUrl) {
   throw new Error(

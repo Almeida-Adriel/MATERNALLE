@@ -1,40 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DIRECT_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 model Usuarios {
-  id              String    @id @default(uuid())
+  id              String           @id @default(uuid())
   nome            String
-  data_nascimento DateTime  @db.Date
-  email           String    @unique
+  data_nascimento DateTime         @db.Date
+  email           String           @unique
+  lastLoginAt     DateTime         @db.Date
   passwordHash    String
-  lastLoginAt      DateTime @db.Date
-  recem_nascidos  Recem_nascidos[]
+  endereco        String?
+  role            Role             @default(CLIENTE)
+  telefone        String?
   notas           Notas[]
+  recem_nascidos  Recem_nascidos[]
 }
 
 model Recem_nascidos {
-  id              String    @id @default(uuid())
+  id              String   @id @default(uuid())
   id_usuario      String
   nome            String
-  data_nascimento DateTime  @db.Date
-  usuario         Usuarios  @relation(fields: [id_usuario], references: [id])
+  data_nascimento DateTime @db.Date
+  usuario         Usuarios @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }
 
 model Notas {
-  id              String    @id @default(uuid())
-  id_usuario      String
-  titulo          String
-  descricao       String
-  data            DateTime  @db.Date
-  usuario         Usuarios  @relation(fields: [id_usuario], references: [id])
+  id         String   @id @default(uuid())
+  id_usuario String
+  titulo     String
+  descricao  String
+  data       DateTime @db.Date
+  usuario    Usuarios @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
+}
+
+enum Role {
+  CLIENTE
+  ADMIN
 }

@@ -68,22 +68,40 @@ const loginUser = async (req, res) => {
 
     try {
         const secretKey = process.env.SECRET_KEY;
+        const expirationTime = '1d';
+
         const token = jwt.sign(
             {
                 id: user.id,
                 email: user.email,
-                lastLogin: Date.now(),
             },
             secretKey,
-            { expiresIn: '7d' }
+            { expiresIn: expirationTime }
         );
+
+        const maxAge = 1000 * 60 * 60 * 24; // 1 dia em milissegundos
+
+        const cookieOptions = {
+            httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
+            maxAge: maxAge, // Tempo de vida do cookie
+            secure: process.env.NODE_ENV === 'production', // Use 'true' em produção (HTTPS)
+            sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
+        };
+
+        res.cookie('token', token, cookieOptions);
+
+        res.cookie('userId', user.id, cookieOptions);
 
         await prisma.usuarios.update({
             where: { id: user.id },
             data: { lastLoginAt: new Date() }
         });
 
-        return res.status(200).json({ message: 'Autenticação realizada com sucesso!', token, userEmail: user.email });
+        return res.status(200).json({
+            message: 'Autenticação realizada com sucesso!', 
+            userEmail: user.email,
+            id: user.id 
+        });
     }
     catch (error) {
         console.log(error);
@@ -91,4 +109,15 @@ const loginUser = async (req, res) => {
     }
 }
 
-export { register, loginUser };
+const logoutUser = async (req, res) => {
+    res.cookie('token', '', {
+        httpOnly: true,
+        expires: new Date(0), // Data no passado
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+    });
+
+    return res.status(200).json({ message: 'Logout realizado com sucesso!' });
+}
+
+export { register, loginUser, logoutUser };

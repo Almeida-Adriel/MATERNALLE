@@ -12,17 +12,38 @@ const getAllUsuarios = async (req, res) => {
   }
 };
 
-// Criar um usuário
-const createUsuario = async (req, res) => {
-  const { cpf, nome, data_nascimento, email, senha } = req.body;
+const getUsuario = async (req, res) => {
   try {
-    const usuario = await prisma.usuarios.create({
-      data: { cpf, nome, data_nascimento, email, senha }
+    const idDoUsuario = req.query.id; 
+
+    if (!idDoUsuario) {
+        return res.status(400).json({ error: 'ID do usuário não fornecido na query.' });
+    }
+
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id: idDoUsuario },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        data_nascimento: true,
+        lastLoginAt: true,
+        telefone: true,
+        endereco: true,
+        role: true,
+        recem_nascidos: true,
+        notas: true
+      }
     });
-    res.status(201).json(usuario);
+
+    if (!usuario) {
+        return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+    res.status(200).json(usuario);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error(error); 
+    res.status(500).json({ error: error.message || 'Erro interno do servidor.' });
   }
 };
 
-export { getAllUsuarios, createUsuario };
+export { getAllUsuarios, getUsuario };
