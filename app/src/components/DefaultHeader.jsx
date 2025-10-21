@@ -5,7 +5,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import Perfil from "../../public/gravida.png";
-import Logo from "../../public/logo.png";
+import Logo from "../../public/maternalle.png";
 import Auth from "../utils/Auth";
 import Service from "../utils/Service";
 import clienteMenu from "../menu/cliente";
@@ -76,7 +76,7 @@ const Header = () => {
                     <img 
                         src={Logo} 
                         alt="Perfil" 
-                        className="h-12 w-22 cursor-pointer"
+                        className="h-10 w-30 cursor-pointer"
                     />
                 </Link>
             </div>
