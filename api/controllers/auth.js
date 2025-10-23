@@ -1,9 +1,19 @@
 import prisma from '../utils/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+const { cpf } = require('cpf-cnpj-validator');
 
 const register = async (req, res) => {
-    const { nome, data_nascimento, email, password, confirmPassword } = req.body;
+    const { 
+        nome, 
+        data_nascimento,
+        cpf, 
+        email, 
+        password, 
+        confirmPassword,
+        perfil,
+        filhos = [] 
+    } = req.body;
 
     switch (true) {
         case !nome:
@@ -12,18 +22,34 @@ const register = async (req, res) => {
             return res.status(422).json({ error: 'Data de nascimento é obrigatória' });
         case !email:
             return res.status(422).json({ error: 'Email é obrigatório' });
+        case !cpf.isValid(cpf):
+            return res.status(422).json({ error: 'cpf é invalido' });
         case !password:
             return res.status(422).json({ error: 'Senha é obrigatória' });
         case password !== confirmPassword:
             return res.status(422).json({ error: 'As senhas não conferem!' });
+        case !perfil:
+            return res.status(422).json({ error: 'Dados de perfil são obrigatórios!' });
+        case !perfil.tipoPerfil || !perfil.role || !perfil.data_expiracao:
+            return res.status(422).json({ error: 'Os campos tipoPerfil, role e data_expiracao são obrigatórios no Perfil.' });
         default:
             break;
     }
 
-    const userExists = await prisma.usuarios.findUnique({ where: { email } });
+    for (const filho of filhos) {
+        if (!filho.cpf) {
+            return res.status(422).json({ error: `O CPF do filho(a) ${filho.nome || ''} é obrigatório.` });
+        }
+        
+        if (!cpf.isValid(filho.cpf)) { 
+            return res.status(422).json({ error: `O CPF "${filho.cpf}" do filho(a) ${filho.nome || '' } é inválido.` });
+        }
+    }
+
+    const userExists = await prisma.usuarios.findUnique({ where: { cpf } });
 
     if (userExists) {
-        return res.status(422).json({ error: 'Por favor, utilize outro e-mail!' });
+        return res.status(422).json({ error: 'Por favor, utilize outro cpf!' });
     }
 
     const salt = await bcrypt.genSalt(12);
@@ -33,15 +59,41 @@ const register = async (req, res) => {
         const user = await prisma.usuarios.create({
             data: {
                 nome,
+                cpf,
                 data_nascimento: new Date(data_nascimento),
                 email,
                 passwordHash: hashed,
-                lastLoginAt: new Date()
+                lastLoginAt: new Date(),
+                endereco,
+                telefone,
+                Perfil: {
+                    create: {
+                        tipoPerfil: perfil.tipoPerfil,
+                        role: perfil.role,
+                        data_expiracao: new Date(perfil.data_expiracao),
+                    }
+                },
+                Filhos: {
+                    createMany: {
+                        data: filhos.map(filho => ({
+                            nome: filho.nome,
+                            cpf: filho.cpf,
+                            data_nascimento: new Date(filho.data_dascimento),
+                        })),
+                    }
+                }
+            },
+            include: {
+                Perfil: true,
+                Filhos: true,
             }
         });
-        return res.status(201).json({ message: 'Usuário criado com sucesso!', id: user.id });
+        return res.status(201).json({ message: 'Usuário criado com sucesso!', usario: user });
     } catch (error) {
         console.log(error);
+        if (error.code === 'P2002' && error.meta?.target.includes('cpf')) {
+            return res.status(409).json({ error: 'Um dos CPFs dos filhos já está cadastrado.' });
+        }
         return res.status(500).json({ error: 'Aconteceu um erro no servidor, tente novamente mais tarde!' });
     }
 }
