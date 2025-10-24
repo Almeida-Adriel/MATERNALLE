@@ -21,6 +21,7 @@ const Cadastro = () => {
   const [form, setForm] = useState({
     nome: "",
     email: "",
+    cpf: "",
     telefone: "",
     endereco: "",
     dataNascimento: "",
@@ -29,8 +30,12 @@ const Cadastro = () => {
   });
 
   const [filhos, setFilhos] = useState([
-    { nome: "", dataNascimento: "" },
+    { nome: "", dataNascimento: "" , cpf: ""},
   ]);
+
+  const [perfil, setPerfil] = useState([
+    { tipoPerfil: "", role: "" }
+  ])
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

@@ -1,14 +1,17 @@
 import prisma from '../utils/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-const { cpf } = require('cpf-cnpj-validator');
+import { cpf as cpfValidador } from 'cpf-cnpj-validator';
+import { tipoPerfil } from '@prisma/client';
 
 const register = async (req, res) => {
     const { 
         nome, 
         data_nascimento,
         cpf, 
-        email, 
+        email,
+        endereco,
+        telefone, 
         password, 
         confirmPassword,
         perfil,
@@ -22,8 +25,12 @@ const register = async (req, res) => {
             return res.status(422).json({ error: 'Data de nascimento é obrigatória' });
         case !email:
             return res.status(422).json({ error: 'Email é obrigatório' });
-        case !cpf.isValid(cpf):
-            return res.status(422).json({ error: 'cpf é invalido' });
+        case !endereco:
+            return res.status(422).json({ error: 'Endereço é obrigatório' });
+        case !telefone:
+            return res.status(422).json({ error: 'Telefone é obrigatório' });
+        case !cpfValidador.isValid(cpf):
+            return res.status(422).json({ error: 'Cpf é invalido' });
         case !password:
             return res.status(422).json({ error: 'Senha é obrigatória' });
         case password !== confirmPassword:
@@ -41,7 +48,7 @@ const register = async (req, res) => {
             return res.status(422).json({ error: `O CPF do filho(a) ${filho.nome || ''} é obrigatório.` });
         }
         
-        if (!cpf.isValid(filho.cpf)) { 
+        if (!cpfValidador.isValid(filho.cpf)) { 
             return res.status(422).json({ error: `O CPF "${filho.cpf}" do filho(a) ${filho.nome || '' } é inválido.` });
         }
     }
@@ -92,22 +99,22 @@ const register = async (req, res) => {
     } catch (error) {
         console.log(error);
         if (error.code === 'P2002' && error.meta?.target.includes('cpf')) {
-            return res.status(409).json({ error: 'Um dos CPFs dos filhos já está cadastrado.' });
+            return res.status(409).json({ error: 'Um CPF já está cadastrado (usuário ou filho).' });
         }
         return res.status(500).json({ error: 'Aconteceu um erro no servidor, tente novamente mais tarde!' });
     }
 }
 
 const loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { cpf, password } = req.body;
 
-    if (!email) {
-        return res.status(422).json({ error: 'O email é obrigatório!' });
+    if (!cpfValidador.isValid(cpf)) {
+        return res.status(422).json({ error: 'O cpf é obrigatório!' });
     }
     if (!password) {
         return res.status(422).json({ error: 'A senha é obrigatória!' });
     }
-    const user = await prisma.usuarios.findUnique({ where: { email } });
+    const user = await prisma.usuarios.findUnique({ where: { cpf } });
 
     if (!user) {
         return res.status(404).json({ error: 'Usuário não encontrado!' });
@@ -125,7 +132,7 @@ const loginUser = async (req, res) => {
         const token = jwt.sign(
             {
                 id: user.id,
-                email: user.email,
+                cpf: user.cpf,
             },
             secretKey,
             { expiresIn: expirationTime }
@@ -154,7 +161,7 @@ const loginUser = async (req, res) => {
 
         return res.status(200).json({
             message: 'Autenticação realizada com sucesso!', 
-            userEmail: user.email,
+            userCpf: user.cpf,
             id: user.id 
         });
     }

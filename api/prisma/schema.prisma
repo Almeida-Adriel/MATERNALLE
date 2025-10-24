@@ -8,49 +8,49 @@ datasource db {
 }
 
 model Usuarios {
-  id              String           @id @default(uuid())
-  nome            String
-  cpf             String           @unique
-  data_nascimento DateTime         @db.Date
-  email           String  
-  lastLoginAt     DateTime         @db.Date
-  passwordHash    String
-  endereco        String
-  telefone        String
-  Perfil          Perfil?
-  notas           Notas[]
-  filhos          Filhos[]
+  id                String           @id @default(uuid())
+  nome              String
+  cpf               String           @unique
+  data_nascimento   DateTime         @db.Date
+  email             String  
+  lastLoginAt       DateTime         @db.Date
+  passwordHash      String
+  endereco          String
+  telefone          String
+  Perfil            Perfil?
+  notas             Notas[]
+  filhos            Filhos[]
 }
 
 model Perfil {
-  id              String          @id @default(uuid())
-  id_usuario      String          @unique
-  tipoPerfil      tipoPerfil
-  role            role
-  data_expiracao  DateTime        @db.Date
-  usuario         Usuarios        @relation(fields: [id_usuario], references: [id])
+  id                String          @id @default(uuid())
+  id_usuario        String          @unique
+  tipoPerfil        tipoPerfil
+  role              role
+  data_expiracao    DateTime?        @db.Date
+  usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }
 
 model Filhos {
-  id              String          @id @default(uuid())
-  id_usuario      String          
-  cpf             String          @unique
-  nome            String
-  data_nascimento DateTime        @db.Date
-  usuario         Usuarios        @relation(fields: [id_usuario], references: [id])
+  id                String          @id @default(uuid())
+  id_usuario        String          
+  cpf               String          @unique
+  nome              String
+  data_nascimento   DateTime        @db.Date
+  usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }
 
 model Notas {
-  id         String               @id @default(uuid())
-  id_usuario String               
-  titulo     String
-  descricao  String
-  data       DateTime             @db.Date
-  usuario    Usuarios             @relation(fields: [id_usuario], references: [id])
+  id                String               @id @default(uuid())
+  id_usuario        String               
+  titulo            String
+  descricao         String
+  data              DateTime             @db.Date
+  usuario           Usuarios             @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }
