@@ -6,8 +6,8 @@ import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import { ThemeProvider } from '@mui/material/styles';
 import customTheme from '../utils/CustomTheme';
-import Service from '../utils/Service';
-import Auth from '../utils/Auth';
+import Service from '../utils/service/Service';
+import Auth from '../utils/service/Auth';
 
 const service = new Service();
 const auth = new Auth();

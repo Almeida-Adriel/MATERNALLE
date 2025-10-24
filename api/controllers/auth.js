@@ -62,6 +62,23 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(12);
     const hashed = await bcrypt.hash(password, salt);
 
+    let dataExpiracao;
+    const hoje = new Date();
+
+    switch (perfil.tipoPerfil) {
+        case 'BASICO':
+            dataExpiracao = null;
+            break;
+        case 'PREMIUM':
+            dataExpiracao = new Date(hoje.setMonth(hoje.getMonth() + 1));
+            break;
+        case 'PREMIUM_ANUAL':
+            dataExpiracao = new Date(hoje.setFullYear(hoje.getFullYear() + 1));
+            break;
+        default:
+            return res.status(422).json({ error: 'Perfil inválido!' });
+    }
+
     try {
         const user = await prisma.usuarios.create({
             data: {
@@ -77,7 +94,7 @@ const register = async (req, res) => {
                     create: {
                         tipoPerfil: perfil.tipoPerfil,
                         role: perfil.role,
-                        data_expiracao: new Date(perfil.data_expiracao),
+                        data_expiracao: dataExpiracao,
                     }
                 },
                 Filhos: {
@@ -123,6 +140,15 @@ const loginUser = async (req, res) => {
 
     if (!checkPassword) {
         return res.status(422).json({ error: 'Senha inválida!' });
+    }
+
+    if (user.Perfil && user.Perfil.data_expiracao) {
+        const hoje = new Date();
+        const dataExpiracao = new Date(user.Perfil.data_expiracao);
+        
+        if (dataExpiracao < hoje) {
+            return res.status(401).json({ error: 'O seu perfil expirou. Renove sua assinatura!' });
+        }
     }
 
     try {

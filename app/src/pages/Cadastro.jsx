@@ -7,10 +7,12 @@ import Stack from "@mui/material/Stack";
 import IconButton from "@mui/material/IconButton";
 import { ThemeProvider } from "@mui/material/styles";
 import customTheme from "../utils/CustomTheme";
-import Service from "../utils/Service";
-import Auth from "../utils/Auth";
+import Service from "../utils/service/Service";
+import Auth from "../utils/service/Auth";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import mascaraCPF from '../utils/mascaras/mascaraCPF'
+import mascaraTel from '../utils/mascaras/mascaraTel'
 
 const service = new Service();
 const auth = new Auth();
@@ -33,9 +35,10 @@ const Cadastro = () => {
     { nome: "", dataNascimento: "" , cpf: ""},
   ]);
 
-  const [perfil, setPerfil] = useState([
-    { tipoPerfil: "", role: "" }
-  ])
+  const [perfil, setPerfil] = useState({
+    tipoPerfil: "", 
+    role: "",
+  })
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -104,6 +107,10 @@ const Cadastro = () => {
         dataNascimento: form.dataNascimento,
         senha: form.senha,
         comfirmarSenha: form.confirmarSenha,
+        perfil: {
+          tipoPerfil: perfil.tipoPerfil,
+          role: perfil.role
+        },
         filhos: filhos
           .filter((f) => f.nome && f.dataNascimento)
           .map((f) => ({ nome: f.nome.trim(), dataNascimento: f.dataNascimento })),
@@ -111,16 +118,14 @@ const Cadastro = () => {
 
       const response = await service.post("/auth/register", payload);
 
-      // Se sua API já autentica no cadastro e retorna dados do usuário, salve se fizer sentido:
-      if (response?.data?.userEmail) {
-        auth.saveDataLogin({ userEmail: response.data.userEmail });
+      if (response?.data) {
+        auth.saveDataLogin(response.data);
       }
 
       setSuccess("Cadastro realizado com sucesso!");
-      // Redireciona para login (ou dashboard, se preferir)
       setTimeout(() => {
         navigate("/login", { replace: true });
-      }, 800);
+      }, 400);
     } catch (err) {
       const errorMessage =
         typeof err === "object" && err !== null && err.error
@@ -186,11 +191,21 @@ const Cadastro = () => {
                 autoComplete="email"
               />
               <TextField
+                label="CPF"
+                type="text"
+                fullWidth
+                value={form.cpf}
+                onChange={(e) => handleChange("cpf", mascaraCPF(e.target.value))}
+                required
+                color="primary"
+                autoComplete="cpf"
+              />
+              <TextField
                 label="Telefone"
-                type="tel"
+                type="tel" 
                 fullWidth
                 value={form.telefone}
-                onChange={(e) => handleChange("telefone", e.target.value)}
+                onChange={(e) => handleChange("telefone", mascaraTel(e.target.value))}
                 required
                 color="primary"
                 autoComplete="tel"
@@ -259,6 +274,16 @@ const Cadastro = () => {
                   className="grid grid-cols-1 md:grid-cols-[1fr_220px_48px] gap-3 items-center"
                 >
                   <TextField
+                    label="CPF"
+                    
+                    fullWidth
+                    value={filho.cpf}
+                    onChange={(e) =>
+                      handleFilhoChange(idx, "cpf", e.target.value)
+                    }
+                    color="primary"
+                  />
+                  <TextField
                     label={`Nome do filho(a) ${idx + 1}`}
                     fullWidth
                     value={filho.nome}
@@ -275,7 +300,6 @@ const Cadastro = () => {
                       handleFilhoChange(idx, "dataNascimento", e.target.value)
                     }
                     color="primary"
-                    InputLabelProps={{ shrink: true }}
                   />
                   <IconButton
                     aria-label="remover"
