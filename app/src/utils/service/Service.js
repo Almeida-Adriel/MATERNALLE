@@ -80,8 +80,8 @@ class Service {
     return publicApi.post(rota, data);
   }
 
-  login(email, password) {
-    const data = { email, password }; 
+  login(cpf, password) {
+    const data = { cpf, password }; 
     return publicApi.post('auth/login', data);
   }
   

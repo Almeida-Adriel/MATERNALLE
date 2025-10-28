@@ -7,10 +7,11 @@ import cookieParser from 'cookie-parser';
 // Importar rotas
 import authRoutes from './routes/auth.js';
 import usuarios from './routes/usuarios.js';
+import esqueciMinhaSenha from './routes/esqueci_minha_senha.js';
 
 const app = express();
 
-const whitelist = ['https://site.com', 'http://localhost:5000', 'http://localhost:5173'];
+const whitelist = ['https://site.com', 'http://localhost:5173', 'http://localhost:5174'];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -29,6 +30,6 @@ app.use(cookieParser());
 
 app.use('/auth', authRoutes);
 app.use('/', usuarios);
-
+app.use('/', esqueciMinhaSenha)
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

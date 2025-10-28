@@ -55,6 +55,14 @@ model Notas {
   @@index([id_usuario])
 }
 
+model RecoveryCode {
+  id        String   @id @default(uuid())
+  email     String
+  code      String   @db.VarChar(5)
+  expiresAt DateTime @db.Date
+  createdAt DateTime @default(now()) @db.Date
+}
+
 enum role {
   CLIENTE
   ADMIN

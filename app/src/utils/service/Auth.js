@@ -7,15 +7,13 @@ class Auth {
     }
 
     _getCookie(key) {
-        // Cookies.get() retorna undefined se o cookie não existir
         return Cookies.get(key); 
     }
 
     isAuthenticated() {
-        let email = this._getCookie('userEmail') || localStorage.getItem('userEmail'); 
+        let id = this._getCookie('userId'); 
 
-        let validation = (!!email && email.includes("@"));
-        return validation;
+        return id;
     }
 
     getToken() {
@@ -34,13 +32,11 @@ class Auth {
     saveDataLogin(data) {
         if (!!data) {
             const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'Strict' };
-            Cookies.set('userEmail', data.userEmail, options)
-            Cookies.set('userID', data.id, options)
+            Cookies.set('userId', data.userId, options)
         }
     }
 
     clear(){
-        Cookies.remove('userEmail')
         Cookies.remove('userId')
     }
 }

@@ -4,11 +4,11 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-import { ThemeProvider } from '@mui/material/styles';
-import customTheme from '../utils/CustomTheme';
 import Service from '../utils/service/Service';
 import Auth from '../utils/service/Auth';
 import mascaraCpf from "../utils/mascaras/mascaraCPF";
+import customTheme from '../utils/CustomTheme';
+import { ThemeProvider } from '@mui/material/styles';
 
 const service = new Service();
 const auth = new Auth();
@@ -66,7 +66,7 @@ const Login = () => {
               <TextField
                 id="cpf-input"
                 label="CPF"
-                type="cpf"
+                type="text"
                 fullWidth
                 value={cpf}
                 onChange={(e) => setCpf(mascaraCpf(e.target.value))}

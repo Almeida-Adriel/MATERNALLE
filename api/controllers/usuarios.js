@@ -4,7 +4,7 @@ import prisma from '../utils/prisma.js';
 const getAllUsuarios = async (req, res) => {
   try {
     const usuarios = await prisma.usuarios.findMany({
-      include: { recem_nascidos: true, notas: true }
+      include: { filhos: true, notas: true }
     });
     res.json(usuarios);
   } catch (error) {
@@ -25,13 +25,14 @@ const getUsuario = async (req, res) => {
       select: {
         id: true,
         nome: true,
+        cpf: true,
         email: true,
         data_nascimento: true,
         lastLoginAt: true,
         telefone: true,
         endereco: true,
-        role: true,
-        recem_nascidos: true,
+        Perfil: true,
+        filhos: true,
         notas: true
       }
     });

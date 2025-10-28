@@ -2,7 +2,6 @@ import prisma from '../utils/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { cpf as cpfValidador } from 'cpf-cnpj-validator';
-import { tipoPerfil } from '@prisma/client';
 
 const register = async (req, res) => {
     const { 
@@ -30,25 +29,33 @@ const register = async (req, res) => {
         case !telefone:
             return res.status(422).json({ error: 'Telefone é obrigatório' });
         case !cpfValidador.isValid(cpf):
-            return res.status(422).json({ error: 'Cpf é invalido' });
+            return res.status(422).json({ error: 'Cpf do cliente é invalido' });
         case !password:
             return res.status(422).json({ error: 'Senha é obrigatória' });
         case password !== confirmPassword:
             return res.status(422).json({ error: 'As senhas não conferem!' });
         case !perfil:
             return res.status(422).json({ error: 'Dados de perfil são obrigatórios!' });
-        case !perfil.tipoPerfil || !perfil.role || !perfil.data_expiracao:
+        case !perfil.tipoPerfil || !perfil.role:
             return res.status(422).json({ error: 'Os campos tipoPerfil, role e data_expiracao são obrigatórios no Perfil.' });
         default:
             break;
     }
 
     for (const filho of filhos) {
-        if (!filho.cpf) {
+        if (!filho.nome) {
+            return res.status(422).json({ error: "O nome do filho(a) é obrigatório" });
+        }
+
+        else if (!filho.data_nascimento) {
+            return res.status(422).json({ error: "A data de nascimento do filho(a) é obrigatório" });
+        }
+
+        else if (!filho.cpf) {
             return res.status(422).json({ error: `O CPF do filho(a) ${filho.nome || ''} é obrigatório.` });
         }
         
-        if (!cpfValidador.isValid(filho.cpf)) { 
+        else if (!cpfValidador.isValid(filho.cpf)) { 
             return res.status(422).json({ error: `O CPF "${filho.cpf}" do filho(a) ${filho.nome || '' } é inválido.` });
         }
     }
@@ -97,19 +104,19 @@ const register = async (req, res) => {
                         data_expiracao: dataExpiracao,
                     }
                 },
-                Filhos: {
+                filhos: {
                     createMany: {
                         data: filhos.map(filho => ({
                             nome: filho.nome,
                             cpf: filho.cpf,
-                            data_nascimento: new Date(filho.data_dascimento),
+                            data_nascimento: new Date(filho.data_nascimento),
                         })),
                     }
                 }
             },
             include: {
                 Perfil: true,
-                Filhos: true,
+                filhos: true,
             }
         });
         return res.status(201).json({ message: 'Usuário criado com sucesso!', usario: user });
