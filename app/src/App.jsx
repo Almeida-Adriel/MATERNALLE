@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Layout from './components/DefaultLayout';
+import EsqueciMinhaSenha from './pages/esqueciMinhaSenha';
 import Cadastro from './pages/Cadastro';
 import Login from './pages/Login';
 import Home from './pages/Home';
-import Auth from './utils/Auth';
+import Auth from './utils/service/Auth';
 import './App.css';
 
 const autentication = new Auth()
 
 function App() {
-
-  const [isAuthenticated, setIsAuthenticated] = useState(autentication.isAuthenticated());
-
-  const handleLoginSuccess = () => {
-    // Força a atualização do estado reativo
-    setIsAuthenticated(true); 
-  };
 
   function PrivateRoute({ children }) {
     return autentication.isAuthenticated()
@@ -27,8 +21,9 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/esqueci-minha-senha" element={<EsqueciMinhaSenha />} />
           <Route path="/" element={<Home />} />
           <Route
             path="/*"

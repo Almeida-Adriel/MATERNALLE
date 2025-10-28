@@ -8,14 +8,15 @@ import { ThemeProvider } from '@mui/material/styles';
 import customTheme from '../utils/CustomTheme';
 import Service from '../utils/service/Service';
 import Auth from '../utils/service/Auth';
+import mascaraCpf from "../utils/mascaras/mascaraCPF";
 
 const service = new Service();
 const auth = new Auth();
 
-const Login = ({ onLoginSuccess }) => {
+const Login = () => {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,7 +24,7 @@ const Login = ({ onLoginSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!cpf || !password) {
       setError('Por favor, preencha todos os campos para continuar.');
       return;
     }
@@ -32,12 +33,8 @@ const Login = ({ onLoginSuccess }) => {
     setError('');
 
     try {
-      const response = await service.login(email, password);
-      auth.saveDataLogin({ userEmail: response.data.userEmail });
-
-       if (onLoginSuccess) {
-          onLoginSuccess();
-        }
+      const response = await service.login(cpf, password);
+      auth.saveDataLogin({ userId: response.data.id });
 
       navigate('/dashboard', { replace: true });
     } catch (error) {
@@ -67,15 +64,15 @@ const Login = ({ onLoginSuccess }) => {
             )}
             <div className="mb-4">
               <TextField
-                id="email-input"
-                label="E-mail"
-                type="email"
+                id="cpf-input"
+                label="CPF"
+                type="cpf"
                 fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={cpf}
+                onChange={(e) => setCpf(mascaraCpf(e.target.value))}
                 required
                 color="primary"
-                autoComplete="email"
+                autoComplete="cpf"
               />
             </div>
             <div className="mb-6">
@@ -106,7 +103,7 @@ const Login = ({ onLoginSuccess }) => {
           </a>
         </div>
         <div className="text-center pt-2">
-          <a href="/esqueci_minha_senha" className="text-sm text-brand-600 hover:text-brand-800 transition duration-150">
+          <a href="/esqueci-minha-senha" className="text-sm text-brand-600 hover:text-brand-800 transition duration-150">
             Esqueceu a senha?
           </a>
         </div>

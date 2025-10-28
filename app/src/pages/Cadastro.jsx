@@ -32,13 +32,13 @@ const Cadastro = () => {
   });
 
   const [filhos, setFilhos] = useState([
-    { nome: "", dataNascimento: "" , cpf: ""},
+    { nome: "", dataNascimento: "", cpf: "" },
   ]);
 
   const [perfil, setPerfil] = useState({
-    tipoPerfil: "", 
-    role: "",
-  })
+    tipoPerfil: sessionStorage.getItem("plano"),
+    role: "CLIENTE",
+  });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -57,7 +57,7 @@ const Cadastro = () => {
   };
 
   const addFilho = () => {
-    setFilhos((prev) => [...prev, { nome: "", dataNascimento: "" }]);
+    setFilhos((prev) => [...prev, { nome: "", dataNascimento: "", cpf: "" }]);
   };
 
   const removeFilho = (index) => {
@@ -76,10 +76,10 @@ const Cadastro = () => {
     // Se o usuário preencheu algum campo de um filho, exige ambos
     for (let i = 0; i < filhos.length; i++) {
       const f = filhos[i];
-      const algumPreenchido = (f.nome && f.nome.trim() !== "") || (f.dataNascimento && f.dataNascimento !== "");
-      const ambosPreenchidos = f.nome && f.nome.trim() !== "" && f.dataNascimento && f.dataNascimento !== "";
+      const algumPreenchido = (f.cpf && f.cpf.trim() !== "") || (f.nome && f.nome.trim() !== "") || (f.dataNascimento && f.dataNascimento !== "");
+      const ambosPreenchidos = f.cpf && f.cpf.trim() !== "" && f.nome && f.nome.trim() !== "" && f.dataNascimento && f.dataNascimento !== "";
       if (algumPreenchido && !ambosPreenchidos) {
-        return `No filho ${i + 1}, preencha nome e data de nascimento.`;
+        return `No filho ${i + 1}, preencha todos os campos.`;
       }
     }
 
@@ -102,18 +102,19 @@ const Cadastro = () => {
       const payload = {
         nome: form.nome,
         email: form.email,
+        cpf: form.cpf,
         telefone: form.telefone,
         endereco: form.endereco,
-        dataNascimento: form.dataNascimento,
-        senha: form.senha,
-        comfirmarSenha: form.confirmarSenha,
+        data_nascimento: form.dataNascimento,
+        password: form.senha,
+        confirmPassword: form.confirmarSenha,
         perfil: {
           tipoPerfil: perfil.tipoPerfil,
           role: perfil.role
         },
         filhos: filhos
           .filter((f) => f.nome && f.dataNascimento)
-          .map((f) => ({ nome: f.nome.trim(), dataNascimento: f.dataNascimento })),
+          .map((f) => ({ cpf: f.cpf.trim(), nome: f.nome.trim(), data_nascimento: f.dataNascimento })),
       };
 
       const response = await service.post("/auth/register", payload);
@@ -125,6 +126,7 @@ const Cadastro = () => {
       setSuccess("Cadastro realizado com sucesso!");
       setTimeout(() => {
         navigate("/login", { replace: true });
+        sessionStorage.removeItem("plano");
       }, 400);
     } catch (err) {
       const errorMessage =
@@ -140,7 +142,7 @@ const Cadastro = () => {
   return (
     <ThemeProvider theme={customTheme}>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-brand-100">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
           <h2 className="text-center text-3xl font-semibold text-brand-700 mb-6">
             Cadastro
           </h2>
@@ -228,7 +230,9 @@ const Cadastro = () => {
                 onChange={(e) => handleChange("dataNascimento", e.target.value)}
                 required
                 color="primary"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: { shrink: true },
+                }}
               />
               <TextField
                 label="Senha"
@@ -252,8 +256,27 @@ const Cadastro = () => {
               />
             </div>
 
+            <div className="mb-4">
+              <TextField
+                select
+                label="Escolha o plano"
+                fullWidth
+                value={perfil.tipoPerfil}
+                onChange={(e) => setPerfil({ ...perfil, tipoPerfil: e.target.value })}
+                required
+                color="primary"
+                slotProps={{
+                  select: { native: true },
+                }}
+              >
+                <option value="BASICO">Básico</option>
+                <option value="PREMIUM">Premium</option>
+                <option value="PREMIUM_ANUAL">Premium Anual</option>
+              </TextField>
+            </div>
+
             {/* Filhos */}
-            <div className="mb-2 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-brand-700">
                 Filho(a)
               </h3>
@@ -271,17 +294,17 @@ const Cadastro = () => {
               {filhos.map((filho, idx) => (
                 <div
                   key={idx}
-                  className="grid grid-cols-1 md:grid-cols-[1fr_220px_48px] gap-3 items-center"
+                  className="flex gap-3 items-center"
                 >
                   <TextField
                     label="CPF"
-                    
                     fullWidth
                     value={filho.cpf}
                     onChange={(e) =>
-                      handleFilhoChange(idx, "cpf", e.target.value)
+                      handleFilhoChange(idx, "cpf", mascaraCPF(e.target.value))
                     }
                     color="primary"
+                    sx={{ width: "250px" }}
                   />
                   <TextField
                     label={`Nome do filho(a) ${idx + 1}`}
@@ -291,6 +314,7 @@ const Cadastro = () => {
                       handleFilhoChange(idx, "nome", e.target.value)
                     }
                     color="primary"
+                    sx={{ width: "400px"}}
                   />
                   <TextField
                     label="Data de nascimento"
@@ -300,6 +324,9 @@ const Cadastro = () => {
                       handleFilhoChange(idx, "dataNascimento", e.target.value)
                     }
                     color="primary"
+                    slotProps={{
+                      inputLabel: { shrink: true },
+                    }}
                   />
                   <IconButton
                     aria-label="remover"

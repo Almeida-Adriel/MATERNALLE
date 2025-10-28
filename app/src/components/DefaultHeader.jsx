@@ -6,8 +6,8 @@ import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
 import Perfil from "../../public/gravida.png";
 import Logo from "../../public/maternalle.png";
-import Auth from "../utils/Auth";
-import Service from "../utils/Service";
+import Auth from "../utils/service/Auth";
+import Service from "../utils/service/Service";
 import clienteMenu from "../menu/cliente";
 import adminMenu from "../menu/admin";
 
@@ -72,7 +72,7 @@ const Header = () => {
                 <button className="cursor-pointer">
                     ☰
                 </button>
-                <Link to={`${userId ? '/dasboard' : '/'}`} className="flex items-center">
+                <Link to={`${userId ? '/dashboard' : '/'}`} className="flex items-center">
                     <img 
                         src={Logo} 
                         alt="Perfil" 
