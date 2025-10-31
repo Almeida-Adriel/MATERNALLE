@@ -17,6 +17,23 @@ const customTheme = createTheme({
       },
     },
   },
+  MuiMenuItem: { 
+      styleOverrides: {
+        root: {
+          '&.Mui-selected': {
+            backgroundColor: '#fba4b6', 
+            color: '#b81f57',
+            '&:hover': { 
+              backgroundColor: '#ec407a', 
+              color: '#fff', 
+            },
+          },
+          '&:hover': {
+            backgroundColor: '#fba4b6',
+          },
+        },
+      },
+    },
 });
 
 export default customTheme

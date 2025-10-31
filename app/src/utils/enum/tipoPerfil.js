@@ -1,16 +1,5 @@
-const tipoPerfil = [
-    {
-        value: "BASICO",
-        option: "Básico"
-    },
-    {
-        value: "PREMIUM",
-        option: "Premium"
-    },
-    {
-        value: "PREMIUM_ANUAL",
-        option: "Premium Anual"
-    }
-]
-
-export default tipoPerfil
+export const tipoPerfil = {
+    "BASICO":"Básico",
+    "PREMIUM":"Premium",
+    "PREMIUM_ANUAL":"Premium Anual"
+};

@@ -13,6 +13,8 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import mascaraCPF from '../utils/mascaras/mascaraCPF'
 import mascaraTel from '../utils/mascaras/mascaraTel'
+import { tipoPerfil } from "../utils/enum/tipoPerfil";
+import MenuItem from "@mui/material/MenuItem";
 
 const service = new Service();
 const auth = new Auth();
@@ -265,13 +267,12 @@ const Cadastro = () => {
                 onChange={(e) => setPerfil({ ...perfil, tipoPerfil: e.target.value })}
                 required
                 color="primary"
-                slotProps={{
-                  select: { native: true },
-                }}
               >
-                <option value="BASICO">Básico</option>
-                <option value="PREMIUM">Premium</option>
-                <option value="PREMIUM_ANUAL">Premium Anual</option>
+                {Object.entries(tipoPerfil).map(([value, label]) => (
+                  <MenuItem key={value} value={value}>
+                    {label}
+                  </MenuItem>
+                ))}
               </TextField>
             </div>
 

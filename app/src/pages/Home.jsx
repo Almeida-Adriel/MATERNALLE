@@ -2,7 +2,7 @@ import React from 'react'
 import Header from '../components/DefaultHeader'
 import Footer from '../components/DefaultFooter'
 import PlanCard from '../components/PlanCard'
-import tipoPerfil from '../utils/enum/tipoPerfil'
+import { tipoPerfil } from '../utils/enum/tipoPerfil'
 
 const Home = () => {
 
@@ -72,7 +72,8 @@ const Home = () => {
                 <div className="grid md:grid-cols-3 gap-8">
                     {/* Plano Gratuito (Acesso Básico) */}
                     <PlanCard 
-                        title={tipoPerfil[0]}
+                        title={tipoPerfil.BASICO}
+                        titleKey="BASICO"
                         price="Grátis"
                         features={[
                             "Acesso limitado ao Conteúdo",
@@ -83,7 +84,8 @@ const Home = () => {
                     
                     {/* Plano Premium (Recomendado) */}
                     <PlanCard 
-                        title={tipoPerfil[1]}
+                        title={tipoPerfil.PREMIUM}
+                        titleKey="PREMIUM"
                         price="R$ 19,90"
                         features={[
                             "Conteúdo Completo",
@@ -96,7 +98,8 @@ const Home = () => {
 
                     {/* Plano Anual (Melhor Custo) */}
                     <PlanCard 
-                        title={tipoPerfil[2]}
+                        title={tipoPerfil.PREMIUM_ANUAL}
+                        titleKey="PREMIUM_ANUAL"
                         price="R$ 169,90"
                         features={[
                             "Todos os recursos do Premium",

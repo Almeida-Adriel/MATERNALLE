@@ -1,7 +1,21 @@
 import React from 'react'
 
 
-const PlanCard = ({ title={}, features, price }) => {
+const PlanCard = ({ title, titleKey, features, price }) => {
+    
+    const handleClick = (e) => {
+        e.preventDefault(); 
+        
+        if (titleKey) {
+            sessionStorage.removeItem("plano");
+            sessionStorage.setItem("plano", titleKey);
+        } else {
+            console.error("titleKey é undefined. O Plano não foi salvo.");
+        }
+
+        window.location.href = "/cadastro";
+    }
+    
     return (
         <div className={`
             p-6 rounded-xl shadow-lg transition-all duration-300 transform 
@@ -9,7 +23,7 @@ const PlanCard = ({ title={}, features, price }) => {
             hover:bg-brand-500 hover:text-white group
         `}>
             <h4 className="text-xl font-bold text-brand-800 group-hover:text-white">
-                {title.option}
+                {title}
             </h4>
             
             <p className="mt-2 text-slate-600 group-hover:text-brand-100">
@@ -31,10 +45,7 @@ const PlanCard = ({ title={}, features, price }) => {
                         bg-brand-500 text-white hover:bg-brand-600 
                         group-hover:bg-white group-hover:text-brand-500 group-hover:hover:bg-brand-100"
                 href="/cadastro"
-                onClick={() => {
-                    sessionStorage.removeItem("plano")
-                    sessionStorage.setItem("plano", title.value)
-                }}
+                onClick={handleClick}
             >
                 Escolher Plano
             </a>
