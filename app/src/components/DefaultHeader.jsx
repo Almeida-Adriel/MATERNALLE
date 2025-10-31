@@ -4,7 +4,7 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Collapse from '@mui/material/Collapse';
-import Perfil from "../../public/gravida.png";
+import Perfil from "../../public/logo.png";
 import Logo from "../../public/maternalle.png";
 import Auth from "../utils/service/Auth";
 import Service from "../utils/service/Service";

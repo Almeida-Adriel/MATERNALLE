@@ -57,9 +57,9 @@ model Notas {
 
 model RecoveryCode {
   id        String   @id @default(uuid())
-  email     String
+  cpf       String   @unique
   code      String   @db.VarChar(5)
-  expiresAt DateTime @db.Date
+  expiresAt DateTime
   createdAt DateTime @default(now()) @db.Date
 }
 
