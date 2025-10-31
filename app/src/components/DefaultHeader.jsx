@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -8,16 +8,13 @@ import Perfil from "../../public/logo.png";
 import Logo from "../../public/maternalle.png";
 import Auth from "../utils/service/Auth";
 import Service from "../utils/service/Service";
-import clienteMenu from "../menu/cliente";
-import adminMenu from "../menu/admin";
 
 const service = new Service();
 const auth = new Auth();
 
-const Header = () => {
+const Header = ({ toggleSideBar }) => {
 
     const [open, setOpen] = useState(false);
-    const [menu, setMenu] = useState([]);
     const [userId, setUserId] = useState(auth.getId())
 
     const navigate = useNavigate();
@@ -31,45 +28,11 @@ const Header = () => {
         navigate('/login');
     };
 
-    useEffect(() => {
-        if (!auth.isAuthenticated() || !userId) {
-            // Se não estiver autenticado, define um menu padrão ou sai.
-            setMenu(clienteMenu.menu); 
-            return;
-        }
-
-        const fetchUserRole = async () => {
-            try {
-                const response = await service.get('/usuario', userId); 
-                
-                const role = response.data?.role;
-                
-                switch (role) {
-                    case 'admin':
-                        setMenu(adminMenu.menu);
-                        break;
-                    case 'cliente':
-                        setMenu(clienteMenu.menu);
-                        break;
-                    default:
-                        setMenu(clienteMenu.menu);
-                        break;
-                }
-            } catch (error) {
-                console.error("Erro ao buscar perfil do usuário:", error);
-                setMenu(clienteMenu.menu);
-            }
-        };
-
-        fetchUserRole();
-        
-    }, [userId]);
-
   return (
     <header className="bg-brand-50/10 backdrop-blur border-b border-brand-100 sticky top-0 z-50">
         <nav className="max-w mx-auto flex items-center justify-between px-10 py-1">
             <div className="flex gap-6">
-                <button className="cursor-pointer">
+                <button className="cursor-pointer" style={{color: "#78173d"}} onClick={toggleSideBar}>
                     ☰
                 </button>
                 <Link to={`${userId ? '/dashboard' : '/'}`} className="flex items-center">
