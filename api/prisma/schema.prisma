@@ -13,11 +13,11 @@ model Usuarios {
   cpf               String           @unique
   data_nascimento   DateTime         @db.Date
   email             String  
-  lastLoginAt       DateTime         @db.Date
+  lastLoginAt       DateTime
   passwordHash      String
   endereco          String
   telefone          String
-  Perfil            Perfil?
+  perfil            Perfil?
   notas             Notas[]
   filhos            Filhos[]
 }
@@ -25,9 +25,9 @@ model Usuarios {
 model Perfil {
   id                String          @id @default(uuid())
   id_usuario        String          @unique
-  tipoPerfil        tipoPerfil
+  tipoPerfil        tipoPerfil      @default(BASICO)
   role              role
-  data_expiracao    DateTime?        @db.Date
+  data_expiracao    DateTime       @db.Date
   usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])

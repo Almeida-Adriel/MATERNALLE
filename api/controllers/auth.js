@@ -97,7 +97,7 @@ const register = async (req, res) => {
                 lastLoginAt: new Date(),
                 endereco,
                 telefone,
-                Perfil: {
+                perfil: {
                     create: {
                         tipoPerfil: perfil.tipoPerfil,
                         role: perfil.role,
@@ -115,7 +115,7 @@ const register = async (req, res) => {
                 }
             },
             include: {
-                Perfil: true,
+                perfil: true,
                 filhos: true,
             }
         });
@@ -149,9 +149,9 @@ const loginUser = async (req, res) => {
         return res.status(422).json({ error: 'Senha inválida!' });
     }
 
-    if (user.Perfil && user.Perfil.data_expiracao) {
+    if (user.perfil && user.perfil.data_expiracao) {
         const hoje = new Date();
-        const dataExpiracao = new Date(user.Perfil.data_expiracao);
+        const dataExpiracao = new Date(user.perfil.data_expiracao);
         
         if (dataExpiracao < hoje) {
             return res.status(401).json({ error: 'O seu perfil expirou. Renove sua assinatura!' });

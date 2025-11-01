@@ -1,9 +1,7 @@
- export default {
-    menu: [
-        { nome: 'Dashboard', link: '/dashboard' },
-        { nome: 'Perfil', link: '/perfil' },
-        { nome: 'Conteudos', link: '/conteudos' },
-        { nome: 'notas', link: '/notas' },
-        { nome: 'Escala de Edimburgo', link: '/escala_edimburgo' }
-    ]
-}
+ export default [
+    { name: 'Dashboard', url: '/dashboard' },
+    { name: 'Conteudos', url: '/conteudos' },
+    { name: 'Notas', url: '/notas' },
+    { name: 'Financeiro', url: '/financeiro' },
+    { name: 'Escala de Edimburgo', url: '/escala_edimburgo' }
+]

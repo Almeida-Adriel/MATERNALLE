@@ -12,7 +12,7 @@ import Service from "../utils/service/Service";
 const service = new Service();
 const auth = new Auth();
 
-const Header = ({ toggleSideBar }) => {
+const Header = ({ toggleSidebar }) => {
 
     const [open, setOpen] = useState(false);
     const [userId, setUserId] = useState(auth.getId())
@@ -32,9 +32,11 @@ const Header = ({ toggleSideBar }) => {
     <header className="bg-brand-50/10 backdrop-blur border-b border-brand-100 sticky top-0 z-50">
         <nav className="max-w mx-auto flex items-center justify-between px-10 py-1">
             <div className="flex gap-6">
-                <button className="cursor-pointer" style={{color: "#78173d"}} onClick={toggleSideBar}>
-                    ☰
-                </button>
+                {auth.isAuthenticated() && (
+                    <button className="cursor-pointer" style={{color: "#78173d"}} onClick={toggleSidebar}>
+                        ☰
+                    </button>
+                )}
                 <Link to={`${userId ? '/dashboard' : '/'}`} className="flex items-center">
                     <img 
                         src={Logo} 
@@ -48,7 +50,7 @@ const Header = ({ toggleSideBar }) => {
                 {userId ? (
                     <ListItemButton 
                         onClick={handleClick}
-                        className="p-0 min-w-0" // Remove padding e largura mínima do MUI
+                        className="p-0 min-w-0"
                         style={{ padding: 0, minWidth: 0, width: 'auto' }} 
                     >
                         <img 
@@ -73,6 +75,12 @@ const Header = ({ toggleSideBar }) => {
                     >
                         <List component="div" disablePadding> 
                             <ListItemButton 
+                                onClick={navigate("/config")}
+                                className="hover:bg-gray-100"
+                            >
+                                <ListItemText primary="Condigurações" />
+                            </ListItemButton>
+                            <ListItemButton 
                                 onClick={handleLogout}
                                 className="hover:bg-gray-100"
                             >
@@ -83,18 +91,6 @@ const Header = ({ toggleSideBar }) => {
                 )}
             </div>
         </nav>
-
-        <div id="mobileMenu" className="md:hidden hidden border-t border-brand-100">
-            <div className="max-w-6xl mx-auto p-4 flex flex-col gap-3">
-                <a className="hover:text-brand-700" href="#">Início</a>
-                <a className="hover:text-brand-700" href="#">Conteúdos</a>
-                <a className="hover:text-brand-700" href="#">Consultas</a>
-                <a className="hover:text-brand-700" href="#">Comunidade</a>
-                <a href="#login" className="px-4 py-2 rounded-full bg-brand-500 text-white text-center hover:bg-brand-600">
-                    Entrar
-                </a>
-            </div>
-        </div>
     </header>
   );
 };

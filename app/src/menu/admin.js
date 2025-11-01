@@ -1,6 +1,5 @@
-export default {
-    menu: [
-        { nome: 'Dashboard', link: '/dashboard' },
-        { nome: 'Usuários', link: '/usuarios' }
-    ]
-}
+export default [
+    { name: 'Dashboard', url: '/dashboard' },
+    { name: 'Usuários', url: '/usuarios' },
+    { name: 'Conteúdos', url: '/adicionar-conteudos' }
+]

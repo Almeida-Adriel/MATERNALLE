@@ -1,20 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+
+// material-ui
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import { ThemeProvider } from "@mui/material/styles";
-import customTheme from "../utils/CustomTheme";
-import Service from "../utils/service/Service";
-import Auth from "../utils/service/Auth";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+
+// utilitários
+import Auth from "../utils/service/Auth";
+import Service from "../utils/service/Service";
 import mascaraCPF from '../utils/mascaras/mascaraCPF'
 import mascaraTel from '../utils/mascaras/mascaraTel'
+import customTheme from "../utils/CustomTheme";
 import { tipoPerfil } from "../utils/enum/tipoPerfil";
-import MenuItem from "@mui/material/MenuItem";
 
 const service = new Service();
 const auth = new Auth();
