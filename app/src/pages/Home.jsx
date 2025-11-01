@@ -1,15 +1,63 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Header from '../components/DefaultHeader'
 import Footer from '../components/DefaultFooter'
 import PlanCard from '../components/PlanCard'
-import { tipoPerfil } from '../utils/enum/tipoPerfil'
+import DefaultSidebar from "../components/DefaultSidebar";
+// menu
+import cliente from '../menu/cliente';
+import admin from '../menu/admin';
+// utilitários
+import Service from "../utils/service/Service";
+import Auth from "../utils/service/Auth";
+import { tipoUsuario } from "../utils/enum/tipoUsuario";
+import { tipoPerfil } from '../utils/enum/tipoPerfil';
+
+const auth = new Auth();
+const service = new Service();
 
 const Home = () => {
 
+    const [sidebarVisible, setSidebarVisible] = useState(false)
+    const [menu, setMenu] = useState([])
+
+    const toggleSidebar = () => {
+    setSidebarVisible(prev => !prev);
+    }
+
+    const setProfile = async () => {
+    try {
+        const userId = auth.getId()
+        const res = await service.get('usuario', userId);
+        const perfil = res?.data.perfil.role;
+        let menu = [];
+        switch (perfil) {
+        case Object.keys(tipoUsuario)[1]:
+            menu = admin;
+            break;
+        case Object.keys(tipoUsuario)[0]:
+            menu = cliente;
+        default:
+            menu = cliente;
+            break;
+        }
+        setMenu(menu);
+    } catch (error) {
+        console.error("Erro ao obter perfil:", error);
+    }
+    }
+    
+    useEffect(() => {
+        setProfile();
+    }, []);
+
     return (
     <>
-      <Header />
-
+      <Header toggleSidebar={toggleSidebar} />
+      <DefaultSidebar 
+        sidebarVisible={sidebarVisible} 
+        toggleSidebar={toggleSidebar} 
+        menu={menu}
+      />
       <main className="flex-1 min-h-screen">
         <section className="bg-gradient-to-b from-white to-brand-50">
             <div className="max-w-4/5 mx-auto grid md:grid-cols-2 gap-8 p-6 md:p-10">

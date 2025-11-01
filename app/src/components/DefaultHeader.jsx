@@ -37,7 +37,7 @@ const Header = ({ toggleSidebar }) => {
                         ☰
                     </button>
                 )}
-                <Link to={`${userId ? '/dashboard' : '/'}`} className="flex items-center">
+                <Link to={`${userId ? '/central' : '/'}`} className="flex items-center">
                     <img 
                         src={Logo} 
                         alt="Perfil" 
@@ -75,7 +75,7 @@ const Header = ({ toggleSidebar }) => {
                     >
                         <List component="div" disablePadding> 
                             <ListItemButton 
-                                onClick={navigate("/config")}
+                                onClick={() => navigate("/config")}
                                 className="hover:bg-gray-100"
                             >
                                 <ListItemText primary="Condigurações" />

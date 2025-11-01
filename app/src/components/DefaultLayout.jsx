@@ -71,7 +71,7 @@ const Layout = () => {
                 />
               ) : null
             )}
-            <Route path="/*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/*" element={<Navigate to="/central" replace />} />
           </Routes>
         </Suspense>
       </main>

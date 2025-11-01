@@ -5,7 +5,7 @@ const customTheme = createTheme({
     primary: {
       main: '#ec407a', // --color-brand-500
       light: '#ffe4ea', // --color-brand-100
-      mwdium: '#fba4b6', // --color-brand-300
+      medium: '#eb5f8ef1',
       dark: '#b81f57', // --color-brand-700
       contrastText: '#fff',
     },
