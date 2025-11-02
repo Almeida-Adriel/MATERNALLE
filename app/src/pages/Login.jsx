@@ -36,7 +36,7 @@ const Login = () => {
       const response = await service.login(cpf, password);
       auth.saveDataLogin({ userId: response.data.id });
 
-      navigate('/dashboard', { replace: true });
+      navigate('/central', { replace: true });
     } catch (error) {
       const errorMessage = 
         typeof error === 'object' && error !== null && error.error 

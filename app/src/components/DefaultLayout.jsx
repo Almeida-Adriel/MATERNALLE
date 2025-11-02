@@ -20,6 +20,7 @@ const Layout = () => {
 
   const [sidebarVisible, setSidebarVisible] = useState(false)
   const [menu, setMenu] = useState([])
+  const [res, setRes] = useState({})
 
   const toggleSidebar = () => {
     setSidebarVisible(prev => !prev);
@@ -29,6 +30,7 @@ const Layout = () => {
     try {
       const userId = auth.getId()
       const res = await service.get('usuario', userId);
+      setRes(res.data)
       const perfil = res?.data.perfil.role;
       let menu = [];
       switch (perfil) {
@@ -37,6 +39,7 @@ const Layout = () => {
           break;
         case Object.keys(tipoUsuario)[0]:
           menu = cliente;
+          break;
         default:
           menu = cliente;
           break;
@@ -67,7 +70,7 @@ const Layout = () => {
                 <Route
                   key={idx}
                   path={route.path}
-                  element={<route.component />}
+                  element={<route.component data={res} />}
                 />
               ) : null
             )}

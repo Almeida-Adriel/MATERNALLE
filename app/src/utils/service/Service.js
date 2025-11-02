@@ -1,9 +1,6 @@
 import axios from "axios";
 import Auth from "./Auth";
 
-// "http://localhost:5000/" // Testes locais
-// const BASE_URL = "http://srv-bd:64943/"; // Producao
-
 const BASE_URL = "http://localhost:5000/";
 const auth = new Auth();
 
