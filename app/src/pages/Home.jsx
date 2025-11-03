@@ -19,6 +19,7 @@ const Home = () => {
 
     const [sidebarVisible, setSidebarVisible] = useState(false)
     const [menu, setMenu] = useState([])
+     const [res, setRes] = useState({})
 
     const toggleSidebar = () => {
     setSidebarVisible(prev => !prev);
@@ -28,6 +29,7 @@ const Home = () => {
     try {
         const userId = auth.getId()
         const res = await service.get('usuario', userId);
+        setRes(res)
         const perfil = res?.data.perfil.role;
         let menu = [];
         switch (perfil) {
@@ -36,6 +38,7 @@ const Home = () => {
             break;
         case Object.keys(tipoUsuario)[0]:
             menu = cliente;
+            break;
         default:
             menu = cliente;
             break;
@@ -47,8 +50,10 @@ const Home = () => {
     }
     
     useEffect(() => {
+        if (!res.data) { 
         setProfile();
-    }, []);
+    }
+    }, [res]);
 
     return (
     <>
@@ -59,7 +64,7 @@ const Home = () => {
         menu={menu}
       />
       <main className="flex-1 min-h-screen">
-        <section className="bg-gradient-to-b from-white to-brand-50">
+        <section className="bg-gradient-brand-to-b from-white to-brand-50">
             <div className="max-w-4/5 mx-auto grid md:grid-cols-2 gap-8 p-6 md:p-10">
                 <div className="flex flex-col justify-center">
                     <h1 className="text-3xl md:text-4xl font-bold text-brand-800">

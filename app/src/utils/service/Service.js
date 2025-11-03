@@ -8,7 +8,7 @@ const handle401Error = (error) => {
     // Verifica se a resposta existe e se o status é 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
       console.warn("Sessão expirada ou acesso não autorizado (401). Recarregando...");
-        window.location.reload(); 
+      
     }
     return Promise.reject(error.response?.data || error); 
 };
