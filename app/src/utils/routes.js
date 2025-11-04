@@ -5,6 +5,7 @@ import esqueciMinhaSenha from "../pages/esqueciMinhaSenha";
 import Conteudos from "../pages/Conteudos";
 import Dashboard from "../pages/Dashboard";
 import Central from "../pages/Central";
+import Notas from "../pages/Notas";
 
 const routes = [
     {path: '/', name: 'Home', component: Home},
@@ -14,6 +15,7 @@ const routes = [
     {path: '/dashboard', name: 'Dashboard Financeiro', component: Dashboard},
     {path: '/conteudos', name: 'Material de Apoio', component: Conteudos},
     {path: '/central', name: 'Central', component: Central},
+    {path: '/notas', name: 'Notas', component: Notas},
 ]
 
 export default routes;
