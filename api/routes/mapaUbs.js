@@ -1,8 +1,8 @@
 import express from 'express';
-import { buscarUfEMunicipio } from '../controllers/mapaUbs.js';
+import { obterPostosDeSaudeProximos } from '../controllers/mapaUbs.js';
 
 const router = express.Router();
 
-router.get('/uf_municipio', buscarUfEMunicipio);
+router.get('/postos_de_saude', obterPostosDeSaudeProximos);
 
 export default router;
