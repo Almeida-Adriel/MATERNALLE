@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 // Importar rotas
 import authRoutes from './routes/auth.js';
 import usuarios from './routes/usuarios.js';
+import mapaUbs from './routes/mapaUbs.js';
 import esqueciMinhaSenha from './routes/esqueci_minha_senha.js';
 
 const app = express();
@@ -29,7 +30,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 app.use('/auth', authRoutes);
-app.use('/', usuarios);
+app.use('/usuario', usuarios);
+app.use('/mapa', mapaUbs);
 app.use('/', esqueciMinhaSenha)
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

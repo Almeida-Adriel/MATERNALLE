@@ -4,6 +4,9 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import Service from '../utils/service/Service'
+
+const service = new Service();
 
 // Corrige o problema do ícone padrão do Leaflet no Webpack/React
 let DefaultIcon = L.icon({
@@ -50,13 +53,10 @@ const HealthUnitsMap = () => {
                 (err) => {
                     console.error("Erro ao obter localização: ", err);
                     setError("Não foi possível obter a localização do usuário. Verifique as permissões.");
-                    // Define um local padrão (ex: Brasília) se a localização falhar
-                    setUserLocation([-15.7801, -47.9292]); 
                 }
             );
         } else {
             setError("Geolocalização não é suportada por este navegador.");
-            setUserLocation([-15.7801, -47.9292]);
         }
     }, []);
 
@@ -64,7 +64,7 @@ const HealthUnitsMap = () => {
     useEffect(() => {
         const fetchHealthUnits = async (lat, lon) => {
             const API_URL = "https://apidadosabertos.saude.gov.br/cnes/estabelecimentos";
-            const distance = 50; // Busca em um raio de 50km
+            const distance = 70;
             
             // NOTE: A API do OpenDataSUS /cnes/estabelecimentos não suporta diretamente busca por raio (lat/lon)
             // A API exige parâmetros como 'uf', 'municipio', 'tipoUnidade', etc. 
@@ -78,23 +78,11 @@ const HealthUnitsMap = () => {
             // EXEMPLO SIMPLIFICADO: Busca em um município fixo para demonstração, já que a API não aceita lat/lon diretamente.
             // *VOCÊ DEVE AJUSTAR ISSO PARA UM CENÁRIO REAL.*
             
-            /*
             try {
-                // EX: Faria-se a requisição para seu backend que faria a lógica de raio:
-                // const response = await fetch(`/api/healthunits?lat=${lat}&lon=${lon}&distance=${distance}`);
-                // const data = await response.json();
-                // setHealthUnits(data);
+                const res = await service.getWithParams("/mapa/uf_municipio", {latitude: userLocation[0], longitude: userLocation[1]})
             } catch (err) {
-                console.error("Erro ao buscar postos de saúde:", err);
-                setError("Erro ao carregar dados do OpenDataSUS.");
-            }
-            */
-
-            // SIMULAÇÃO DE DADOS MOCKADOS (A SER REMOVIDA)
-            setHealthUnits([
-                { id: 1, nome: "Posto Central - SIMULADO", lat: -15.7701, lon: -47.9092, tipo: "UBS" },
-                { id: 2, nome: "Clínica Norte - SIMULADO", lat: -15.8001, lon: -47.9592, tipo: "UPA" },
-            ]);
+                console.log("erro ao transformar coordenas em uf e municipio ", err)
+            }a
         };
 
         if (userLocation) {
