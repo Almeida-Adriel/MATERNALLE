@@ -8,18 +8,20 @@ datasource db {
 }
 
 model Usuarios {
-  id                String           @id @default(uuid())
-  nome              String
-  cpf               String           @unique
-  data_nascimento   DateTime         @db.Date
-  email             String  
-  lastLoginAt       DateTime
-  passwordHash      String
-  endereco          String
-  telefone          String
-  perfil            Perfil?
-  notas             Notas[]
-  filhos            Filhos[]
+  id                 String           @id @default(uuid())
+  nome               String
+  cpf                String           @unique
+  data_nascimento    DateTime         @db.Date
+  email              String  
+  lastLoginAt        DateTime
+  passwordHash       String
+  endereco           String
+  telefone           String
+  perfil             Perfil?
+  status_maternidade statusMaternidade @default(NENHUMA)
+  dpp                DateTime?
+  notas              Notas[]
+  filhos             Filhos[]
 }
 
 model Perfil {
@@ -27,7 +29,7 @@ model Perfil {
   id_usuario        String          @unique
   tipoPerfil        tipoPerfil      @default(BASICO)
   role              role
-  data_expiracao    DateTime       @db.Date
+  data_expiracao    DateTime?       @db.Date
   usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
@@ -36,21 +38,26 @@ model Perfil {
 model Filhos {
   id                String          @id @default(uuid())
   id_usuario        String          
-  cpf               String          @unique
+  cpf               String?
   nome              String
   data_nascimento   DateTime        @db.Date
+  peso_nascimento   Decimal?        
+  tipo_parto        TipoParto?     
+  genero            GeneroBebe?
   usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }
 
 model Notas {
-  id                String               @id @default(uuid())
+  id                String          @id @default(uuid())
   id_usuario        String               
   titulo            String
   descricao         String
-  data              DateTime             @db.Date
-  usuario           Usuarios             @relation(fields: [id_usuario], references: [id])
+  data_criacao      DateTime        @db.Date
+  data_lembrete     DateTime?       @db.Date
+  lembrete          Boolean         @default(false)
+  usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }
@@ -72,4 +79,22 @@ enum tipoPerfil {
   BASICO
   PREMIUM
   PREMIU_ANUAL
+}
+
+enum statusMaternidade {
+  NENHUMA
+  GESTANTE
+  PUERPERA
+}
+
+enum TipoParto {
+  NORMAL
+  CESAREA
+  OUTRO
+}
+
+enum GeneroBebe {
+  MASCULINO
+  FEMININO
+  NAO_INFORMADO
 }

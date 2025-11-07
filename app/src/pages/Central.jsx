@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Service from "../utils/service/Service";
 import { MdOutlineMedicalServices, MdEditNote, MdLocationPin, MdAssessment } from 'react-icons/md';
-import HealthUnitsMap from '../components/HealthUnitsMap';
 
 const service = new Service();
 
@@ -134,7 +133,7 @@ const Central = ({ data }) => {
                             Unidades de Saúde Próximas
                         </h2>
                         <div className='justify-center flex-1 '>
-                            <HealthUnitsMap />
+                            {/* <HealthUnitsMap /> */}
                         </div>
                     </div>
                 </div>
