@@ -8,6 +8,8 @@ import Perfil from "../../public/logo.png";
 import Logo from "../../public/maternalle.png";
 import Auth from "../utils/service/Auth";
 import Service from "../utils/service/Service";
+import { MdLogout } from "react-icons/md";
+
 
 const service = new Service();
 const auth = new Auth();
@@ -75,10 +77,10 @@ const Header = ({ toggleSidebar }) => {
                     >
                         <List component="div" disablePadding> 
                             <ListItemButton 
-                                onClick={() => navigate("/config")}
+                                onClick={() => navigate("/perfil")}
                                 className="hover:bg-gray-100"
                             >
-                                <ListItemText primary="Condigurações" />
+                                <ListItemText primary="Perfil" />
                             </ListItemButton>
                             <ListItemButton 
                                 onClick={handleLogout}

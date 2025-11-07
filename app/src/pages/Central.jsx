@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Service from "../utils/service/Service";
-import { MdOutlineMedicalServices, MdEditNote, MdLocationPin, MdAssessment } from 'react-icons/md';
+import { MdOutlineMedicalServices, MdEditNote, MdOutlinePregnantWoman, MdOutlineChildCare, MdAssessment } from 'react-icons/md';
+import { statusMaternidadeEnum } from '../utils/enum/statusMaternidade';
+import Acompanhamento from './Acompanhamento';
 
 const service = new Service();
 
@@ -44,8 +46,8 @@ const NotaCard = ({ titulo, conteudo, data }) => (
 
 const Central = ({ data }) => {
     // Usei o mockUserData como estado inicial. Na prática, você faria uma chamada API aqui.
-    const [userData, setUserData] = useState(null); 
     const [loading, setLoading] = useState(true);
+    const [userData, setUserData] = useState(null);
 
     // Função para buscar os dados do usuário
     const fetchUserData = async () => {
@@ -128,12 +130,27 @@ const Central = ({ data }) => {
                 {/* Coluna Direita: Espaço para o Mapa */}
                 <div className="lg:col-span-1">
                     <div className="bg-white rounded-2xl shadow p-6 h-full border border-brand-100 min-h-64 flex flex-col">
-                        <h2 className="text-xl font-bold text-brand-800 flex items-center mb-4">
-                            <MdLocationPin className="mr-2 text-brand-500" size={24} />
-                            Unidades de Saúde Próximas
+                        <h2 className="text-xl font-bold text-brand-800 flex items-center">
+                            {data.status_maternidade === Object.keys(statusMaternidadeEnum)[1] 
+                                ? (
+                                    <>
+                                        <MdOutlinePregnantWoman className="mr-2 text-brand-500" size={24} />
+                                        <p>Acompanhamento Materno</p>
+                                    </>
+                                )
+                                : (
+                                    <>
+                                        <MdOutlineChildCare className="mr-2 text-brand-500" size={24} />
+                                        <p>Acompanhamento do bebê</p>
+                                    </>
+                                )
+                            }
+                            
                         </h2>
                         <div className='justify-center flex-1 '>
-                            {/* <HealthUnitsMap /> */}
+                            <Suspense fallback={<div className="text-center py-10 text-brand-600">Carregando acompanhamento...</div>}>
+                                <Acompanhamento dados={data}/>
+                            </Suspense>
                         </div>
                     </div>
                 </div>

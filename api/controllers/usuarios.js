@@ -31,6 +31,8 @@ const getUsuario = async (req, res) => {
         lastLoginAt: true,
         telefone: true,
         endereco: true,
+        status_maternidade: true,
+        dpp: true,
         perfil: true,
         filhos: true,
         notas: true

@@ -38,7 +38,7 @@ model Perfil {
 model Filhos {
   id                String          @id @default(uuid())
   id_usuario        String          
-  cpf               String?
+  cpf               String?         @unique
   nome              String
   data_nascimento   DateTime        @db.Date
   peso_nascimento   Decimal?        

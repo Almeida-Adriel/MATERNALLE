@@ -317,7 +317,9 @@ const Cadastro = () => {
                 onChange={(e) => handleChange('dataNascimento', e.target.value)}
                 required
                 color="primary"
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: { shrink: true },
+                }}
               />
               <TextField
                 label="Senha"

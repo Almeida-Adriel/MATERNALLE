@@ -2,6 +2,7 @@ import prisma from '../utils/prisma.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { cpf as cpfValidador } from 'cpf-cnpj-validator';
+import { statusMaternidadeEnum } from '../../app/src/utils/enum/statusMaternidade.js';
 
 const register = async (req, res) => {
     const { 
@@ -12,6 +13,8 @@ const register = async (req, res) => {
         endereco,
         telefone, 
         password, 
+        status_maternidade,
+        dpp,
         confirmPassword,
         perfil,
         filhos = [] 
@@ -34,6 +37,10 @@ const register = async (req, res) => {
             return res.status(422).json({ error: 'Senha é obrigatória' });
         case password !== confirmPassword:
             return res.status(422).json({ error: 'As senhas não conferem!' });
+        case !status_maternidade:
+            return res.status(422).json({ error: 'Status da maternidade é obrigatórios!' });
+        case status_maternidade === Object.keys(statusMaternidadeEnum)[1] && !dpp:
+            return res.status(422).json({ error: 'Data de previsão de parto é obrigatórios!' });
         case !perfil:
             return res.status(422).json({ error: 'Dados de perfil são obrigatórios!' });
         case !perfil.tipoPerfil || !perfil.role:
@@ -51,10 +58,6 @@ const register = async (req, res) => {
             return res.status(422).json({ error: "A data de nascimento do filho(a) é obrigatório" });
         }
 
-        else if (!filho.cpf) {
-            return res.status(422).json({ error: `O CPF do filho(a) ${filho.nome || ''} é obrigatório.` });
-        }
-        
         else if (!cpfValidador.isValid(filho.cpf)) { 
             return res.status(422).json({ error: `O CPF "${filho.cpf}" do filho(a) ${filho.nome || '' } é inválido.` });
         }
@@ -96,6 +99,8 @@ const register = async (req, res) => {
                 passwordHash: hashed,
                 lastLoginAt: new Date(),
                 endereco,
+                status_maternidade,
+                dpp: dpp ? new Date(dpp) : null,
                 telefone,
                 perfil: {
                     create: {
@@ -110,6 +115,9 @@ const register = async (req, res) => {
                             nome: filho.nome,
                             cpf: filho.cpf,
                             data_nascimento: new Date(filho.data_nascimento),
+                            peso_nascimento: filho.peso_nascimento || null,
+                            tipo_parto: filho.tipoParto || null,
+                            genero: filho.genero || null,
                         })),
                     }
                 }
