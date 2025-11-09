@@ -16,12 +16,6 @@ class Auth {
         return id;
     }
 
-    getToken() {
-        if(this.isAuthenticated()){
-            return this._getCookie('token'); 
-        }
-    }
-
     getId() {
         if(this.isAuthenticated()){
             let userId = this._getCookie('userId')

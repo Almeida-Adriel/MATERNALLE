@@ -146,7 +146,10 @@ const loginUser = async (req, res) => {
     if (!password) {
         return res.status(422).json({ error: 'A senha é obrigatória!' });
     }
-    const user = await prisma.usuarios.findUnique({ where: { cpf } });
+    const user = await prisma.usuarios.findUnique({
+        where: { cpf },
+        include: { perfil: true }
+    });
 
     if (!user) {
         return res.status(404).json({ error: 'Usuário não encontrado!' });
@@ -173,7 +176,7 @@ const loginUser = async (req, res) => {
         const token = jwt.sign(
             {
                 id: user.id,
-                cpf: user.cpf,
+                perfil: user.perfil ? user.perfil.tipoPerfil : 'BASICO',
             },
             secretKey,
             { expiresIn: expirationTime }
@@ -184,14 +187,14 @@ const loginUser = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
             maxAge: maxAge, // Tempo de vida do cookie
-            secure: process.env.NODE_ENV === 'production', // Use 'true' em produção (HTTPS)
+            secure: true, // Use 'true' em produção (HTTPS)
             sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
         });
 
         res.cookie('userId', user.id, {
             httpOnly: false, // Pode ser acessado via JavaScript
             maxAge: maxAge, // Tempo de vida do cookie
-            secure: process.env.NODE_ENV === 'production', // Use 'true' em produção (HTTPS)
+            secure: true, // Use 'true' em produção (HTTPS)
             sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
         });
 

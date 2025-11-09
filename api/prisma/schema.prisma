@@ -57,6 +57,8 @@ model Notas {
   data_criacao      DateTime        @db.Date
   data_lembrete     DateTime?       @db.Date
   lembrete          Boolean         @default(false)
+  tipo              Tipo
+  outro             String?                   
   usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
@@ -97,4 +99,11 @@ enum GeneroBebe {
   MASCULINO
   FEMININO
   NAO_INFORMADO
+}
+
+enum Tipo {
+  EXAME
+  VACINA
+  LEMBRETE
+  OUTRO
 }

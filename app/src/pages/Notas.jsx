@@ -1,15 +1,30 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { MdEditNote, MdSearch, MdAdd, MdPushPin, MdOutlinePushPin, MdDelete, MdClose, MdSave } from "react-icons/md";
-import Service from "../utils/service/Service";
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  MdEditNote,
+  MdSearch,
+  MdAdd,
+  MdPushPin,
+  MdOutlinePushPin,
+  MdDelete,
+  MdClose,
+  MdSave,
+} from 'react-icons/md';
+import Service from '../utils/service/Service';
+import Auth from '../utils/service/Auth';
 
 const service = new Service();
+const auth = new Auth();
 
+const usuarioId = auth.getId();
+
+// --- Helpers ---
 const formatDateBR = (d) => {
   try {
-    const dt = typeof d === "string" || typeof d === "number" ? new Date(d) : d;
-    return dt.toLocaleDateString("pt-BR");
+    const dt = typeof d === 'string' || typeof d === 'number' ? new Date(d) : d;
+    if (isNaN(dt.getTime())) return '--/--/----';
+    return dt.toLocaleDateString('pt-BR');
   } catch {
-    return "--/--/----";
+    return '--/--/----';
   }
 };
 
@@ -22,10 +37,21 @@ const debounce = (fn, delay = 400) => {
 };
 
 // --- Componentes de UI ---
-const Toolbar = ({ search, onSearch, order, onOrderChange, onlyPinned, onTogglePinned, onOpenCreate }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+const Toolbar = ({
+  search,
+  onSearch,
+  order,
+  onOrderChange,
+  onlyPinned,
+  onTogglePinned,
+  onOpenCreate,
+}) => (
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
     <div className="relative w-full sm:max-w-md">
-      <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+      <MdSearch
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        size={20}
+      />
       <input
         className="w-full pl-10 pr-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
         placeholder="Buscar por título ou conteúdo..."
@@ -48,13 +74,17 @@ const Toolbar = ({ search, onSearch, order, onOrderChange, onlyPinned, onToggleP
       <button
         className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors ${
           onlyPinned
-            ? "border-brand-300 bg-brand-50 text-brand-800"
-            : "border-brand-100 bg-white text-slate-700 hover:bg-slate-50"
+            ? 'border-brand-300 bg-brand-50 text-brand-800'
+            : 'border-brand-100 bg-white text-slate-700 hover:bg-slate-50'
         }`}
         onClick={onTogglePinned}
-        title={onlyPinned ? "Mostrando fixadas" : "Mostrar somente fixadas"}
+        title={
+          onlyPinned
+            ? 'Mostrando notas com Lembrete'
+            : 'Mostrar somente notas com Lembrete'
+        }
       >
-        <MdPushPin /> Fixadas
+        <MdPushPin /> Lembretes
       </button>
 
       <button
@@ -72,17 +102,32 @@ const NoteCard = ({ note, onTogglePin, onEdit, onDelete }) => (
     <button
       className="absolute -top-2 -right-2 bg-white border border-brand-100 rounded-full p-2 shadow-sm hover:shadow md:opacity-0 md:group-hover:opacity-100 transition-opacity"
       onClick={() => onTogglePin(note)}
-      title={note.pinned ? "Desafixar" : "Fixar nota"}
+      title={note.lembrete ? 'Desativar Lembrete' : 'Ativar Lembrete'}
     >
-      {note.pinned ? <MdPushPin className="text-brand-700" /> : <MdOutlinePushPin className="text-slate-500" />}
+      {note.lembrete ? (
+        <MdPushPin className="text-brand-700" />
+      ) : (
+        <MdOutlinePushPin className="text-slate-500" />
+      )}
     </button>
 
-    <h4 className="font-semibold text-brand-800 pr-10 break-words">{note.title || "(Sem título)"}</h4>
-    <p className="mt-1 text-sm text-slate-600 whitespace-pre-wrap">{note.content}</p>
+    <h4 className="font-semibold text-brand-800 pr-10 break-words">
+      {note.titulo || '(Sem título)'}
+    </h4>
+    <p className="mt-1 text-sm text-slate-600 whitespace-pre-wrap">
+      {note.descricao}
+    </p>
 
-    <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
-      <span>{formatDateBR(note.date)}</span>
-      <div className="flex items-center gap-2">
+    <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400">
+      <span>Criada em: {formatDateBR(note.data_criacao)}</span>
+
+      {note.lembrete && note.data_lembrete && (
+        <span className="text-red-500 font-medium ml-2 mt-1 sm:mt-0">
+          Lembrete: {formatDateBR(note.data_lembrete)}
+        </span>
+      )}
+
+      <div className="flex items-center gap-2 mt-2 sm:mt-0">
         <button
           className="px-2 py-1 rounded-lg border border-brand-100 hover:bg-brand-50 text-slate-600"
           onClick={() => onEdit(note)}
@@ -105,10 +150,13 @@ const Modal = ({ open, onClose, children, title }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-xl mx-auto bg-white rounded-2xl border border-brand-100 shadow-xl">
-        <div className="flex items-center justify-between p-4 border-b border-slate-100">
+      <div className="relative z-10 w-full max-w-xl mx-auto bg-white rounded-2xl border border-brand-100 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b border-slate-100 sticky top-0 bg-white z-20">
           <h3 className="text-lg font-semibold text-brand-800">{title}</h3>
-          <button className="p-2 rounded-lg hover:bg-slate-50" onClick={onClose}>
+          <button
+            className="p-2 rounded-lg hover:bg-slate-50"
+            onClick={onClose}
+          >
             <MdClose />
           </button>
         </div>
@@ -119,78 +167,123 @@ const Modal = ({ open, onClose, children, title }) => {
 };
 
 const NoteForm = ({ initial, loading, onSubmit }) => {
-  const [title, setTitle] = useState(initial?.title || "");
-  const [content, setContent] = useState(initial?.content || "");
-  const [pinned, setPinned] = useState(initial?.pinned || false);
+  const [titulo, setTitulo] = useState(initial?.titulo || '');
+  const [descricao, setDescricao] = useState(initial?.descricao || '');
+  const [lembrete, setLembrete] = useState(initial?.lembrete || false);
+  const [dataLembrete, setDataLembrete] = useState(
+    initial?.data_lembrete
+      ? new Date(initial.data_lembrete).toISOString().substring(0, 10)
+      : ''
+  );
 
   useEffect(() => {
-    setTitle(initial?.title || "");
-    setContent(initial?.content || "");
-    setPinned(initial?.pinned || false);
+    setTitulo(initial?.titulo || '');
+    setDescricao(initial?.descricao || '');
+    setLembrete(initial?.lembrete || false);
+    setDataLembrete(
+      initial?.data_lembrete
+        ? new Date(initial.data_lembrete).toISOString().substring(0, 10)
+        : ''
+    );
   }, [initial]);
 
-  const canSave = title.trim().length > 0 || content.trim().length > 0;
+  const canSave = titulo.trim().length > 0 || descricao.trim().length > 0;
+  const isLembreteValid = !lembrete || (lembrete && dataLembrete);
 
   return (
     <form
       className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
-        if (!canSave) return;
-        onSubmit({ title: title.trim(), content: content.trim(), pinned });
+        if (!canSave || !isLembreteValid) return;
+        onSubmit({
+          titulo: titulo.trim(),
+          descricao: descricao.trim(),
+          lembrete,
+          data_lembrete:
+            lembrete && dataLembrete ? `${dataLembrete}T00:00:00.000Z` : null,
+        });
       }}
     >
       <div className="space-y-1">
         <label className="text-sm text-slate-600">Título</label>
         <input
           className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
           placeholder="Ex.: Dúvidas para próxima consulta"
         />
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm text-slate-600">Conteúdo</label>
+        <label className="text-sm text-slate-600">Conteúdo (Descrição)</label>
         <textarea
           rows={6}
           className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
           placeholder="Escreva livremente…"
         />
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 pt-2 border-t border-slate-100">
         <label className="inline-flex items-center gap-2 text-sm text-slate-600">
-          <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} />
-          Fixar nota
+          <input
+            type="checkbox"
+            checked={lembrete}
+            onChange={(e) => {
+              setLembrete(e.target.checked);
+              // Limpa a data se o lembrete for desativado
+              if (!e.target.checked) setDataLembrete('');
+            }}
+          />
+          Ativar Lembrete
         </label>
 
+        {lembrete && (
+          <div className="space-y-1">
+            <label className="text-sm text-slate-600">Data do Lembrete</label>
+            <input
+              type="date"
+              className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
+              value={dataLembrete}
+              onChange={(e) => setDataLembrete(e.target.value)}
+              required={lembrete}
+            />
+            {!dataLembrete && (
+              <p className="text-xs text-red-500 mt-1">
+                A data do lembrete é obrigatória.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-end pt-3">
         <button
-          disabled={!canSave || loading}
+          disabled={!canSave || loading || !isLembreteValid}
           className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-white ${
-            !canSave || loading ? "bg-slate-300" : "bg-brand-600 hover:bg-brand-700"
+            !canSave || loading || !isLembreteValid
+              ? 'bg-slate-300'
+              : 'bg-brand-600 hover:bg-brand-700'
           }`}
           type="submit"
         >
-          <MdSave /> {loading ? "Salvando…" : "Salvar"}
+          <MdSave /> {loading ? 'Salvando…' : 'Salvar'}
         </button>
       </div>
     </form>
   );
 };
 
-// --- Página principal ---
+// --- Componente Principal ---
 const Notas = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [query, setQuery] = useState("");
-  const [order, setOrder] = useState("newest");
+  const [query, setQuery] = useState('');
+  const [order, setOrder] = useState('newest');
   const [onlyPinned, setOnlyPinned] = useState(false);
-
-  // Modal
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
@@ -198,20 +291,20 @@ const Notas = () => {
   const fetchNotes = async () => {
     setLoading(true);
     try {
-      // Backend real:
-      // const res = await service.get("nota");
-      // const lista = Array.isArray(res?.data) ? res.data : [];
-      // setNotes(lista.map(n => ({ ...n, date: new Date(n.date) })));
-
-      // Mock de fallback
-      await new Promise((r) => setTimeout(r, 300));
-      setNotes([
-        { id: 1, title: "Primeira consulta de rotina", content: "O pediatra verificou o peso e altura. Tudo dentro do esperado.", date: new Date(2025, 9, 28), pinned: true },
-        { id: 2, title: "Dúvidas sobre amamentação", content: "Pesquisar sobre a pega correta e consultar a doula.", date: new Date(2025, 9, 25), pinned: false },
-        { id: 3, title: "Compra de vitaminas", content: "Lembrar de comprar vitamina D para o bebê na próxima semana.", date: new Date(2025, 9, 20), pinned: false },
-      ]);
+      const res = await service.getWithParams('notas', {
+        id_usuario: usuarioId,
+      });
+      const lista = Array.isArray(res?.data) ? res.data : [];
+      setNotes(
+        lista.map((n) => ({
+          ...n,
+          data_criacao: new Date(n.data_criacao),
+          data_lembrete: n.data_lembrete ? new Date(n.data_lembrete) : null,
+        }))
+      );
     } catch (e) {
-      console.error("Erro ao carregar notas:", e);
+      console.error('Erro ao carregar notas:', e);
+      setNotes([]);
     } finally {
       setLoading(false);
     }
@@ -225,25 +318,27 @@ const Notas = () => {
   const handleCreate = async (payload) => {
     setSaving(true);
     try {
-      const newNote = {
-        id: Math.max(0, ...notes.map((n) => n.id)) + 1,
-        title: payload.title,
-        content: payload.content,
-        date: new Date(),
-        pinned: !!payload.pinned,
-      };
+      const body = { ...payload, id_usuario: usuarioId };
 
-      // Backend real:
-      // const res = await service.post("nota", newNote);
-      // const created = res?.data ?? newNote;
-      // setNotes((prev) => [{ ...created, date: new Date(created.date) }, ...prev]);
+      const res = await service.post('notas', body);
+      const created = res?.data;
 
-      // Mock otimista
-      setNotes((prev) => [newNote, ...prev]);
-      setOpenModal(false);
-      setEditing(null);
+      if (created) {
+        setNotes((prev) => [
+          {
+            ...created,
+            data_criacao: new Date(created.data_criacao),
+            data_lembrete: created.data_lembrete
+              ? new Date(created.data_lembrete)
+              : null,
+          },
+          ...prev,
+        ]);
+        setOpenModal(false);
+        setEditing(null);
+      }
     } catch (e) {
-      console.error("Erro ao criar nota:", e);
+      console.error('Erro ao criar nota:', e);
     } finally {
       setSaving(false);
     }
@@ -253,43 +348,78 @@ const Notas = () => {
     if (!editing) return;
     setSaving(true);
     try {
-      const updated = { ...editing, ...payload };
+      const body = payload;
 
-      // Backend real:
-      // await service.put(`nota/${editing.id}`, updated);
+      const res = await service.put(`notas/${editing.id}`, body);
+      const updatedNote = res?.data;
 
-      // Mock otimiz.
-      setNotes((prev) => prev.map((n) => (n.id === editing.id ? { ...updated } : n)));
-      setOpenModal(false);
-      setEditing(null);
+      if (updatedNote) {
+        setNotes((prev) =>
+          prev.map((n) =>
+            n.id === editing.id
+              ? {
+                  ...updatedNote,
+                  data_criacao: new Date(updatedNote.data_criacao),
+                  data_lembrete: updatedNote.data_lembrete
+                    ? new Date(updatedNote.data_lembrete)
+                    : null,
+                }
+              : n
+          )
+        );
+        setOpenModal(false);
+        setEditing(null);
+      }
     } catch (e) {
-      console.error("Erro ao atualizar nota:", e);
+      console.error('Erro ao atualizar nota:', e);
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (note) => {
-    if (!confirm(`Excluir a nota "${note.title || "(sem título)"}"?`)) return;
+    if (!confirm(`Excluir a nota "${note.titulo || '(sem título)'}"?`)) return;
     try {
-      // Backend real:
-      // await service.delete(`nota/${note.id}`);
-
-      // Mock
+      await service.delete(`notas/${note.id}`);
       setNotes((prev) => prev.filter((n) => n.id !== note.id));
     } catch (e) {
-      console.error("Erro ao excluir nota:", e);
+      console.error('Erro ao excluir nota:', e);
     }
   };
 
   const handleTogglePin = async (note) => {
     try {
-      const updated = { ...note, pinned: !note.pinned };
-      // Backend real:
-      // await service.put(`nota/${note.id}`, updated);
-      setNotes((prev) => prev.map((n) => (n.id === note.id ? updated : n)));
+      const isLembrete = !note.lembrete;
+      const updatedPayload = {
+        titulo: note.titulo,
+        descricao: note.descricao,
+        lembrete: isLembrete,
+        data_lembrete: isLembrete
+          ? note.data_lembrete?.toISOString() || null
+          : null,
+      };
+
+      const res = await service.put(`notas/${note.id}`, updatedPayload);
+      const updatedNote = res?.data;
+
+      if (updatedNote) {
+        setNotes((prev) =>
+          prev.map((n) =>
+            n.id === note.id
+              ? {
+                  ...updatedNote,
+                  // 🚀 Ajustado: Usando updatedNote.data_criacao
+                  data_criacao: new Date(updatedNote.data_criacao),
+                  data_lembrete: updatedNote.data_lembrete
+                    ? new Date(updatedNote.data_lembrete)
+                    : null,
+                }
+              : n
+          )
+        );
+      }
     } catch (e) {
-      console.error("Erro ao fixar/desafixar:", e);
+      console.error('Erro ao fixar/desafixar (lembrete):', e);
     }
   };
 
@@ -303,24 +433,28 @@ const Notas = () => {
     setOpenModal(true);
   };
 
-  // Filtro + Ordenação + Busca
   const onSearch = useMemo(() => debounce((v) => setQuery(v), 250), []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let arr = [...notes];
 
-    if (onlyPinned) arr = arr.filter((n) => n.pinned);
+    if (onlyPinned) arr = arr.filter((n) => n.lembrete);
 
     if (q) {
-      arr = arr.filter((n) =>
-        (n.title || "").toLowerCase().includes(q) || (n.content || "").toLowerCase().includes(q)
+      arr = arr.filter(
+        (n) =>
+          (n.titulo || '').toLowerCase().includes(q) ||
+          (n.descricao || '').toLowerCase().includes(q)
       );
     }
 
-    if (order === "newest") arr.sort((a, b) => new Date(b.date) - new Date(a.date));
-    if (order === "oldest") arr.sort((a, b) => new Date(a.date) - new Date(b.date));
-    if (order === "title") arr.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+    if (order === 'newest')
+      arr.sort((a, b) => new Date(b.data_criacao) - new Date(a.data_criacao));
+    if (order === 'oldest')
+      arr.sort((a, b) => new Date(a.data_criacao) - new Date(b.data_criacao));
+    if (order === 'title')
+      arr.sort((a, b) => (a.titulo || '').localeCompare(b.titulo || ''));
 
     return arr;
   }, [notes, query, order, onlyPinned]);
@@ -333,8 +467,12 @@ const Notas = () => {
           <MdEditNote size={22} />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-brand-800">Notas</h1>
-          <p className="text-sm text-slate-500">Capture ideias, lembretes e pontos para consultas.</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-800">
+            Notas
+          </h1>
+          <p className="text-sm text-slate-500">
+            Guarde ideias, pontos para consultas e lembretes.
+          </p>
         </div>
       </div>
 
@@ -354,7 +492,9 @@ const Notas = () => {
       {/* Lista de notas */}
       <section className="bg-white rounded-2xl shadow p-6 border border-brand-100 min-h-[320px]">
         {loading ? (
-          <div className="text-center py-16 text-brand-600">Carregando notas…</div>
+          <div className="text-center py-16 text-brand-600">
+            Carregando notas…
+          </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-500">
             Nenhuma nota encontrada.
@@ -376,8 +516,8 @@ const Notas = () => {
                 onTogglePin={handleTogglePin}
                 onEdit={openEdit}
                 onDelete={handleDelete}
-              />)
-            )}
+              />
+            ))}
           </div>
         )}
       </section>
@@ -391,16 +531,20 @@ const Notas = () => {
             setEditing(null);
           }
         }}
-        title={editing ? "Editar nota" : "Nova nota"}
+        title={
+          editing ? `Editar: ${editing.titulo || '(Sem título)'}` : 'Nova nota'
+        }
       >
         <NoteForm
           initial={editing}
           loading={saving}
-          onSubmit={(payload) => (editing ? handleUpdate(payload) : handleCreate(payload))}
+          onSubmit={(payload) =>
+            editing ? handleUpdate(payload) : handleCreate(payload)
+          }
         />
       </Modal>
     </div>
   );
-}
+};
 
-export default Notas
+export default Notas;

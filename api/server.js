@@ -8,8 +8,11 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.js';
 import usuarios from './routes/usuarios.js';
 import esqueciMinhaSenha from './routes/esqueci_minha_senha.js';
+import notasRoutes from './routes/notas.js';
 
 const app = express();
+
+app.set('trust proxy', 1)
 
 const whitelist = ['https://site.com', 'http://localhost:5173', 'http://localhost:5174'];
 
@@ -31,5 +34,7 @@ app.use(cookieParser());
 app.use('/auth', authRoutes);
 app.use('/', usuarios);
 app.use('/', esqueciMinhaSenha)
+app.use('/notas', notasRoutes);
+
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
