@@ -10,7 +10,7 @@ const Acompanhamento = ({ dados }) => {
   const navigate = useNavigate();
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userData, setUserData] = useState(dados);
+  const userData = dados ?? {};
 
   const isGestante = userData?.status_maternidade === 'GESTANTE';
   const filhos = userData?.filhos || [];
@@ -108,8 +108,7 @@ const Acompanhamento = ({ dados }) => {
     const diffWeeksLeft = Math.floor(diffMs / (1000 * 60 * 60 * 24 * 7));
     const totalWeeks = 40; // Considerando 40 semanas de gestação
     const completedWeeks = totalWeeks - diffWeeksLeft;
-    // possibilidade: completedWeeks pode ultrapassar 40 — limite ao máximo 40
-    const weeks = Math.min(Math.max(completedWeeks, 1), 40);
+    const weeks = Math.min(Math.max(completedWeeks, 1), totalWeeks);
     const month = Math.min(Math.ceil(weeks / 4), 9);
     const weekInMonth = Math.min(((weeks - 1) % 4) + 1, 4);
     return `${weekInMonth}-${month}`;

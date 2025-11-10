@@ -44,24 +44,34 @@ const NotaCard = ({ titulo, descricao, data_criacao }) => (
 const Central = ({ data, loading }) => {
   const [compromissos, setCompromissos] = useState([]);
   const [loadingCompromissos, setLoadingCompromissos] = useState(true);
-
-  const notas = data?.notas || [];
+  const [ notas, setNotas ] = useState(data?.notas || []);
 
   useEffect(() => {
     const fetchCompromissos = async () => {
       setLoadingCompromissos(true);
       try {
-        const res = await service.getWithParams('notas/lembretes', {
+        const res = await service.getWithParams('notas', {
           id_usuario: usuarioId,
+          lembrete: false,
+        });
+        const lista = Array.isArray(res?.data) ? res.data : [];
+        setNotas(lista);
+      } catch (error) {
+        console.error('Erro ao buscar notas:', error);
+        setNotas([]);
+      }
+
+      try {
+        const res = await service.getWithParams('notas', {
+          id_usuario: usuarioId,
+          lembrete: true,
         });
 
         const lista = Array.isArray(res?.data) ? res.data : [];
 
         setCompromissos(
           lista.map((c) => ({
-            // 'data' do CompromissoCard será a data do Lembrete
             data: formatDateBR(c.data_lembrete),
-            // 'descricao' será o corpo da nota, e 'tipo' pode ser o título
             descricao: c.descricao || c.titulo || 'Sem descrição',
             tipo: c.titulo,
           }))
@@ -80,11 +90,11 @@ const Central = ({ data, loading }) => {
   }, [usuarioId]);
 
   if (loading || loadingCompromissos) {
-    return (
-      <div className="text-center py-10 text-brand-600">
-        Carregando dados da Central...
-      </div>
-    );
+    return <div className="text-center py-10 text-brand-600">Carregando dados da Central...</div>;
+  }
+
+  if (!data) {
+    return <div className="text-center py-10 text-brand-600">Sem dados do usuário no momento.</div>;
   }
 
   const notasRecentes = notas;

@@ -57,7 +57,7 @@ model Notas {
   data_criacao      DateTime        @db.Date
   data_lembrete     DateTime?       @db.Date
   lembrete          Boolean         @default(false)
-  tipo              Tipo
+  tipo              Tipo?
   outro             String?                   
   usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
 
@@ -104,6 +104,14 @@ enum GeneroBebe {
 enum Tipo {
   EXAME
   VACINA
-  LEMBRETE
+  CONSULTA
+  MEDICACAO
+  SINTOMA
+  DIETA
+  EXERCICIO
+  GESTACAO
+  PUERPERIO
+  FINANCEIRO
+  EVENTO
   OUTRO
 }

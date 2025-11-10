@@ -11,6 +11,8 @@ import {
 } from 'react-icons/md';
 import Service from '../utils/service/Service';
 import Auth from '../utils/service/Auth';
+import { tipoLembreteEnum } from '../utils/enum/tipoLembrete';
+import { getTomorrowDate } from '../utils/getDate';
 
 const service = new Service();
 const auth = new Auth();
@@ -118,6 +120,16 @@ const NoteCard = ({ note, onTogglePin, onEdit, onDelete }) => (
       {note.descricao}
     </p>
 
+   {note.lembrete && (
+     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+       {note.tipo && (
+         <span className="px-2 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-100">
+           {note.tipo === 'Outro' && note.outro ? `Outro: ${note.outro}` : note.tipo}
+         </span>
+       )}
+     </div>
+   )}
+
     <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400">
       <span>Criada em: {formatDateBR(note.data_criacao)}</span>
 
@@ -170,6 +182,8 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
   const [titulo, setTitulo] = useState(initial?.titulo || '');
   const [descricao, setDescricao] = useState(initial?.descricao || '');
   const [lembrete, setLembrete] = useState(initial?.lembrete || false);
+  const [tipoLembrete, setTipoLembrete] = useState(initial?.tipo || '');
+  const [outro, setOutro] = useState(initial?.outro || '');
   const [dataLembrete, setDataLembrete] = useState(
     initial?.data_lembrete
       ? new Date(initial.data_lembrete).toISOString().substring(0, 10)
@@ -180,6 +194,8 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
     setTitulo(initial?.titulo || '');
     setDescricao(initial?.descricao || '');
     setLembrete(initial?.lembrete || false);
+    setTipoLembrete(initial?.tipo || '');
+    setOutro(initial?.outro || '');
     setDataLembrete(
       initial?.data_lembrete
         ? new Date(initial.data_lembrete).toISOString().substring(0, 10)
@@ -188,7 +204,13 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
   }, [initial]);
 
   const canSave = titulo.trim().length > 0 || descricao.trim().length > 0;
-  const isLembreteValid = !lembrete || (lembrete && dataLembrete);
+  const isLembreteValid =
+  !lembrete ||
+  (lembrete &&
+    dataLembrete &&
+    tipoLembrete &&
+    (tipoLembrete !== 'Outro' || (tipoLembrete === 'Outro' && outro.trim().length > 0)));
+
 
   return (
     <form
@@ -202,6 +224,8 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
           lembrete,
           data_lembrete:
             lembrete && dataLembrete ? `${dataLembrete}T00:00:00.000Z` : null,
+            tipo: lembrete ? tipoLembrete : '',
+            outro: lembrete && tipoLembrete === 'Outro' ? outro.trim() : '',
         });
       }}
     >
@@ -234,28 +258,64 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
             onChange={(e) => {
               setLembrete(e.target.checked);
               // Limpa a data se o lembrete for desativado
-              if (!e.target.checked) setDataLembrete('');
+              if (!e.target.checked) {
+                  setDataLembrete('')
+                  setTipoLembrete('')
+                  setOutro('')
+              };
             }}
           />
           Ativar Lembrete
         </label>
 
         {lembrete && (
-          <div className="space-y-1">
-            <label className="text-sm text-slate-600">Data do Lembrete</label>
-            <input
-              type="date"
-              className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
-              value={dataLembrete}
-              onChange={(e) => setDataLembrete(e.target.value)}
-              required={lembrete}
-            />
-            {!dataLembrete && (
-              <p className="text-xs text-red-500 mt-1">
-                A data do lembrete é obrigatória.
-              </p>
+          <>
+            <div className="space-y-1">
+              <label className="text-sm text-slate-600">Data do Lembrete</label>
+              <input
+                type="date"
+                className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
+                value={dataLembrete}
+                onChange={(e) => setDataLembrete(e.target.value)}
+                required={lembrete}
+                min={getTomorrowDate()}
+              />
+              {!dataLembrete && (
+                <p className="text-xs text-red-500 mt-1">
+                  A data do lembrete é obrigatória.
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm text-slate-600">Tipo de Lembrete</label>
+              <select
+                className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
+                value={tipoLembrete}
+                onChange={(e) => setTipoLembrete(e.target.value)}
+                required={lembrete}
+              >
+                <option value="">Selecione…</option>
+                {tipoLembreteEnum && Object.entries(tipoLembreteEnum).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+              {(!tipoLembrete) && <p className="text-xs text-red-500 mt-1">Selecione um tipo.</p>}
+            </div>
+            {tipoLembrete === 'Outro' && (
+              <div className="space-y-1">
+                <label className="text-sm text-slate-600">Especifique o Outro Tipo</label>
+                <input
+                  className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
+                  value={outro}
+                  onChange={(e) => setOutro(e.target.value)}
+                  placeholder="Descreva o outro tipo de lembrete"
+                  required={tipoLembrete === 'Outro'}
+                />
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
 
@@ -281,15 +341,24 @@ const Notas = () => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+  const [modalError, setModalError] = useState(null);
   const [query, setQuery] = useState('');
   const [order, setOrder] = useState('newest');
   const [onlyPinned, setOnlyPinned] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState(null);
 
-  // Busca inicial
+  const getApiError = (e) => {
+    try {
+      if (e?.error) return e.error;
+    } catch {}
+    return 'Ocorreu um erro inesperado.';
+  };
+
   const fetchNotes = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await service.getWithParams('notas', {
         id_usuario: usuarioId,
@@ -304,6 +373,7 @@ const Notas = () => {
       );
     } catch (e) {
       console.error('Erro ao carregar notas:', e);
+      setError(getApiError(e));
       setNotes([]);
     } finally {
       setLoading(false);
@@ -317,6 +387,7 @@ const Notas = () => {
   // Handlers CRUD
   const handleCreate = async (payload) => {
     setSaving(true);
+    setModalError(null);
     try {
       const body = { ...payload, id_usuario: usuarioId };
 
@@ -339,6 +410,7 @@ const Notas = () => {
       }
     } catch (e) {
       console.error('Erro ao criar nota:', e);
+      setModalError(getApiError(e));
     } finally {
       setSaving(false);
     }
@@ -347,6 +419,7 @@ const Notas = () => {
   const handleUpdate = async (payload) => {
     if (!editing) return;
     setSaving(true);
+    setModalError(null);
     try {
       const body = payload;
 
@@ -372,6 +445,7 @@ const Notas = () => {
       }
     } catch (e) {
       console.error('Erro ao atualizar nota:', e);
+      setModalError(getApiError(e));
     } finally {
       setSaving(false);
     }
@@ -384,6 +458,7 @@ const Notas = () => {
       setNotes((prev) => prev.filter((n) => n.id !== note.id));
     } catch (e) {
       console.error('Erro ao excluir nota:', e);
+      setError(getApiError(e));
     }
   };
 
@@ -394,6 +469,8 @@ const Notas = () => {
         titulo: note.titulo,
         descricao: note.descricao,
         lembrete: isLembrete,
+        tipo: isLembrete ? note.tipo : '',
+        outro: isLembrete ? note.outro : '',
         data_lembrete: isLembrete
           ? note.data_lembrete?.toISOString() || null
           : null,
@@ -408,7 +485,6 @@ const Notas = () => {
             n.id === note.id
               ? {
                   ...updatedNote,
-                  // 🚀 Ajustado: Usando updatedNote.data_criacao
                   data_criacao: new Date(updatedNote.data_criacao),
                   data_lembrete: updatedNote.data_lembrete
                     ? new Date(updatedNote.data_lembrete)
@@ -420,6 +496,7 @@ const Notas = () => {
       }
     } catch (e) {
       console.error('Erro ao fixar/desafixar (lembrete):', e);
+      setError(getApiError(e));
     }
   };
 
@@ -489,6 +566,20 @@ const Notas = () => {
         />
       </div>
 
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-medium">Erro: {error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="text-red-600/70 hover:text-red-800 text-sm"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Lista de notas */}
       <section className="bg-white rounded-2xl shadow p-6 border border-brand-100 min-h-[320px]">
         {loading ? (
@@ -535,6 +626,11 @@ const Notas = () => {
           editing ? `Editar: ${editing.titulo || '(Sem título)'}` : 'Nova nota'
         }
       >
+        {modalError && (
+          <div className="mb-3 rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm">
+            {modalError}
+          </div>
+        )}
         <NoteForm
           initial={editing}
           loading={saving}

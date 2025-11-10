@@ -1,0 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Tipo" AS ENUM ('EXAME', 'VACINA', 'CONSULTA', 'MEDICACAO', 'SINTOMA', 'DIETA', 'EXERCICIO', 'GESTACAO', 'PUERPERIO', 'FINANCEIRO', 'EVENTO', 'OUTRO');
+
+-- AlterTable
+ALTER TABLE "Notas" ADD COLUMN     "outro" TEXT,
+ADD COLUMN     "tipo" "Tipo";

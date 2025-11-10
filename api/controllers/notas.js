@@ -1,7 +1,10 @@
 import prisma from '../utils/prisma.js';
+import { getTomorrowDate } from '../../app/src/utils/getDate.js';
+
+const data_minima = getTomorrowDate();
 
 const postNotas = async (req, res) => {
-    const { titulo, descricao, id_usuario, data_lembrete, lembrete } = req.body;
+    const { titulo, descricao, id_usuario, data_lembrete, lembrete, tipo, outro } = req.body;
 
     switch (true) {
         case !titulo:
@@ -12,6 +15,12 @@ const postNotas = async (req, res) => {
             return res.status(422).json({ error: 'O ID do usuário é obrigatório.' });
         case lembrete && !data_lembrete:
             return res.status(422).json({ error: 'A data do lembrete é obrigatória quando o lembrete está ativado.' });
+        case lembrete && data_lembrete < data_minima:
+            return res.status(422).json({ error: 'A data do lembrete deve ser no mínimo o dia seguinte.' });
+        case lembrete && !tipo:
+            return res.status(422).json({ error: 'O tipo do lembrete é obrigatória quando o lembrete está ativado.' });
+        case lembrete && tipo === 'Outro' && !outro:
+            return res.status(422).json({ error: 'O campo outro é obrigatório quando o lembrete está ativado.' });
         default:
             break;
     }
@@ -27,25 +36,31 @@ const postNotas = async (req, res) => {
                 data_lembrete,
                 data_criacao,
                 lembrete,
+                tipo: lembrete ? tipo : null,
+                outro: lembrete && tipo === 'Outro' ? outro.trim() : null,
             },
         });
         res.status(201).json(novaNota);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Erro ao criar a nota.' });
     }
 };
 
 const getNotas = async (req, res) => {
-    const { id_usuario } = req.query;
+    const { id_usuario, lembrete } = req.query;
     try {
         const notas = await prisma.notas.findMany({
-            where: { id_usuario: id_usuario },
+            where: { 
+                id_usuario: id_usuario,
+                lembrete: lembrete === 'true' ? true : lembrete === 'false' ? false : undefined,
+             },
             orderBy: { data_criacao: 'desc' },
         });
         res.status(200).json(notas);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Erro ao buscar as notas.' });
+        res.status(500).json({ error: 'Erro ao buscar as notas/lembretes.' });
     }
 };
 
@@ -70,31 +85,9 @@ const getNota = async (req, res) => {
     }
 };
 
-const getNotaLembrete = async (req, res) => {
-    const { id_usuario } = req.query; 
-
-    if (!id_usuario) {
-        return res.status(400).json({ error: 'O ID do usuário é obrigatório para buscar lembretes.' });
-    }
-
-    try {
-        const notasComLembrete = await prisma.notas.findMany({
-            where: { 
-                id_usuario: id_usuario,
-                lembrete: true,
-            },
-            orderBy: { data_lembrete: 'desc' },
-        });
-        res.status(200).json(notasComLembrete);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Erro ao buscar as lembrete.' });
-    }
-};
-
 const updateNota = async (req, res) => {
     const id = req.params.id;
-    const { titulo, descricao, data_lembrete, lembrete } = req.body;
+    const { titulo, descricao, data_lembrete, lembrete, tipo, outro } = req.body;
 
     const dataAtualizacao = new Date();
 
@@ -105,6 +98,12 @@ const updateNota = async (req, res) => {
             return res.status(422).json({ error: 'A descrição da nota é obrigatória.' });
         case lembrete && !data_lembrete:
             return res.status(422).json({ error: 'A data do lembrete é obrigatória quando o lembrete está ativado.' });
+        case lembrete && data_lembrete < data_minima:
+            return res.status(422).json({ error: 'A data do lembrete deve ser no mínimo o dia seguinte.' });
+        case lembrete && !tipo:
+            return res.status(422).json({ error: 'O tipo do lembrete é obrigatória quando o lembrete está ativado.' });
+        case lembrete && tipo === 'Outro' && !outro:
+            return res.status(422).json({ error: 'O campo outro é obrigatório quando o lembrete está ativado.' });
         default:
             break;
     }
@@ -118,6 +117,8 @@ const updateNota = async (req, res) => {
                 data_lembrete,
                 lembrete,
                 data_criacao: dataAtualizacao,
+                tipo: lembrete ? tipo : null,
+                outro: lembrete && tipo === 'Outro' ? outro.trim() : null,
             },
         });
         res.status(200).json(notaAtualizada);
@@ -140,4 +141,4 @@ const deleteNota = async (req, res) => {
     }
 };
 
-export { postNotas, getNotas, getNota, getNotaLembrete, updateNota, deleteNota };
+export { postNotas, getNotas, getNota, updateNota, deleteNota };
