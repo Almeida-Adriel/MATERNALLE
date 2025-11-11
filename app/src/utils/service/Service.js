@@ -1,7 +1,7 @@
 import axios from "axios";
 import Auth from "./Auth";
 
-const BASE_URL = "http://localhost:5000/";
+const BASE_URL = "https://maternalle.onrender.com/";
 const auth = new Auth();
 
 const handle401Error = (error) => {
