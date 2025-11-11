@@ -188,14 +188,14 @@ const loginUser = async (req, res) => {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
             maxAge: maxAge, // Tempo de vida do cookie
             secure: true, // Use 'true' em produção (HTTPS)
-            sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
+            sameSite: 'none',
         });
 
         res.cookie('userId', user.id, {
-            httpOnly: false, // Pode ser acessado via JavaScript
-            maxAge: maxAge, // Tempo de vida do cookie
-            secure: true, // Use 'true' em produção (HTTPS)
-            sameSite: 'Lax', // Ajuda contra CSRF em requisições GET
+            httpOnly: false,
+            maxAge: maxAge,
+            secure: true,
+            sameSite: 'none',
         });
 
         await prisma.usuarios.update({
@@ -205,7 +205,7 @@ const loginUser = async (req, res) => {
 
         return res.status(200).json({
             message: 'Autenticação realizada com sucesso!', 
-            userCpf: user.cpf,
+            userPerfil: user.perfil.tipoPerfil,
             id: user.id 
         });
     }

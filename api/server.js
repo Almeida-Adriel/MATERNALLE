@@ -13,8 +13,9 @@ import notasRoutes from './routes/notas.js';
 const app = express();
 
 app.set('trust proxy', 1)
+app.use(cookieParser());
 
-const whitelist = ['https://site.com', 'http://localhost:5173', 'http://localhost:5174'];
+const whitelist = ['https://maternalle.com.br', 'http://localhost:5173', 'http://localhost:5174'];
 
 const corsOptions = {
   origin: function (origin, callback) {
@@ -24,12 +25,13 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'))
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
-app.use(cookieParser());
 
 app.use('/auth', authRoutes);
 app.use('/', usuarios);
