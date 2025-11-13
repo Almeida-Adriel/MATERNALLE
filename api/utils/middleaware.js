@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
     // 1. Tenta obter o token do cookie
-    const token = req.cookies.token || localStorage.getItem('token');
+    const token = req.cookies.token;
     console.log('Token recebido:', token);
 
     if (!token) {
