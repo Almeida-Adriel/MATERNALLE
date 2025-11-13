@@ -27,6 +27,7 @@ class Auth {
         if (!!data) {
             const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'none' };
             Cookies.set('userId', data.userId, options)
+            Cookies.set('token', data.token, options)
         }
     }
 
