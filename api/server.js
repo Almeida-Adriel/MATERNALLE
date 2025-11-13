@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.js';
 import usuarios from './routes/usuarios.js';
 import esqueciMinhaSenha from './routes/esqueci_minha_senha.js';
 import notasRoutes from './routes/notas.js';
+import conteudosRoutes from './routes/conteudos.js';
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/auth', authRoutes);
 app.use('/', usuarios);
 app.use('/', esqueciMinhaSenha)
 app.use('/notas', notasRoutes);
+app.use('/conteudos', conteudosRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

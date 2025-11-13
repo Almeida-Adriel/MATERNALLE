@@ -37,7 +37,6 @@ const Login = () => {
       const response = await service.login(cpf, password);
       auth.saveDataLogin({ 
         userId: response.data.id,
-        token: response.data.token
       });
 
       navigate('/central', { replace: true });

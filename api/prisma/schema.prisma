@@ -64,6 +64,17 @@ model Notas {
   @@index([id_usuario])
 }
 
+model Conteudos {
+  id                String          @id @default(uuid())
+  titulo            String
+  descricao         String
+  data_criacao      DateTime        @db.Date @default()
+  tipo_conteudo     TipoConteudo
+  acesso            Perfil
+  outros            String?
+  link_referencia   String?
+}
+
 model RecoveryCode {
   id        String   @id @default(uuid())
   cpf       String   @unique
@@ -114,4 +125,15 @@ enum Tipo {
   FINANCEIRO
   EVENTO
   OUTRO
+}
+
+enum TipoConteudo {
+  PUERPERA
+  GESTACAO
+  DIETA
+  EXERCICIO
+  VACINA
+  EXAME
+  SINTOMAS
+  OUTROS
 }
