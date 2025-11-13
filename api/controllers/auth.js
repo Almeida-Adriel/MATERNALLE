@@ -182,18 +182,18 @@ const loginUser = async (req, res) => {
             { expiresIn: expirationTime }
         );
 
-        const maxAge = 1000 * 60 * 60 * 24 * 7; 
+        const tokenMaxAge = 1000 * 60 * 60 * 24; 
 
         res.cookie('token', token, {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
-            expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // Tempo de vida do cookie
+            maxAge: tokenMaxAge, // Tempo de vida do cookie
             secure: true, // Use 'true' em produção (HTTPS)
             sameSite: 'none',
         });
 
         res.cookie('userId', user.id, {
             httpOnly: false,
-            maxAge: maxAge,
+            maxAge: tokenMaxAge,
             secure: true,
             sameSite: 'none',
         });
