@@ -31,7 +31,6 @@ const corsOptions = {
 }
 
 app.use(cors(corsOptions));
-app.options('*', corsOptions);
 app.use(bodyParser.json());
 
 app.use('/auth', authRoutes);
