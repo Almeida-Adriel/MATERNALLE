@@ -28,12 +28,13 @@ class Auth {
             const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'none' };
             Cookies.set('userId', data.userId, options)
             Cookies.set('token', data.token, options)
-            console.log('Token', data.token)
+            console.log('Token', data)
         }
     }
 
     clear(){
-        Cookies.remove('userId')
+        Cookies.remove('userId');
+        Cookies.remove('token');
     }
 }
 
