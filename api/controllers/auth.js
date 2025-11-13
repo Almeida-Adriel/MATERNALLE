@@ -206,7 +206,8 @@ const loginUser = async (req, res) => {
         return res.status(200).json({
             message: 'Autenticação realizada com sucesso!', 
             userPerfil: user.perfil.tipoPerfil,
-            id: user.id 
+            id: user.id,
+            token: token,
         });
     }
     catch (error) {
@@ -220,13 +221,13 @@ const logoutUser = async (req, res) => {
         httpOnly: true,
         expires: new Date(0), // Data no passado
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
+        sameSite: 'none',
     });
     res.cookie('userId', '', { 
         httpOnly: true,
         expires: new Date(0),
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'Lax',
+        sameSite: 'none',
     });
 
     return res.status(200).json({ message: 'Logout realizado com sucesso!' });
