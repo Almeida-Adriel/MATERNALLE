@@ -12,7 +12,8 @@ const handle401Error = (error) => {
         'flash',
         JSON.stringify({
           type: 'warning',
-          description: 'Sessão expirada, por favor, faça login novamente.' + `Error: ${error.response.data || 'Não autorizado'}`,
+          description: 'Sessão expirada, por favor, faça login novamente.' +
+          `Error: ${JSON.stringify(error.response.data) || 'Não autorizado'}`,
         })
       );
       localStorage.clear();
