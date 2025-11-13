@@ -15,7 +15,7 @@ const app = express();
 app.set('trust proxy', 1)
 app.use(cookieParser());
 
-const whitelist = ['https://maternalle.com.br', 'https://maternalle-d18x.onrender.com', 'http://localhost:5174'];
+const whitelist = ['https://maternalle.com.br', 'https://maternalle-d18x.onrender.com', 'http://localhost:5174', 'http://localhost:5173'];
 
 const corsOptions = {
   origin: function (origin, callback) {

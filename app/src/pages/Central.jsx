@@ -13,7 +13,6 @@ import Auth from '../utils/service/Auth';
 
 const service = new Service();
 const auth = new Auth();
-const usuarioId = auth.getId();
 
 const formatDateBR = (d) => {
   try {
@@ -43,8 +42,9 @@ const NotaCard = ({ titulo, descricao, data_criacao }) => (
 
 const Central = ({ data, loading }) => {
   const [compromissos, setCompromissos] = useState([]);
-  const [loadingCompromissos, setLoadingCompromissos] = useState(true);
+  const [loadingCompromissos, setLoadingCompromissos] = useState(false);
   const [ notas, setNotas ] = useState(data?.notas || []);
+  const usuarioId = auth.getId();
 
   useEffect(() => {
     const fetchCompromissos = async () => {
@@ -86,6 +86,9 @@ const Central = ({ data, loading }) => {
 
     if (usuarioId) {
       fetchCompromissos();
+    } else {
+      setLoadingCompromissos(false);
+      setCompromissos([]);
     }
   }, [usuarioId]);
 
