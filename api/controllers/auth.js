@@ -184,18 +184,24 @@ const loginUser = async (req, res) => {
 
         const tokenMaxAge = 1000 * 60 * 60 * 24; 
 
+        // Use secure cookies only in production (when using HTTPS).
+        // This allows cookies to be set during local development on http://localhost.
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('token', token, {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
             maxAge: tokenMaxAge, // Tempo de vida do cookie
-            secure: true, // Use 'true' em produção (HTTPS)
-            sameSite: 'none',
+            secure: isProduction, // only secure in production (HTTPS)
+            sameSite: 'lax',
+            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
         });
 
         res.cookie('userId', user.id, {
             httpOnly: false,
             maxAge: tokenMaxAge,
-            secure: true,
-            sameSite: 'none',
+            secure: isProduction,
+            sameSite: 'lax',
+            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
         });
 
         await prisma.usuarios.update({
@@ -207,7 +213,6 @@ const loginUser = async (req, res) => {
             message: 'Autenticação realizada com sucesso!', 
             userPerfil: user.perfil.tipoPerfil,
             id: user.id,
-            token: token,
         });
     }
     catch (error) {
@@ -217,17 +222,22 @@ const loginUser = async (req, res) => {
 }
 
 const logoutUser = async (req, res) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // Clear cookies using the same security options used when setting them.
     res.cookie('token', '', {
         httpOnly: true,
         expires: new Date(0), // Data no passado
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
+        secure: isProduction,
+        sameSite: 'lax',
+        domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
     });
     res.cookie('userId', '', { 
-        httpOnly: true,
+        httpOnly: false,
         expires: new Date(0),
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
+        secure: isProduction,
+        sameSite: 'lax',
+        domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
     });
 
     return res.status(200).json({ message: 'Logout realizado com sucesso!' });
