@@ -243,7 +243,7 @@ const logoutUser = async (req, res) => {
         return res.status(500).json({ error: 'Aconteceu um erro no servidor, tente novamente mais tarde!' });
     }
 
-    return res.status(200).json({ message: 'Logout realizado com sucesso!' });    return tatus(200).json({ message: 'Logout realizado com sucesso!' });
+    return res.status(200).json({ message: 'Logout realizado com sucesso!' });
 }
 
 export { register, loginUser, logoutUser };

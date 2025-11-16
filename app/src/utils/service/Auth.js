@@ -12,7 +12,6 @@ class Auth {
 
     isAuthenticated() {
         let id = this._getCookie('userId'); 
-        console.log('User ID from cookie:', id);
 
         return id;
     }
@@ -21,6 +20,13 @@ class Auth {
         if(this.isAuthenticated()){
             let userId = this._getCookie('userId')
             return userId;
+        }
+    }
+
+    saveDataLogin(data) {
+        if (!!data) {
+            const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'none' };
+            Cookies.set('userId', data.userId, options)
         }
     }
 

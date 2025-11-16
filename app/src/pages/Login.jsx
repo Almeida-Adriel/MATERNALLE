@@ -4,8 +4,8 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-import Auth from '../utils/service/Auth';
 import Service from '../utils/service/Service';
+import Auth from '../utils/service/Auth';
 import mascaraCpf from '../utils/mascaras/mascaraCPF';
 import customTheme from '../utils/CustomTheme';
 import { ThemeProvider } from '@mui/material/styles';
@@ -34,11 +34,13 @@ const Login = () => {
     setFlash(null);
 
     try {
-      await service.login(cpf, password);
-      console.log('Login bem-sucedido', auth.getId());
+      const response = await service.login(cpf, password);
+      auth.saveDataLogin({
+        userId: response.data.id,
+      });
+
       navigate('/central', { replace: true });
     } catch (error) {
-      console.log('Erro no login:', error);
       const errorMessage =
         typeof error === 'object' && error !== null && error.error
           ? error.error
