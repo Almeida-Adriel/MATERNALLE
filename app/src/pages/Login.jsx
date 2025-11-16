@@ -4,12 +4,14 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import Auth from '../utils/service/Auth';
 import Service from '../utils/service/Service';
 import mascaraCpf from '../utils/mascaras/mascaraCPF';
 import customTheme from '../utils/CustomTheme';
 import { ThemeProvider } from '@mui/material/styles';
 
 const service = new Service();
+const auth = new Auth();
 
 const Login = () => {
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ const Login = () => {
 
     try {
       await service.login(cpf, password);
-      await service.get('usuario', service.auth.getId());
+      await service.get('usuario', auth.getId());
       navigate('/central', { replace: true });
     } catch (error) {
       console.log('Erro no login:', error);
