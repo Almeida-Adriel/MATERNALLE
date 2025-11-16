@@ -184,8 +184,6 @@ const loginUser = async (req, res) => {
 
         const tokenMaxAge = 1000 * 60 * 60 * 24; 
 
-        // Use secure cookies only in production (when using HTTPS).
-        // This allows cookies to be set during local development on http://localhost.
         const isProduction = process.env.NODE_ENV === 'production';
 
         res.cookie('token', token, {
@@ -223,24 +221,29 @@ const loginUser = async (req, res) => {
 
 const logoutUser = async (req, res) => {
     const isProduction = process.env.NODE_ENV === 'production';
+    
+    try {
+        // Clear cookies using the same security options used when setting them.
+        res.cookie('token', '', {
+            httpOnly: true,
+            expires: new Date(0), // Data no passado
+            secure: isProduction,
+            sameSite: 'lax',
+            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+        });
+        res.cookie('userId', '', { 
+            httpOnly: false,
+            expires: new Date(0),
+            secure: isProduction,
+            sameSite: 'lax',
+            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: 'Aconteceu um erro no servidor, tente novamente mais tarde!' });
+    }
 
-    // Clear cookies using the same security options used when setting them.
-    res.cookie('token', '', {
-        httpOnly: true,
-        expires: new Date(0), // Data no passado
-        secure: isProduction,
-        sameSite: 'lax',
-        domain: isPtion ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
-    });
-    res.cookie('userId', '', { 
-        httpOnly: false,
-        expires: new Date(0),
-        secure: isProduction,
-        sameSite: 'lax',
-        domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
-    });
-
-    return tatus(200).json({ message: 'Logout realizado com sucesso!' });
+    return res.status(200).json({ message: 'Logout realizado com sucesso!' });    return tatus(200).json({ message: 'Logout realizado com sucesso!' });
 }
 
 export { register, loginUser, logoutUser };
