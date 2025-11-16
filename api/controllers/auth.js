@@ -190,16 +190,16 @@ const loginUser = async (req, res) => {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
             maxAge: tokenMaxAge, // Tempo de vida do cookie
             secure: isProduction, // only secure in production (HTTPS)
-            sameSite: 'lax',
-            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
+            sameSite: isProduction ? 'none' : 'lax',
+            domain: isProduction ? undefined : '192.168.1.19',
         });
 
         res.cookie('userId', user.id, {
             httpOnly: false,
             maxAge: tokenMaxAge,
             secure: isProduction,
-            sameSite: 'lax',
-            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
+            sameSite: isProduction ? 'none' : 'lax',
+            domain: isProduction ? undefined : '192.168.1.19',
         });
 
         await prisma.usuarios.update({
@@ -228,15 +228,15 @@ const logoutUser = async (req, res) => {
             httpOnly: true,
             expires: new Date(0), // Data no passado
             secure: isProduction,
-            sameSite: 'lax',
-            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
+            sameSite: isProduction ? 'none' : 'lax',
+            domain: isProduction ? undefined : '192.168.1.19',
         });
         res.cookie('userId', '', { 
             httpOnly: false,
             expires: new Date(0),
             secure: isProduction,
-            sameSite: 'lax',
-            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
+            sameSite: isProduction ? 'none' : 'lax',
+            domain: isProduction ? undefined : '192.168.1.19',
         });
     } catch (error) {
         console.log(error);
