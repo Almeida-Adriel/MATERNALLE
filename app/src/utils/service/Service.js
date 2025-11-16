@@ -16,7 +16,7 @@ const handle401Error = (error) => {
           description: 'Sessão expirada, por favor, faça login novamente.',
         })
       );
-      // window.location.href = '/login';
+      window.location.href = '/login';
     }
     return Promise.reject(error.response?.data || error); 
 };
