@@ -36,6 +36,7 @@ const Login = () => {
       await service.get('usuario', service.auth.getId());
       navigate('/central', { replace: true });
     } catch (error) {
+      console.log('Erro no login:', error);
       const errorMessage =
         typeof error === 'object' && error !== null && error.error
           ? error.error
