@@ -35,7 +35,7 @@ const Login = () => {
 
     try {
       await service.login(cpf, password);
-      await service.get('usuario', auth.getId());
+      console.log('Login bem-sucedido', auth.getId());
       navigate('/central', { replace: true });
     } catch (error) {
       console.log('Erro no login:', error);
