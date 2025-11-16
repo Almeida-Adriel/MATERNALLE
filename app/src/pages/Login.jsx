@@ -5,13 +5,11 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Service from '../utils/service/Service';
-import Auth from '../utils/service/Auth';
 import mascaraCpf from '../utils/mascaras/mascaraCPF';
 import customTheme from '../utils/CustomTheme';
 import { ThemeProvider } from '@mui/material/styles';
 
 const service = new Service();
-const auth = new Auth();
 
 const Login = () => {
   const navigate = useNavigate();
@@ -34,8 +32,8 @@ const Login = () => {
     setFlash(null);
 
     try {
-      const response = await service.login(cpf, password);
-
+      await service.login(cpf, password);
+      await service.get('usuario', service.auth.getId());
       navigate('/central', { replace: true });
     } catch (error) {
       const errorMessage =
