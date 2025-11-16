@@ -193,7 +193,7 @@ const loginUser = async (req, res) => {
             maxAge: tokenMaxAge, // Tempo de vida do cookie
             secure: isProduction, // only secure in production (HTTPS)
             sameSite: 'lax',
-            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
         });
 
         res.cookie('userId', user.id, {
@@ -201,7 +201,7 @@ const loginUser = async (req, res) => {
             maxAge: tokenMaxAge,
             secure: isProduction,
             sameSite: 'lax',
-            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
         });
 
         await prisma.usuarios.update({
@@ -230,7 +230,7 @@ const logoutUser = async (req, res) => {
         expires: new Date(0), // Data no passado
         secure: isProduction,
         sameSite: 'lax',
-        domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+        domain: isPtion ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
     });
     res.cookie('userId', '', { 
         httpOnly: false,
@@ -240,7 +240,7 @@ const logoutUser = async (req, res) => {
         domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
     });
 
-    return res.status(200).json({ message: 'Logout realizado com sucesso!' });
+    return tatus(200).json({ message: 'Logout realizado com sucesso!' });
 }
 
 export { register, loginUser, logoutUser };

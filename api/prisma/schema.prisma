@@ -68,7 +68,7 @@ model Conteudos {
   id                String          @id @default(uuid())
   titulo            String
   descricao         String
-  data_criacao      DateTime        @db.Date @default()
+  data_criacao      DateTime        @db.Date
   tipo_conteudo     TipoConteudo
   acesso            Perfil
   outros            String?
