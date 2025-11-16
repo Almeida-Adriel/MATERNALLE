@@ -12,6 +12,7 @@ class Auth {
 
     isAuthenticated() {
         let id = this._getCookie('userId'); 
+        console.log('User ID from cookie:', id);
 
         return id;
     }
