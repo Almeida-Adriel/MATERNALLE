@@ -229,14 +229,14 @@ const logoutUser = async (req, res) => {
             expires: new Date(0), // Data no passado
             secure: isProduction,
             sameSite: 'lax',
-            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
         });
         res.cookie('userId', '', { 
             httpOnly: false,
             expires: new Date(0),
             secure: isProduction,
             sameSite: 'lax',
-            domain: isProduction ? 'maternalle-d18x.onrender.com' : '192.168.1.19',
+            domain: isProduction ? 'maternalle.onrender.com' : '192.168.1.19',
         });
     } catch (error) {
         console.log(error);
