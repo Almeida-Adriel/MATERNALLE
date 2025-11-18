@@ -2,7 +2,7 @@ import axios from "axios";
 import Auth from "./Auth";
 
 const BASE_URL = "https://maternalle.onrender.com/"; // URL de produção
-// const BASE_URL = "http://192.168.1.19:5000/"; // URL de teste local
+// const BASE_URL = "http://192.168.1.17:5000/"; // URL de teste local
 // const BASE_URL = "http://localhost:5000/";
 const auth = new Auth();
 
@@ -13,7 +13,7 @@ const handle401Error = (error) => {
         'flash',
         JSON.stringify({
           type: 'warning',
-          description: 'Sessão expirada, por favor, faça login novamente.',
+          description: 'Sessão expirada, por favor, faça login novamente. ' + `${JSON.stringify(error.data)}`,
         })
       );
       window.location.href = '/login';
