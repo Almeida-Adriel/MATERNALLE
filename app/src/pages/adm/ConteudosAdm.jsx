@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import Service from '../../utils/service/Service';
-import { MdOutlineUploadFile, MdOutlineLink } from 'react-icons/md';
+import React, { useState, useEffect } from 'react';
+import { MdOutlineUploadFile } from 'react-icons/md';
 import { ThemeProvider } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import customTheme from '../../utils/CustomTheme';
+import Service from '../../utils/service/Service';
+import { tipo_conteudo_enum } from '../../utils/enum/tipoConteudo';
+import { tipoPerfil } from '../../utils/enum/tipoPerfil';
+import DefaultDataPage from '../../components/DefaultDataPage';
 
 const service = new Service();
-const ENDPOINT = '/conteudos'; // Mantém o endpoint para clareza
+const ENDPOINT = '/conteudos';
 
 const ConteudosAdm = () => {
   const [formData, setFormData] = useState({
@@ -16,19 +21,61 @@ const ConteudosAdm = () => {
     link_referencia: '',
     outros: '',
   });
+
   const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState(''); // 'success', 'error', 'info'
+  const [messageType, setMessageType] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [conteudos, setConteudos] = useState([]);
+  const [query, setQuery] = useState('');
+  const [order, setOrder] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
+    setCurrentPage(1);
+  };
+
+  const handleOrderChange = (newOrder) => {
+    setOrder(newOrder);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    const { id, value, name } = e.target;
+    setFormData((prev) => ({ ...prev, [id || name]: value }));
   };
 
   const showMessage = (msg, type) => {
     setMessage(msg);
     setMessageType(type);
   };
+
+  const fetchConteudos = async () => {
+    setIsLoading(true);
+    try {
+      const res = await service.getWithParams(`${ENDPOINT}/todos`, {
+        search: query,
+        order,
+        page: currentPage,
+      });
+      setConteudos(res.data.conteudos || []); // A partir da resposta, configurar os conteúdos
+      setTotalPages(res.data.totalPages || 1); // Ajustar o total de páginas
+    } catch (error) {
+      setMessage('Erro ao buscar conteúdos');
+      setMessageType('error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchConteudos();
+  }, [query, order, currentPage]);
 
   const resetForm = () => {
     setFormData({
@@ -46,7 +93,6 @@ const ConteudosAdm = () => {
     setIsLoading(true);
     showMessage('Publicando conteúdo, aguarde...', 'info');
 
-    // 1. Validação simples (Campos obrigatórios)
     if (
       !formData.titulo ||
       !formData.descricao ||
@@ -61,39 +107,33 @@ const ConteudosAdm = () => {
       return;
     }
 
-    // 2. Formata os dados
     const dataToSend = {
       ...formData,
-      // Garante que campos opcionais vazios sejam `null` para consistência.
       link_referencia: formData.link_referencia || null,
       outros: formData.outros || null,
     };
 
     try {
-      // 3. Chamada ao Serviço (Agora simulando o serviço real de banco de dados/API)
-      // Nota: o endpoint é passado para o stub apenas para fins de log.
       const response = await service.post(ENDPOINT, dataToSend);
 
-      // 4. Tratamento da resposta
-      if (response && response.titulo) {
+      if (response && response?.data.titulo) {
         showMessage(
           `Conteúdo "${response.titulo}" criado com sucesso! (ID: ${response.id})`,
           'success'
         );
         resetForm(); // Limpa o formulário após o sucesso
+        setOpenModal(false); 
       } else {
         showMessage(
-          `Falha ao publicar. Resposta do servidor incompleta.`,
+          `Falha ao publicar. ${response.error}`,
           'error'
         );
-        console.error('Resposta inesperada:', response);
+        console.error('Resposta inesperada:', response.data);
       }
     } catch (error) {
-      // 5. Tratamento de Erros de Requisição ou Serviço
       const errorMessage =
-        error?.response?.data?.error ||
-        error.message ||
-        'Erro de conexão com o Banco de Dados. Verifique o console.';
+        error?.error ||
+        'Erro ao publicar o conteúdo. Por favor tente mais tarde.';
       console.error('Erro na requisição:', error);
       showMessage(`Falha na publicação: ${errorMessage}`, 'error');
     } finally {
@@ -116,14 +156,14 @@ const ConteudosAdm = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      <div className="flex items-center justify-center mb-2">
+      <div className="flex items-center justify-start mb-2">
         <MdOutlineUploadFile size={30} className="text-brand-500 mr-2" />
         <h1 className="text-3xl font-extrabold text-brand-700 tracking-tight">
           Painel de Publicação
         </h1>
       </div>
 
-      <p className="text-gray-500 mb-8 text-center text-sm">
+      <p className="text-gray-500 mb-8 text-sm">
         Crie novos recursos e defina seu nível de acesso.
       </p>
 
@@ -135,178 +175,128 @@ const ConteudosAdm = () => {
         {message}
       </div>
 
-      <form onSubmit={handleFormSubmit} className="space-y-6">
-        {/* Detalhes do Conteúdo */}
+      {/* Modal de Criação de Conteúdo */}
+      {openModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setOpenModal(false)} />
+          <div className="relative z-10 w-full max-w-3xl p-6 bg-white rounded-xl shadow-lg">
+            <h2 className="text-2xl font-semibold text-brand-700">Criar Conteúdo</h2>
+            <form onSubmit={handleFormSubmit} className="space-y-6 mt-4">
+              <TextField
+                id="titulo"
+                label="Título"
+                type="text"
+                value={formData.titulo}
+                onChange={handleChange}
+                fullWidth
+                required
+                sx={{ marginBottom: '16px' }}
+              />
+              <TextField 
+                id='descricao'
+                label='Descrição'
+                value={formData.descricao}
+                onChange={handleChange}
+                rows={4}
+                fullWidth
+                multiline
+                required
+                sx={{ marginBottom: '16px' }}
+              />
 
-        <div>
-          <label
-            htmlFor="titulo"
-            className="block text-sm font-semibold text-gray-700 mb-1"
-          >
-            Título <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="titulo"
-            // Foco e hover com cores corporativas sutis
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition duration-150 shadow-inner hover:border-pink-400"
-            value={formData.titulo}
-            onChange={handleChange}
-            placeholder="Ex: Guia Completo de Finanças Pessoais"
-            required
-          />
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="md:col-span-6">
+                  <TextField
+                    name='tipo_conteudo'
+                    label='Tipo Conteudo'
+                    onChange={handleChange}
+                    value={formData.tipo_conteudo}
+                    select
+                    fullWidth
+                    required
+                    sx={{ marginBottom: '16px' }}
+                  >
+                    {Object.entries(tipo_conteudo_enum).map(([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
 
-        <div>
-          <label
-            htmlFor="descricao"
-            className="block text-sm font-semibold text-gray-700 mb-1"
-          >
-            Descrição <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            id="descricao"
-            rows="3"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition duration-150 resize-none shadow-inner hover:border-pink-400"
-            value={formData.descricao}
-            onChange={handleChange}
-            placeholder="Descreva o conteúdo em detalhes, incluindo os tópicos abordados."
-            required
-          ></textarea>
-        </div>
+                <div className='md:col-span-6'>
+                  <TextField
+                    name='acesso'
+                    label='Tipo de Acesso'
+                    onChange={handleChange}
+                    value={formData.acesso}
+                    select
+                    fullWidth
+                    required
+                    sx={{ marginBottom: '16px' }}
+                  >
+                    {Object.entries(tipoPerfil).map(([key, value]) => (
+                      <MenuItem key={key} value={key}>
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+                {formData.tipo_conteudo === 'OUTROS' &&
+                  <div className='md:col-span-6'>
+                    <TextField
+                      id='outros'
+                      label='Outras Informações (Palavras-chave)'
+                      value={formData.outros}
+                      onChange={handleChange}
+                      type='text'
+                      fullWidth
+                      required={formData.tipo_conteudo === 'OUTROS'}
+                    />
+                  </div>
+                }
+                <div className='md:col-span-6'>
+                  <TextField
+                    id='link_referencia'
+                    label='Link de Referência'
+                    value={formData.link_referencia}
+                    onChange={handleChange}
+                    type='text'
+                    placeholder='https://fonte.com/recurso'
+                    fullWidth
+                  />
+                </div>
+              </div>
 
-        {/* Tipo e Acesso */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="tipo_conteudo"
-              className="block text-sm font-semibold text-gray-700 mb-1"
-            >
-              Tipo de Conteúdo <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="tipo_conteudo"
-              // Garante que o select tenha o mesmo estilo de foco e hover
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition duration-150 shadow-inner hover:border-pink-400 appearance-none bg-white"
-              value={formData.tipo_conteudo}
-              onChange={handleChange}
-              required
-            >
-              <option value="" disabled>
-                Selecione o tipo
-              </option>
-              <option value="ARTIGO">Artigo</option>
-              <option value="VIDEO">Vídeo</option>
-              <option value="PODCAST">Podcast</option>
-              <option value="EBOOK">Ebook</option>
-              <option value="OUTROS">Outros</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="acesso"
-              className="block text-sm font-semibold text-gray-700 mb-1"
-            >
-              Nível de Acesso <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="acesso"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition duration-150 shadow-inner hover:border-pink-400 appearance-none bg-white"
-              value={formData.acesso}
-              onChange={handleChange}
-              required
-            >
-              <option value="" disabled>
-                Selecione o nível
-              </option>
-              <option value="BASICO">Básico (Gratuito)</option>
-              <option value="PREMIUM">Premium (Assinantes)</option>
-              <option value="PREMIUM_ANUAL">Premium Anual</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Referências Opcionais */}
-        <div className="pt-4 border-t border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center">
-            Referências (Opcional)
-          </h3>
-        </div>
-
-        <div>
-          <label
-            htmlFor="link_referencia"
-            className="block text-sm font-semibold text-gray-700 mb-1"
-          >
-            Link de Referência
-          </label>
-          <input
-            type="url"
-            id="link_referencia"
-            placeholder="https://exemplo.com/recurso"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition duration-150 shadow-inner hover:border-pink-400"
-            value={formData.link_referencia}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div>
-          <label
-            htmlFor="outros"
-            className="block text-sm font-semibold text-gray-700 mb-1"
-          >
-            Outras Informações (Palavras-chave, Notas)
-          </label>
-          <input
-            type="text"
-            id="outros"
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500 transition duration-150 shadow-inner hover:border-pink-400"
-            value={formData.outros}
-            onChange={handleChange}
-            placeholder="Ex: Finanças, Orçamento, Investimento"
-          />
-        </div>
-
-        {/* Botão de Envio */}
-        <button
-          type="submit"
-          className={`mt-8 w-full py-3 px-4 text-white font-bold rounded-xl shadow-lg transition duration-300 ease-in-out transform ${
-            isLoading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 active:bg-pink-800 hover:scale-[1.01]'
-          }`}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
+              {/* Botão de Envio */}
+              <button
+                type="submit"
+                className={`w-full py-3 px-4 text-white font-bold rounded-xl shadow-lg transition duration-300 ease-in-out transform ${
+                  isLoading
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 active:bg-pink-800 hover:scale-[1.01]'
+                }`}
+                disabled={isLoading}
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Publicando...
-            </div>
-          ) : (
-            'Publicar Conteúdo'
-          )}
-        </button>
-      </form>
+                {isLoading ? 'Publicando...' : 'Publicar Conteúdo'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <DefaultDataPage
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        dataList={conteudos}  // Passando os dados de conteúdo para a lista
+        onSearch={handleSearch}
+        query={query}
+        order={order}
+        onOrderChange={handleOrderChange}
+        labelButton={"Adicionar Conteúdo"}
+        onOpenCreate={() => setOpenModal(true)}
+      />
     </ThemeProvider>
   );
 };

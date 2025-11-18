@@ -128,7 +128,7 @@ enum Tipo {
 }
 
 enum TipoConteudo {
-  PUERPERA
+  PUERPERIO
   GESTACAO
   DIETA
   EXERCICIO

@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 const authMiddleware = (req, res, next) => {
     // 1. Tenta obter o token do cookie
     const token = req.cookies.token;
-    console.log('token:', token)
 
     if (!token) {
         return res.status(401).json({ error: 'Acesso negado. Token não fornecido.' });

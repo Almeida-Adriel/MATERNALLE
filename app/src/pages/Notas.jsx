@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   MdEditNote,
-  MdSearch,
   MdAdd,
   MdPushPin,
   MdOutlinePushPin,
@@ -13,11 +12,10 @@ import Service from '../utils/service/Service';
 import Auth from '../utils/service/Auth';
 import { tipoLembreteEnum } from '../utils/enum/tipoLembrete';
 import { getTomorrowDate } from '../utils/getDate';
+import ToolSearch from '../components/ToolSearch';
 
 const service = new Service();
 const auth = new Auth();
-
-const usuarioId = auth.getId();
 
 // --- Helpers ---
 const formatDateBR = (d) => {
@@ -29,75 +27,6 @@ const formatDateBR = (d) => {
     return '--/--/----';
   }
 };
-
-const debounce = (fn, delay = 400) => {
-  let t;
-  return (...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn(...args), delay);
-  };
-};
-
-// --- Componentes de UI ---
-const Toolbar = ({
-  search,
-  onSearch,
-  order,
-  onOrderChange,
-  onlyPinned,
-  onTogglePinned,
-  onOpenCreate,
-}) => (
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-    <div className="relative w-full sm:max-w-md">
-      <MdSearch
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-        size={20}
-      />
-      <input
-        className="w-full pl-10 pr-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
-        placeholder="Buscar por título ou conteúdo..."
-        value={search}
-        onChange={(e) => onSearch(e.target.value)}
-      />
-    </div>
-
-    <div className="flex items-center gap-2">
-      <select
-        className="px-3 py-2 rounded-xl border border-brand-100 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
-        value={order}
-        onChange={(e) => onOrderChange(e.target.value)}
-      >
-        <option value="newest">Mais recentes</option>
-        <option value="oldest">Mais antigas</option>
-        <option value="title">Título (A→Z)</option>
-      </select>
-
-      <button
-        className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-sm transition-colors ${
-          onlyPinned
-            ? 'border-brand-300 bg-brand-50 text-brand-800'
-            : 'border-brand-100 bg-white text-slate-700 hover:bg-slate-50'
-        }`}
-        onClick={onTogglePinned}
-        title={
-          onlyPinned
-            ? 'Mostrando notas com Lembrete'
-            : 'Mostrar somente notas com Lembrete'
-        }
-      >
-        <MdPushPin /> Lembretes
-      </button>
-
-      <button
-        onClick={onOpenCreate}
-        className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-sm"
-      >
-        <MdAdd size={18} /> Nova nota
-      </button>
-    </div>
-  </div>
-);
 
 const NoteCard = ({ note, onTogglePin, onEdit, onDelete }) => (
   <div className="group p-4 rounded-2xl border border-brand-100 bg-white hover:shadow-md transition-shadow relative">
@@ -338,6 +267,7 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
 
 // --- Componente Principal ---
 const Notas = () => {
+  const [usuarioId, setusuarioId] = useState(auth.getId());
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -510,7 +440,7 @@ const Notas = () => {
     setOpenModal(true);
   };
 
-  const onSearch = useMemo(() => debounce((v) => setQuery(v), 250), []);
+  const onSearch = (v) => setQuery(v);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -555,7 +485,7 @@ const Notas = () => {
 
       {/* Barra de ferramentas */}
       <div className="bg-white rounded-2xl shadow p-4 border border-brand-100">
-        <Toolbar
+        <ToolSearch
           search={query}
           onSearch={onSearch}
           order={order}
@@ -563,6 +493,8 @@ const Notas = () => {
           onlyPinned={onlyPinned}
           onTogglePinned={() => setOnlyPinned((v) => !v)}
           onOpenCreate={openCreate}
+          lembretes={true}
+          labelButton={"Nova Nota"}
         />
       </div>
 
