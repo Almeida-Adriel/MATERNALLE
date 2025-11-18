@@ -184,7 +184,7 @@ const loginUser = async (req, res) => {
 
         const tokenMaxAge = 1000 * 60 * 60 * 24; 
 
-        const isProduction = process.env.NODE_ENV === 'production';
+        const isProduction = req.secure || process.env.NODE_ENV === 'production';
 
         res.cookie('token', token, {
             httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
@@ -222,7 +222,7 @@ const loginUser = async (req, res) => {
 }
 
 const logoutUser = async (req, res) => {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = req.secure || process.env.NODE_ENV === 'production';
     
     try {
         // Clear cookies using the same security options used when setting them.
