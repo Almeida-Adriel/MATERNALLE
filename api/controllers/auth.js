@@ -191,6 +191,7 @@ const loginUser = async (req, res) => {
             maxAge: tokenMaxAge, // Tempo de vida do cookie
             secure: isProduction, // only secure in production (HTTPS)
             sameSite: isProduction ? 'none' : 'lax',
+            path: '/'
             // domain: isProduction ? undefined : '192.168.1.17',
         });
 
@@ -199,6 +200,7 @@ const loginUser = async (req, res) => {
             maxAge: tokenMaxAge,
             secure: isProduction,
             sameSite: isProduction ? 'none' : 'lax',
+            path: '/'
             // domain: isProduction ? undefined : '192.168.1.17',
         });
 
@@ -229,6 +231,7 @@ const logoutUser = async (req, res) => {
             expires: new Date(0), // Data no passado
             secure: isProduction,
             sameSite: isProduction ? 'none' : 'lax',
+            path: '/'
             // domain: isProduction ? undefined : '192.168.1.17',
         });
         res.cookie('userId', '', { 
@@ -236,6 +239,7 @@ const logoutUser = async (req, res) => {
             expires: new Date(0),
             secure: isProduction,
             sameSite: isProduction ? 'none' : 'lax',
+            path: '/'
             // domain: isProduction ? undefined : '192.168.1.17',
         });
     } catch (error) {
