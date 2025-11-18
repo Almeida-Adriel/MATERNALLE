@@ -212,6 +212,7 @@ const loginUser = async (req, res) => {
         return res.status(200).json({
             message: 'Autenticação realizada com sucesso!', 
             userPerfil: user.perfil.tipoPerfil,
+            userRole: user.perfil.role,
             id: user.id,
         });
     }

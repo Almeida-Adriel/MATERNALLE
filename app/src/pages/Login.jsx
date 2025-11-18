@@ -38,8 +38,11 @@ const Login = () => {
       auth.saveDataLogin({
         userId: response.data.id,
       });
-
-      navigate('/central', { replace: true });
+      if (response.data.userRole === 'ADMIN') {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/central', { replace: true });
+      }
     } catch (error) {
       const errorMessage =
         typeof error === 'object' && error !== null && error.error
@@ -69,13 +72,6 @@ const Login = () => {
 
   return (
     <ThemeProvider theme={customTheme}>
-      {/* <div className="min-h-screen flex justify-start items-start relative">
-        {flashMessage && (
-          <div className="absolute top-4 w-full max-w-md px-4">
-            {flashMessage}
-          </div>
-        )}
-      </div> */}
       <div className="h-screen flex items-center justify-center bg-gradient-to-b from-white to-brand-100">
         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-center text-3xl font-semibold text-brand-700 mb-6">
