@@ -13,7 +13,7 @@ const handle401Error = (error) => {
         'flash',
         JSON.stringify({
           type: 'warning',
-          description: 'Sessão expirada, por favor, faça login novamente. ' + `${JSON.stringify(error.data)}`,
+          description: 'Sessão expirada, por favor, faça login novamente. ' + `${error.response.data}`,
         })
       );
       window.location.href = '/login';
