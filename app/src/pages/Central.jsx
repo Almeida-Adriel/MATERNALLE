@@ -8,7 +8,7 @@ import {
   MdAssessment,
 } from 'react-icons/md';
 import { statusMaternidadeEnum } from '../utils/enum/statusMaternidade';
-import Acompanhamento from './Acompanhamento';
+import Acompanhamento from '../components/Acompanhamento';
 import Auth from '../utils/service/Auth';
 
 const service = new Service();
@@ -43,7 +43,7 @@ const NotaCard = ({ titulo, descricao, data_criacao }) => (
 const Central = ({ data, loading }) => {
   const [compromissos, setCompromissos] = useState([]);
   const [loadingCompromissos, setLoadingCompromissos] = useState(false);
-  const [ notas, setNotas ] = useState(data?.notas || []);
+  const [notas, setNotas] = useState(data?.notas || []);
   const usuarioId = auth.getId();
 
   useEffect(() => {
@@ -93,11 +93,19 @@ const Central = ({ data, loading }) => {
   }, [usuarioId]);
 
   if (loading || loadingCompromissos) {
-    return <div className="text-center py-10 text-brand-600">Carregando dados da Central...</div>;
+    return (
+      <div className="text-center py-10 text-brand-600">
+        Carregando dados da Central...
+      </div>
+    );
   }
 
   if (!data) {
-    return <div className="text-center py-10 text-brand-600">Sem dados do usuário no momento.</div>;
+    return (
+      <div className="text-center py-10 text-brand-600">
+        Sem dados do usuário no momento.
+      </div>
+    );
   }
 
   const notasRecentes = notas;

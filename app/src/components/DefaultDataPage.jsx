@@ -1,34 +1,36 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ToolSearch from './ToolSearch';
 
 const DefaultDataPage = ({
   currentPage = 1,
   totalPages = 1,
   onPageChange = () => {},
-  dataList = [], 
+  dataList = [],
   onSearch = () => {},
   query = '',
   order = 'newest',
   onOrderChange = () => {},
   labelButton,
-  onOpenCreate = () => {}
+  onOpenCreate = () => {},
 }) => {
   return (
     <>
       <ToolSearch
         search={query}
-        onSearch={onSearch}  // Passando a função onSearch do componente principal
+        onSearch={onSearch}
         order={order}
-        onOrderChange={onOrderChange}  // Passando a função de mudança de ordem
+        onOrderChange={onOrderChange}
         labelButton={labelButton}
         onOpenCreate={onOpenCreate}
       />
-      
+
       {/* Renderizar os dados da lista */}
       <div className="mt-6">
         {dataList.map((item) => (
-          <div key={item.id} className="p-4 rounded-xl border border-brand-100 bg-white shadow-md">
-            {/* Renderizar os dados conforme necessário */}
+          <div
+            key={item.id}
+            className="p-4 rounded-xl border border-brand-100 bg-white shadow-md"
+          >
             <h4>{item.titulo}</h4>
             <p>{item.descricao}</p>
           </div>

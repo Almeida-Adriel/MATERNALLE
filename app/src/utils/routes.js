@@ -7,6 +7,7 @@ import ConteudosAdm from "../pages/adm/ConteudosAdm";
 import Dashboard from "../pages/Dashboard";
 import Central from "../pages/Central";
 import Notas from "../pages/Notas";
+import AcessoNegado from "../pages/Error/AcessoNegado";
 
 const routes = [
     {path: '/', name: 'Home', component: Home},
@@ -18,6 +19,7 @@ const routes = [
     {path: '/conteudos_adm', name: 'Material de Apoio', component: ConteudosAdm},
     {path: '/central', name: 'Central', component: Central},
     {path: '/notas', name: 'Notas', component: Notas},
+    {path: '/acesso_negado', name: 'Notas', component: AcessoNegado},
 ]
 
 export default routes;

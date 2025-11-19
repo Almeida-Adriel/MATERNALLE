@@ -4,16 +4,17 @@ import Cookies from 'js-cookie';
 class Auth {
     constructor() {
         this.COOKIE_EXPIRATION_DAYS = 1;
-    }
-
-    _getCookie(key) {
-        return Cookies.get(key); 
+        this.ROLE_KEY = 'userRole';
     }
 
     isAuthenticated() {
         let id = this._getCookie('userId'); 
 
         return id;
+    }
+
+    _getCookie(key) {
+        return Cookies.get(key); 
     }
 
     getId() {
@@ -23,15 +24,21 @@ class Auth {
         }
     }
 
+    getUserRole() {
+        return this._getCookie(this.ROLE_KEY);
+    }
+
     saveDataLogin(data) {
         if (!!data) {
             const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'none' };
             Cookies.set('userId', data.userId, options)
+            Cookies.set(this.ROLE_KEY, data.userRole, options);
         }
     }
 
     clear(){
         Cookies.remove('userId');
+        Cookies.remove(this.ROLE_KEY)
     }
 }
 

@@ -118,16 +118,13 @@ const ConteudosAdm = () => {
 
       if (response && response?.data.titulo) {
         showMessage(
-          `Conteúdo "${response.titulo}" criado com sucesso! (ID: ${response.id})`,
+          `Conteúdo "${response.data.titulo}" criado com sucesso! (ID: ${response.data.id})`,
           'success'
         );
         resetForm(); // Limpa o formulário após o sucesso
-        setOpenModal(false); 
+        setOpenModal(false);
       } else {
-        showMessage(
-          `Falha ao publicar. ${response.error}`,
-          'error'
-        );
+        showMessage(`Falha ao publicar. ${response.error}`, 'error');
         console.error('Resposta inesperada:', response.data);
       }
     } catch (error) {
@@ -155,21 +152,24 @@ const ConteudosAdm = () => {
   };
 
   return (
-    <ThemeProvider theme={customTheme}>
-      <div className="flex items-center justify-start mb-2">
-        <MdOutlineUploadFile size={30} className="text-brand-500 mr-2" />
-        <h1 className="text-3xl font-extrabold text-brand-700 tracking-tight">
-          Painel de Publicação
-        </h1>
+    <ThemeProvider theme={customTheme} className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-100">
+          <MdOutlineUploadFile size={26} />
+        </div>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-800">
+            Painel de Publicação
+          </h1>
+          <p className="text-sm text-slate-500">
+            Crie novos recursos e defina seu nível de acesso.
+          </p>
+        </div>
       </div>
-
-      <p className="text-gray-500 mb-8 text-sm">
-        Crie novos recursos e defina seu nível de acesso.
-      </p>
 
       {/* Mensagens de Feedback */}
       <div
-        className={`mb-4 p-4 rounded-lg text-sm transition duration-300 ease-in-out ${getMessageClasses()}`}
+        className={` p-4 rounded-lg text-sm transition duration-300 ease-in-out ${getMessageClasses()}`}
         role="alert"
       >
         {message}
@@ -178,9 +178,14 @@ const ConteudosAdm = () => {
       {/* Modal de Criação de Conteúdo */}
       {openModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setOpenModal(false)} />
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setOpenModal(false)}
+          />
           <div className="relative z-10 w-full max-w-3xl p-6 bg-white rounded-xl shadow-lg">
-            <h2 className="text-2xl font-semibold text-brand-700">Criar Conteúdo</h2>
+            <h2 className="text-2xl font-semibold text-brand-700">
+              Criar Conteúdo
+            </h2>
             <form onSubmit={handleFormSubmit} className="space-y-6 mt-4">
               <TextField
                 id="titulo"
@@ -192,9 +197,9 @@ const ConteudosAdm = () => {
                 required
                 sx={{ marginBottom: '16px' }}
               />
-              <TextField 
-                id='descricao'
-                label='Descrição'
+              <TextField
+                id="descricao"
+                label="Descrição"
                 value={formData.descricao}
                 onChange={handleChange}
                 rows={4}
@@ -207,8 +212,8 @@ const ConteudosAdm = () => {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="md:col-span-6">
                   <TextField
-                    name='tipo_conteudo'
-                    label='Tipo Conteudo'
+                    name="tipo_conteudo"
+                    label="Tipo Conteudo"
                     onChange={handleChange}
                     value={formData.tipo_conteudo}
                     select
@@ -224,10 +229,10 @@ const ConteudosAdm = () => {
                   </TextField>
                 </div>
 
-                <div className='md:col-span-6'>
+                <div className="md:col-span-6">
                   <TextField
-                    name='acesso'
-                    label='Tipo de Acesso'
+                    name="acesso"
+                    label="Tipo de Acesso"
                     onChange={handleChange}
                     value={formData.acesso}
                     select
@@ -242,27 +247,27 @@ const ConteudosAdm = () => {
                     ))}
                   </TextField>
                 </div>
-                {formData.tipo_conteudo === 'OUTROS' &&
-                  <div className='md:col-span-6'>
+                {formData.tipo_conteudo === 'OUTROS' && (
+                  <div className="md:col-span-6">
                     <TextField
-                      id='outros'
-                      label='Outras Informações (Palavras-chave)'
+                      id="outros"
+                      label="Outras Informações (Palavras-chave)"
                       value={formData.outros}
                       onChange={handleChange}
-                      type='text'
+                      type="text"
                       fullWidth
                       required={formData.tipo_conteudo === 'OUTROS'}
                     />
                   </div>
-                }
-                <div className='md:col-span-6'>
+                )}
+                <div className="md:col-span-6">
                   <TextField
-                    id='link_referencia'
-                    label='Link de Referência'
+                    id="link_referencia"
+                    label="Link de Referência"
                     value={formData.link_referencia}
                     onChange={handleChange}
-                    type='text'
-                    placeholder='https://fonte.com/recurso'
+                    type="text"
+                    placeholder="https://fonte.com/recurso"
                     fullWidth
                   />
                 </div>
@@ -289,12 +294,12 @@ const ConteudosAdm = () => {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        dataList={conteudos}  // Passando os dados de conteúdo para a lista
+        dataList={conteudos} // Passando os dados de conteúdo para a lista
         onSearch={handleSearch}
         query={query}
         order={order}
         onOrderChange={handleOrderChange}
-        labelButton={"Adicionar Conteúdo"}
+        labelButton={'Adicionar Conteúdo'}
         onOpenCreate={() => setOpenModal(true)}
       />
     </ThemeProvider>

@@ -91,7 +91,7 @@ enum role {
 enum tipoPerfil {
   BASICO
   PREMIUM
-  PREMIU_ANUAL
+  PREMIUM_ANUAL
 }
 
 enum statusMaternidade {

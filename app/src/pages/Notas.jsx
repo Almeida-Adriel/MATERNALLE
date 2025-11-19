@@ -49,15 +49,17 @@ const NoteCard = ({ note, onTogglePin, onEdit, onDelete }) => (
       {note.descricao}
     </p>
 
-   {note.lembrete && (
-     <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-       {note.tipo && (
-         <span className="px-2 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-100">
-           {note.tipo === 'Outro' && note.outro ? `Outro: ${note.outro}` : note.tipo}
-         </span>
-       )}
-     </div>
-   )}
+    {note.lembrete && (
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+        {note.tipo && (
+          <span className="px-2 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-100">
+            {note.tipo === 'Outro' && note.outro
+              ? `Outro: ${note.outro}`
+              : note.tipo}
+          </span>
+        )}
+      </div>
+    )}
 
     <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400">
       <span>Criada em: {formatDateBR(note.data_criacao)}</span>
@@ -134,12 +136,12 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
 
   const canSave = titulo.trim().length > 0 || descricao.trim().length > 0;
   const isLembreteValid =
-  !lembrete ||
-  (lembrete &&
-    dataLembrete &&
-    tipoLembrete &&
-    (tipoLembrete !== 'Outro' || (tipoLembrete === 'Outro' && outro.trim().length > 0)));
-
+    !lembrete ||
+    (lembrete &&
+      dataLembrete &&
+      tipoLembrete &&
+      (tipoLembrete !== 'Outro' ||
+        (tipoLembrete === 'Outro' && outro.trim().length > 0)));
 
   return (
     <form
@@ -153,8 +155,8 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
           lembrete,
           data_lembrete:
             lembrete && dataLembrete ? `${dataLembrete}T00:00:00.000Z` : null,
-            tipo: lembrete ? tipoLembrete : '',
-            outro: lembrete && tipoLembrete === 'Outro' ? outro.trim() : '',
+          tipo: lembrete ? tipoLembrete : '',
+          outro: lembrete && tipoLembrete === 'Outro' ? outro.trim() : '',
         });
       }}
     >
@@ -188,10 +190,10 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
               setLembrete(e.target.checked);
               // Limpa a data se o lembrete for desativado
               if (!e.target.checked) {
-                  setDataLembrete('')
-                  setTipoLembrete('')
-                  setOutro('')
-              };
+                setDataLembrete('');
+                setTipoLembrete('');
+                setOutro('');
+              }
             }}
           />
           Ativar Lembrete
@@ -224,17 +226,22 @@ const NoteForm = ({ initial, loading, onSubmit }) => {
                 required={lembrete}
               >
                 <option value="">Selecione…</option>
-                {tipoLembreteEnum && Object.entries(tipoLembreteEnum).map(([key, value]) => (
-                  <option key={key} value={key}>
-                    {value}
-                  </option>
-                ))}
+                {tipoLembreteEnum &&
+                  Object.entries(tipoLembreteEnum).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value}
+                    </option>
+                  ))}
               </select>
-              {(!tipoLembrete) && <p className="text-xs text-red-500 mt-1">Selecione um tipo.</p>}
+              {!tipoLembrete && (
+                <p className="text-xs text-red-500 mt-1">Selecione um tipo.</p>
+              )}
             </div>
             {tipoLembrete === 'Outro' && (
               <div className="space-y-1">
-                <label className="text-sm text-slate-600">Especifique o Outro Tipo</label>
+                <label className="text-sm text-slate-600">
+                  Especifique o Outro Tipo
+                </label>
                 <input
                   className="w-full px-3 py-2 rounded-xl border border-brand-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300"
                   value={outro}
@@ -484,19 +491,17 @@ const Notas = () => {
       </div>
 
       {/* Barra de ferramentas */}
-      <div className="bg-white rounded-2xl shadow p-4 border border-brand-100">
-        <ToolSearch
-          search={query}
-          onSearch={onSearch}
-          order={order}
-          onOrderChange={setOrder}
-          onlyPinned={onlyPinned}
-          onTogglePinned={() => setOnlyPinned((v) => !v)}
-          onOpenCreate={openCreate}
-          lembretes={true}
-          labelButton={"Nova Nota"}
-        />
-      </div>
+      <ToolSearch
+        search={query}
+        onSearch={onSearch}
+        order={order}
+        onOrderChange={setOrder}
+        onlyPinned={onlyPinned}
+        onTogglePinned={() => setOnlyPinned((v) => !v)}
+        onOpenCreate={openCreate}
+        lembretes={true}
+        labelButton={'Nova Nota'}
+      />
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3">
