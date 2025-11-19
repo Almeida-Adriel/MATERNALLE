@@ -1,3 +1,4 @@
+// DefaultDataPage.jsx
 import React from 'react';
 import ToolSearch from './ToolSearch';
 
@@ -11,6 +12,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const DefaultDataPage = ({
   currentPage = 1,
@@ -23,10 +25,10 @@ const DefaultDataPage = ({
   onOrderChange = () => {},
   labelButton,
   onOpenCreate = () => {},
-  // API dinâmica
-  columns = [], // [{ key: 'titulo', header: 'Título', render?: (item) => ReactNode }]
+  columns = [],
   renderRow,
   emptyMessage = 'Nenhum registro encontrado',
+  loading = false,
 }) => {
   const handlePrev = () => {
     if (currentPage > 1) onPageChange(currentPage - 1);
@@ -54,10 +56,15 @@ const DefaultDataPage = ({
               <TableRow>
                 {columns.length > 0 ? (
                   columns.map((col) => (
-                    <TableCell key={col.key}>
-                      <Typography variant="subtitle2" fontWeight={600}>
-                        {col.header}
-                      </Typography>
+                    <TableCell
+                      key={col.key}
+                      sx={{
+                        fontWeight: 600,
+                        ...(col.align && { textAlign: col.align }),
+                        ...(col.width && { width: col.width }),
+                      }}
+                    >
+                      {col.header}
                     </TableCell>
                   ))
                 ) : (
@@ -71,7 +78,28 @@ const DefaultDataPage = ({
             </TableHead>
 
             <TableBody>
-              {dataList.length === 0 && (
+              {loading && (
+                <TableRow>
+                  <TableCell
+                    colSpan={Math.max(columns.length, 1)}
+                  >
+                    <Box
+                      py={4}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      gap={2}
+                    >
+                      <CircularProgress size={24} />
+                      <Typography variant="body2" color="text.secondary">
+                        Carregando conteúdos...
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {!loading && dataList.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={Math.max(columns.length, 1)}>
                     <Typography
@@ -85,30 +113,34 @@ const DefaultDataPage = ({
                 </TableRow>
               )}
 
-              {dataList.length > 0 &&
+              {!loading &&
+                dataList.length > 0 &&
                 dataList.map((item) => {
-                  // Se o pai quiser controlar toda a linha:
                   if (typeof renderRow === 'function') {
                     return renderRow(item);
                   }
 
-                  // Render genérico baseado em columns:
-                  if (columns.length > 0) {
-                    return (
-                      <TableRow key={item.id} hover>
-                        {columns.map((col) => (
-                          <TableCell key={col.key}>
-                            {col.render ? col.render(item) : item[col.key]}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    );
-                  }
-
-                  // Fallback: mostra o objeto inteiro
                   return (
-                    <TableRow key={item.id} hover>
-                      <TableCell>{JSON.stringify(item)}</TableCell>
+                    <TableRow
+                      key={item.id}
+                      hover
+                      sx={{
+                        '&:nth-of-type(odd)': {
+                          backgroundColor: 'rgba(0,0,0,0.01)',
+                        },
+                      }}
+                    >
+                      {columns.map((col) => (
+                        <TableCell
+                          key={col.key}
+                          sx={{
+                            ...(col.align && { textAlign: col.align }),
+                            ...(col.width && { width: col.width }),
+                          }}
+                        >
+                          {col.render ? col.render(item) : item[col.key]}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   );
                 })}

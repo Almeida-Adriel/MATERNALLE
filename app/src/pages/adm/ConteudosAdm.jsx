@@ -26,8 +26,8 @@ const ConteudosAdm = () => {
     outros: '',
   });
 
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState('');
+  const [formMessage, setFormMessage] = useState('');
+  const [formMessageType, setFormMessageType] = useState('error');
   const [isLoading, setIsLoading] = useState(false);
   const [conteudos, setConteudos] = useState([]);
   const [query, setQuery] = useState('');
@@ -35,6 +35,7 @@ const ConteudosAdm = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [openModal, setOpenModal] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   const handleSearch = (searchQuery) => {
     setQuery(searchQuery);
@@ -54,9 +55,47 @@ const ConteudosAdm = () => {
     setFormData((prev) => ({ ...prev, [id || name]: value }));
   };
 
-  const showMessage = (msg, type) => {
-    setMessage(msg);
-    setMessageType(type);
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setFormData({
+      titulo: item.titulo || '',
+      descricao: item.descricao || '',
+      tipo_conteudo: item.tipo_conteudo || '',
+      acesso: item.acesso || '',
+      link_referencia: item.link_referencia || '',
+      outros: item.outros || '',
+    });
+    clearFormMessage();
+    setOpenModal(true);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmar = window.confirm('Tem certeza que deseja excluir este conteúdo?');
+    if (!confirmar) return;
+
+    try {
+      setIsLoading(true);
+      const response = await service.delete(`${ENDPOINT}`, `${id}`);
+
+      const msg =
+        response?.data?.message || 'Conteúdo deletado com sucesso.';
+      <SnackBar message={msg} />
+
+      await fetchConteudos();
+    } catch (error) {
+      console.error('Erro ao deletar conteúdo:', error);
+      const errorMessage =
+        error?.response?.data?.error ||
+        'Erro ao deletar o conteúdo. Tente novamente mais tarde.';
+      <SnackBar message={errorMessage} variant='error'/>
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearFormMessage = () => {
+    setFormMessage('');
+    setFormMessageType('error');
   };
 
   const fetchConteudos = async () => {
@@ -75,8 +114,7 @@ const ConteudosAdm = () => {
 
     setCurrentPage(Number(pagination?.currentPage) || 1);
     } catch (error) {
-      setMessage('Erro ao buscar conteúdos');
-      setMessageType('error');
+      <SnackBar variant='error' message='Erro ao buscar conteúdos' />
     } finally {
       setIsLoading(false);
     }
@@ -95,12 +133,17 @@ const ConteudosAdm = () => {
       link_referencia: '',
       outros: '',
     });
+    clearFormMessage();
+    setEditingId(null);
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    showMessage('Publicando conteúdo, aguarde...', 'info');
+    clearFormMessage();
+    
+
+    <SnackBar variant='info' message={editingId ? 'Atualizando conteúdo, aguarde...' : 'Publicando conteúdo, aguarde...'} />
 
     if (
       !formData.titulo ||
@@ -108,10 +151,8 @@ const ConteudosAdm = () => {
       !formData.tipo_conteudo ||
       !formData.acesso
     ) {
-      showMessage(
-        'Por favor, preencha todos os campos obrigatórios (*).',
-        'error'
-      );
+      setFormMessage('Por favor, preencha todos os campos obrigatórios (*).');
+      setFormMessageType('error');
       setIsLoading(false);
       return;
     }
@@ -123,42 +164,28 @@ const ConteudosAdm = () => {
     };
 
     try {
-      const response = await service.post(ENDPOINT, dataToSend);
-
-      if (response && response?.data.titulo) {
-        showMessage(
-          `Conteúdo "${response.data.titulo}" criado com sucesso! (ID: ${response.data.id})`,
-          'success'
-        );
-        resetForm(); // Limpa o formulário após o sucesso
-        setOpenModal(false);
-
-        await fetchConteudos();
+      let response;
+      
+      if (editingId) {
+        response = await service.put(`${ENDPOINT}/${editingId}`, dataToSend);
+        <SnackBar message={`Conteúdo "${response.data.titulo}" Atualizado com sucesso!`} />
       } else {
-        showMessage(`Falha ao publicar. ${response.error}`, 'error');
-        console.error('Resposta inesperada:', response.data);
+        response = await service.post(ENDPOINT, dataToSend);
+        <SnackBar message={`Conteúdo "${response.data.titulo}" criado com sucesso!`} />
       }
+      resetForm(); // Limpa o formulário após o sucesso
+      setOpenModal(false);
+      await fetchConteudos();
     } catch (error) {
       const errorMessage =
+        error?.response?.data?.error ||
         error?.error ||
         'Erro ao publicar o conteúdo. Por favor tente mais tarde.';
       console.error('Erro na requisição:', error);
-      showMessage(`Falha na publicação: ${errorMessage}`, 'error');
+      setFormMessage(errorMessage);
+      setFormMessageType('error');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const getMessageClasses = () => {
-    switch (messageType) {
-      case 'success':
-        return 'bg-green-100 text-green-800 border border-green-200';
-      case 'error':
-        return 'bg-red-100 text-red-800 border border-red-200';
-      case 'info':
-        return 'bg-blue-100 text-blue-800 border border-blue-200';
-      default:
-        return 'hidden';
     }
   };
 
@@ -178,14 +205,6 @@ const ConteudosAdm = () => {
         </div>
       </div>
 
-      {/* Mensagens de Feedback */}
-      <div
-        className={` p-4 rounded-lg text-sm transition duration-300 ease-in-out ${getMessageClasses()}`}
-        role="alert"
-      >
-        {message}
-      </div>
-
       {/* Modal de Criação de Conteúdo */}
       {openModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -197,6 +216,19 @@ const ConteudosAdm = () => {
             <h2 className="text-2xl font-semibold text-brand-700">
               Criar Conteúdo
             </h2>
+
+            {formMessage && (
+               <Stack sx={{ width: '100%', mb: 2 }} spacing={2}>
+                <Alert
+                  variant="outlined"
+                  severity={formMessageType}
+                  onClose={clearFormMessage}
+                >
+                  {formMessage}
+                </Alert>
+              </Stack>
+            )}
+
             <form onSubmit={handleFormSubmit} className="space-y-6 mt-4">
               <TextField
                 id="titulo"
@@ -311,7 +343,11 @@ const ConteudosAdm = () => {
         order={order}
         onOrderChange={handleOrderChange}
         labelButton={'Adicionar Conteúdo'}
-        onOpenCreate={() => setOpenModal(true)}
+        onOpenCreate={() => {
+          resetForm();
+          setOpenModal(true)
+        }}
+        loading={isLoading}
         columns={[
           {
             key: 'titulo',
@@ -321,7 +357,7 @@ const ConteudosAdm = () => {
             key: 'descricao',
             header: 'Descrição',
             render: (item) => (
-              <span className="line-clamp-2 text-gray-600">
+              <span className="text-gray-600 block max-w-md truncate">
                 {item.descricao}
               </span>
             ),
@@ -329,19 +365,23 @@ const ConteudosAdm = () => {
           {
             key: 'acoes',
             header: 'Ações',
+            align: 'center',
+            width: 140,
             render: (item) => (
-              <div className="flex gap-2">
+              <div className="flex justify-center gap-2">
                 <button
-                  className="text-brand-800 bg-brand-300 border border-brand-300 p-1 rounded-sm hover:bg-brand-200 hover:border-brand-200"
+                  className="text-brand-800 bg-brand-300 border border-brand-300 p-1 rounded-md hover:bg-brand-200 hover:border-brand-200 cursor-pointer"
                   onClick={() => handleEdit(item)}
+                  aria-label="Editar conteúdo"
                 >
-                  <MdOutlineCreate size={23} />
+                  <MdOutlineCreate size={18} />
                 </button>
                 <button
-                  className="text-brand-800 bg-red-400 border border-red-400 p-1 rounded-sm hover:bg-red-300 hover:border-red-300"
+                  className="text-brand-800 bg-red-400 border border-red-400 p-1 rounded-md hover:bg-red-300 hover:border-red-300 cursor-pointer"
                   onClick={() => handleDelete(item.id)}
+                  aria-label="Excluir conteúdo"
                 >
-                  <MdOutlineDelete size={23}/>
+                  <MdOutlineDelete size={18} />
                 </button>
               </div>
             ),

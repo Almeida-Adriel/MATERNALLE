@@ -46,7 +46,7 @@ const ToolSearch = ({
           />
           <button
             type="button"
-            className="w-10 flex items-center justify-center border border-brand-500 bg-brand-500 rounded-r-xl"
+            className="w-10 flex items-center justify-center border border-brand-500 bg-brand-500 rounded-r-xl cursor-pointer"
             onClick={triggerSearch}
           >
             <MdSearch className="text-slate-50" size={20} />
@@ -55,7 +55,7 @@ const ToolSearch = ({
 
         <div className="flex items-center gap-2">
           <select
-            className="px-3 py-2 rounded-xl border border-brand-100 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-300"
+            className="cursor-pointer px-3 py-2 rounded-xl border border-brand-100 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-300"
             value={order}
             onChange={(e) => onOrderChange(e.target.value)}
           >
@@ -83,7 +83,7 @@ const ToolSearch = ({
 
           <button
             onClick={onOpenCreate}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-sm"
+            className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-sm"
           >
             <MdAdd size={18} /> {labelButton || 'Criar'}
           </button>

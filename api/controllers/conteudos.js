@@ -190,4 +190,56 @@ const deleteConteudo = async (req, res) => {
   }
 };
 
-export { postConteudos, getConteudos, getAllConteudos, deleteConteudo };
+const updateConteudo = async (req, res) => {
+    const id = req.params.id;
+
+    const { titulo,
+      descricao,
+      tipo_conteudo,
+      link_referencia,
+      outros,
+      acesso 
+    } = req.body;
+
+    const dataAtualizacao = new Date();
+
+    switch (true) {
+      case !titulo || titulo.trim() === "":
+        return res
+          .status(400)
+          .json({ error: 'O campo "titulo" é obrigatório.' });
+      case !descricao || descricao.trim() === "":
+        return res
+          .status(400)
+          .json({ error: 'O campo "descricao" é obrigatório.' });
+      case !tipo_conteudo || tipo_conteudo.trim() === "":
+        return res
+          .status(400)
+          .json({ error: 'O campo "tipo_conteudo" é obrigatório.' });
+      case !acesso || acesso.trim() === "":
+        return res
+          .status(400)
+          .json({ error: 'O campo "acesso" é obrigatório.' });
+    }
+
+    try {
+        const conteudoAtualizado = await prisma.conteudos.update({
+            where: { id: id },
+            data: {
+                descricao,
+                tipo_conteudo,
+                link_referencia,
+                outros,
+                acesso,
+                data_criacao: dataAtualizacao,
+                link_referencia,
+            },
+        });
+        res.status(200).json(conteudoAtualizado);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao atualizar a Conteúdo.' });
+    }
+};
+
+export { postConteudos, getConteudos, getAllConteudos, deleteConteudo, updateConteudo };
