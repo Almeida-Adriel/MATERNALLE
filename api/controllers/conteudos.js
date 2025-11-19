@@ -115,18 +115,51 @@ const getConteudos = async (req, res) => {
 };
 
 const getAllConteudos = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
+  const { search, order = "desc", page = 1, limit = 8 } = req.query;
 
   try {
     const conteudos = await prisma.conteudos.findMany({
       skip: (page - 1) * limit,
       take: limit,
+      where: {
+        OR: [
+          {
+            titulo: {
+              contains: search || "",
+              mode: "insensitive",
+            },
+          },
+          {
+            descricao: {
+              contains: search || "",
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
       orderBy: {
-        data_criacao: 'desc',
+        data_criacao: order === "desc" ? "desc" : "asc",
       },
     });
 
-    const totalConteudos = await prisma.conteudos.count();
+    const totalConteudos = await prisma.conteudos.count({
+      where: {
+        OR: [
+          {
+            titulo: {
+              contains: search || "",
+              mode: "insensitive",
+            },
+          },
+          {
+            descricao: {
+              contains: search || "",
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    });
 
     const totalPages = Math.ceil(totalConteudos / limit);
 
@@ -144,5 +177,17 @@ const getAllConteudos = async (req, res) => {
   }
 };
 
+const deleteConteudo = async (req, res) => {
+  const id = req.params.id;
+  try {
+      await prisma.conteudos.delete({
+          where: { id: id },
+      });
+      res.status(200).json({ message: 'Conteúdo deletado com sucesso.' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro ao deletar o conteúdo.' });
+  }
+};
 
-export { postConteudos, getConteudos, getAllConteudos };
+export { postConteudos, getConteudos, getAllConteudos, deleteConteudo };

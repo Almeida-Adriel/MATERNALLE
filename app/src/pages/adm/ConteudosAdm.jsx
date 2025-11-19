@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import { ThemeProvider } from '@mui/material/styles';
+import { MdOutlineDelete, MdOutlineCreate } from "react-icons/md";
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import DefaultDataPage from '../../components/DefaultDataPage';
 import customTheme from '../../utils/CustomTheme';
 import Service from '../../utils/service/Service';
+import SnackBar from '../../components/SnackBar';
 import { tipo_conteudo_enum } from '../../utils/enum/tipoConteudo';
 import { tipoPerfil } from '../../utils/enum/tipoPerfil';
-import DefaultDataPage from '../../components/DefaultDataPage';
 
 const service = new Service();
 const ENDPOINT = '/conteudos';
@@ -27,7 +31,7 @@ const ConteudosAdm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [conteudos, setConteudos] = useState([]);
   const [query, setQuery] = useState('');
-  const [order, setOrder] = useState('newest');
+  const [order, setOrder] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [openModal, setOpenModal] = useState(false);
@@ -63,8 +67,13 @@ const ConteudosAdm = () => {
         order,
         page: currentPage,
       });
-      setConteudos(res.data.conteudos || []); // A partir da resposta, configurar os conteúdos
-      setTotalPages(res.data.totalPages || 1); // Ajustar o total de páginas
+      const { conteudos, pagination } = res.data;
+
+    setConteudos(conteudos || []);
+
+    setTotalPages(Number(pagination?.totalPages) || 1);
+
+    setCurrentPage(Number(pagination?.currentPage) || 1);
     } catch (error) {
       setMessage('Erro ao buscar conteúdos');
       setMessageType('error');
@@ -123,6 +132,8 @@ const ConteudosAdm = () => {
         );
         resetForm(); // Limpa o formulário após o sucesso
         setOpenModal(false);
+
+        await fetchConteudos();
       } else {
         showMessage(`Falha ao publicar. ${response.error}`, 'error');
         console.error('Resposta inesperada:', response.data);
@@ -294,13 +305,48 @@ const ConteudosAdm = () => {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        dataList={conteudos} // Passando os dados de conteúdo para a lista
+        dataList={conteudos}
         onSearch={handleSearch}
         query={query}
         order={order}
         onOrderChange={handleOrderChange}
         labelButton={'Adicionar Conteúdo'}
         onOpenCreate={() => setOpenModal(true)}
+        columns={[
+          {
+            key: 'titulo',
+            header: 'Título',
+          },
+          {
+            key: 'descricao',
+            header: 'Descrição',
+            render: (item) => (
+              <span className="line-clamp-2 text-gray-600">
+                {item.descricao}
+              </span>
+            ),
+          },
+          {
+            key: 'acoes',
+            header: 'Ações',
+            render: (item) => (
+              <div className="flex gap-2">
+                <button
+                  className="text-brand-800 bg-brand-300 border border-brand-300 p-1 rounded-sm hover:bg-brand-200 hover:border-brand-200"
+                  onClick={() => handleEdit(item)}
+                >
+                  <MdOutlineCreate size={23} />
+                </button>
+                <button
+                  className="text-brand-800 bg-red-400 border border-red-400 p-1 rounded-sm hover:bg-red-300 hover:border-red-300"
+                  onClick={() => handleDelete(item.id)}
+                >
+                  <MdOutlineDelete size={23}/>
+                </button>
+              </div>
+            ),
+          },
+        ]}
       />
     </ThemeProvider>
   );

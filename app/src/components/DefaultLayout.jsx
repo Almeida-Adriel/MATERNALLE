@@ -95,7 +95,7 @@ const Layout = () => {
         toggleSidebar={toggleSidebar}
         menu={menu}
       />
-      <main className="flex-1 container mx-auto px-6 py-8">
+      <main className="flex-1 container mx-auto px-6 py-4">
         <Suspense fallback={<div>Carregando...</div>}>
           <Routes>
             {routes.map((route, idx) =>

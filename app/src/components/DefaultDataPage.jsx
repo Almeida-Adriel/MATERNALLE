@@ -1,6 +1,17 @@
 import React from 'react';
 import ToolSearch from './ToolSearch';
 
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+
 const DefaultDataPage = ({
   currentPage = 1,
   totalPages = 1,
@@ -12,7 +23,19 @@ const DefaultDataPage = ({
   onOrderChange = () => {},
   labelButton,
   onOpenCreate = () => {},
+  // API dinâmica
+  columns = [], // [{ key: 'titulo', header: 'Título', render?: (item) => ReactNode }]
+  renderRow,
+  emptyMessage = 'Nenhum registro encontrado',
 }) => {
+  const handlePrev = () => {
+    if (currentPage > 1) onPageChange(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) onPageChange(currentPage + 1);
+  };
+
   return (
     <>
       <ToolSearch
@@ -24,38 +47,104 @@ const DefaultDataPage = ({
         onOpenCreate={onOpenCreate}
       />
 
-      {/* Renderizar os dados da lista */}
-      <div className="mt-6">
-        {dataList.map((item) => (
-          <div
-            key={item.id}
-            className="p-4 rounded-xl border border-brand-100 bg-white shadow-md"
-          >
-            <h4>{item.titulo}</h4>
-            <p>{item.descricao}</p>
-          </div>
-        ))}
-      </div>
+      <Box mt={2}>
+        <TableContainer component={Paper} elevation={3}>
+          <Table aria-label="data table">
+            <TableHead>
+              <TableRow>
+                {columns.length > 0 ? (
+                  columns.map((col) => (
+                    <TableCell key={col.key}>
+                      <Typography variant="subtitle2" fontWeight={600}>
+                        {col.header}
+                      </Typography>
+                    </TableCell>
+                  ))
+                ) : (
+                  <TableCell>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      Dados
+                    </Typography>
+                  </TableCell>
+                )}
+              </TableRow>
+            </TableHead>
 
-      <div className="flex justify-around items-center gap-4 mt-4">
-        <button
-          className="px-4 py-2 rounded-xl bg-brand-600 text-white"
+            <TableBody>
+              {dataList.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={Math.max(columns.length, 1)}>
+                    <Typography
+                      variant="body2"
+                      align="center"
+                      sx={{ py: 2, color: 'text.secondary' }}
+                    >
+                      {emptyMessage}
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {dataList.length > 0 &&
+                dataList.map((item) => {
+                  // Se o pai quiser controlar toda a linha:
+                  if (typeof renderRow === 'function') {
+                    return renderRow(item);
+                  }
+
+                  // Render genérico baseado em columns:
+                  if (columns.length > 0) {
+                    return (
+                      <TableRow key={item.id} hover>
+                        {columns.map((col) => (
+                          <TableCell key={col.key}>
+                            {col.render ? col.render(item) : item[col.key]}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    );
+                  }
+
+                  // Fallback: mostra o objeto inteiro
+                  return (
+                    <TableRow key={item.id} hover>
+                      <TableCell>{JSON.stringify(item)}</TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+
+      <Box
+        mt={2}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Button
+          variant="contained"
+          color="primary"
           disabled={currentPage === 1}
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={handlePrev}
         >
           Anterior
-        </button>
-        <span>
+        </Button>
+
+        <Typography variant="body2">
           Página {currentPage} de {totalPages}
-        </span>
-        <button
-          className="px-4 py-2 rounded-xl bg-brand-600 text-white"
+        </Typography>
+
+        <Button
+          variant="contained"
+          color="primary"
           disabled={currentPage === totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={handleNext}
         >
           Próxima
-        </button>
-      </div>
+        </Button>
+      </Box>
     </>
   );
 };
