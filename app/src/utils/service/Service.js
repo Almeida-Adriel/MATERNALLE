@@ -1,9 +1,9 @@
 import axios from "axios";
 import Auth from "./Auth";
 
-// const BASE_URL = "https://maternalle.onrender.com/"; // URL de produção
+const BASE_URL = "https://maternalle.onrender.com/"; // URL de produção
 // const BASE_URL = "http://192.168.1.17:5000/"; // URL de teste local
-const BASE_URL = "http://localhost:5000/";
+// const BASE_URL = "http://localhost:5000/";
 const auth = new Auth();
 
 const handle401Error = (error) => {

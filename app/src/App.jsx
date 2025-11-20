@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import Layout from './components/DefaultLayout';
 import Login from './pages/Login';
 import Cadastro from './pages/Cadastro';
@@ -31,7 +32,13 @@ function App() {
             path="/*"
             element={
               <PrivateRoute>
-                <Layout />
+                <SnackbarProvider
+                  autoHideDuration={2400}
+                  maxSnack={2}
+                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  <Layout />
+                </SnackbarProvider>
               </PrivateRoute>
             }
           />

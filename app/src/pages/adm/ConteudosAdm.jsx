@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MdOutlineUploadFile } from 'react-icons/md';
 import { ThemeProvider } from '@mui/material/styles';
-import { MdOutlineDelete, MdOutlineCreate } from "react-icons/md";
+import { MdOutlineDelete, MdOutlineCreate } from 'react-icons/md';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -9,7 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import DefaultDataPage from '../../components/DefaultDataPage';
 import customTheme from '../../utils/CustomTheme';
 import Service from '../../utils/service/Service';
-import SnackBar from '../../components/SnackBar';
+import { useSnackbar } from 'notistack';
 import { tipo_conteudo_enum } from '../../utils/enum/tipoConteudo';
 import { tipoPerfil } from '../../utils/enum/tipoPerfil';
 
@@ -17,6 +17,7 @@ const service = new Service();
 const ENDPOINT = '/conteudos';
 
 const ConteudosAdm = () => {
+  const { enqueueSnackbar } = useSnackbar();
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
@@ -70,16 +71,17 @@ const ConteudosAdm = () => {
   };
 
   const handleDelete = async (id) => {
-    const confirmar = window.confirm('Tem certeza que deseja excluir este conteúdo?');
+    const confirmar = window.confirm(
+      'Tem certeza que deseja excluir este conteúdo?'
+    );
     if (!confirmar) return;
 
     try {
       setIsLoading(true);
       const response = await service.delete(`${ENDPOINT}`, `${id}`);
 
-      const msg =
-        response?.data?.message || 'Conteúdo deletado com sucesso.';
-      <SnackBar message={msg} />
+      const msg = response?.data?.message || 'Conteúdo deletado com sucesso.';
+      enqueueSnackbar(msg, { variant: 'success' });
 
       await fetchConteudos();
     } catch (error) {
@@ -87,7 +89,7 @@ const ConteudosAdm = () => {
       const errorMessage =
         error?.response?.data?.error ||
         'Erro ao deletar o conteúdo. Tente novamente mais tarde.';
-      <SnackBar message={errorMessage} variant='error'/>
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -108,13 +110,13 @@ const ConteudosAdm = () => {
       });
       const { conteudos, pagination } = res.data;
 
-    setConteudos(conteudos || []);
+      setConteudos(conteudos || []);
 
-    setTotalPages(Number(pagination?.totalPages) || 1);
+      setTotalPages(Number(pagination?.totalPages) || 1);
 
-    setCurrentPage(Number(pagination?.currentPage) || 1);
+      setCurrentPage(Number(pagination?.currentPage) || 1);
     } catch (error) {
-      <SnackBar variant='error' message='Erro ao buscar conteúdos' />
+      enqueueSnackbar('Erro ao buscar conteúdos', { variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -141,9 +143,6 @@ const ConteudosAdm = () => {
     e.preventDefault();
     setIsLoading(true);
     clearFormMessage();
-    
-
-    <SnackBar variant='info' message={editingId ? 'Atualizando conteúdo, aguarde...' : 'Publicando conteúdo, aguarde...'} />
 
     if (
       !formData.titulo ||
@@ -165,13 +164,15 @@ const ConteudosAdm = () => {
 
     try {
       let response;
-      
+
       if (editingId) {
         response = await service.put(`${ENDPOINT}/${editingId}`, dataToSend);
-        <SnackBar message={`Conteúdo "${response.data.titulo}" Atualizado com sucesso!`} />
+        enqueueSnackbar(`Conteúdo Atualizado com sucesso!`, {
+          variant: 'success',
+        });
       } else {
         response = await service.post(ENDPOINT, dataToSend);
-        <SnackBar message={`Conteúdo "${response.data.titulo}" criado com sucesso!`} />
+        enqueueSnackbar(`Conteúdo criado com sucesso!`, { variant: 'success' });
       }
       resetForm(); // Limpa o formulário após o sucesso
       setOpenModal(false);
@@ -184,6 +185,8 @@ const ConteudosAdm = () => {
       console.error('Erro na requisição:', error);
       setFormMessage(errorMessage);
       setFormMessageType('error');
+
+      enqueueSnackbar(errorMessage, { variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -218,7 +221,7 @@ const ConteudosAdm = () => {
             </h2>
 
             {formMessage && (
-               <Stack sx={{ width: '100%', mb: 2 }} spacing={2}>
+              <Stack sx={{ width: '100%', mb: 2 }} spacing={2}>
                 <Alert
                   variant="outlined"
                   severity={formMessageType}
@@ -345,7 +348,7 @@ const ConteudosAdm = () => {
         labelButton={'Adicionar Conteúdo'}
         onOpenCreate={() => {
           resetForm();
-          setOpenModal(true)
+          setOpenModal(true);
         }}
         loading={isLoading}
         columns={[
