@@ -27,7 +27,7 @@ const Home = () => {
 
   const setProfile = async () => {
     try {
-      const res = await service.get('usuario', userId);
+      const res = await service.get('usuarios', userId);
       setRes(res);
       const perfil = res?.data.perfil.role;
       let menu = [];

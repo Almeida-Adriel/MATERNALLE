@@ -50,7 +50,7 @@ const Layout = () => {
         return;
       }
 
-      const res = await service.get('usuario', userId);
+      const res = await service.get('usuarios', userId);
       setRes(res.data);
 
       const perfilRole = res?.data.perfil.role;
@@ -73,8 +73,8 @@ const Layout = () => {
   }, []);
 
   const renderRouteElement = (route, data) => {
-    const isAdminRoute =
-      route.path === '/conteudos_adm' || route.path === '/dashboard';
+    const listAdminRoutes = ['/conteudos_adm', '/dashboard', '/usuarios'];
+    const isAdminRoute = listAdminRoutes.includes(route.path);
 
     if (isAdminRoute) {
       return (

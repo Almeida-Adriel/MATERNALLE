@@ -80,9 +80,7 @@ const DefaultDataPage = ({
             <TableBody>
               {loading && (
                 <TableRow>
-                  <TableCell
-                    colSpan={Math.max(columns.length, 1)}
-                  >
+                  <TableCell colSpan={Math.max(columns.length, 1)}>
                     <Box
                       py={4}
                       display="flex"

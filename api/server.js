@@ -35,8 +35,8 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 app.use('/auth', authRoutes);
-app.use('/', usuarios);
-app.use('/', esqueciMinhaSenha)
+app.use('/usuarios', usuarios);
+app.use('/auth', esqueciMinhaSenha)
 app.use('/notas', notasRoutes);
 app.use('/conteudos', conteudosRoutes);
 

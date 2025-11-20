@@ -44,7 +44,7 @@ const register = async (req, res) => {
         case !perfil:
             return res.status(422).json({ error: 'Dados de perfil são obrigatórios!' });
         case !perfil.tipoPerfil || !perfil.role:
-            return res.status(422).json({ error: 'Os campos tipoPerfil, role e data_expiracao são obrigatórios no Perfil.' });
+            return res.status(422).json({ error: 'Os campos tipoPerfil e role  são obrigatórios no Perfil.' });
         default:
             break;
     }

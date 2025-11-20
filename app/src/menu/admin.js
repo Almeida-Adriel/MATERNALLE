@@ -1,5 +1,17 @@
 export default [
-    { name: 'Dashboard', url: '/dashboard' },
-    { name: 'Usuários', url: '/usuarios' },
-    { name: 'Conteúdos', url: '/conteudos_adm' }
+    { 
+        name: 'Dashboard', 
+        url: '/dashboard', 
+        icon: 'MdAdminPanelSettings'
+    },
+    { 
+        name: 'Usuários', 
+        url: '/usuarios', 
+        icon: 'MdPeople'
+    },
+    { 
+        name: 'Conteúdos', 
+        url: '/conteudos_adm', 
+        icon: 'MdAutoStories'
+    }
 ]

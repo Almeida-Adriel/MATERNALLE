@@ -4,9 +4,9 @@ import { forgotPassword, validateRecoveryCode } from '../controllers/esqueci_min
 const router = express.Router();
 
 // Rota para enviar o código de recuperação
-router.post('/auth/forgot-password', forgotPassword);
+router.post('/forgot-password', forgotPassword);
 
 // Rota para validar o código e alterar a senha
-router.post('/auth/reset-password', validateRecoveryCode);
+router.post('/reset-password', validateRecoveryCode);
 
 export default router;

@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { MdOutlineUploadFile } from 'react-icons/md';
-import { ThemeProvider } from '@mui/material/styles';
-import { MdOutlineDelete, MdOutlineCreate } from 'react-icons/md';
+//componentes
+import DefaultDataPage from '../../components/DefaultDataPage';
+
+// utils
+import Service from '../../utils/service/Service';
+import customTheme from '../../utils/CustomTheme';
+import { tipoPerfil } from '../../utils/enum/tipoPerfil';
+import { tipo_conteudo_enum } from '../../utils/enum/tipoConteudo';
+
+// materil ui
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import DefaultDataPage from '../../components/DefaultDataPage';
-import customTheme from '../../utils/CustomTheme';
-import Service from '../../utils/service/Service';
+import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
-import { tipo_conteudo_enum } from '../../utils/enum/tipoConteudo';
-import { tipoPerfil } from '../../utils/enum/tipoPerfil';
+import { ThemeProvider } from '@mui/material/styles';
+import {
+  MdOutlineDelete,
+  MdOutlineCreate,
+  MdOutlineUploadFile,
+} from 'react-icons/md';
 
 const service = new Service();
 const ENDPOINT = '/conteudos';
 
 const ConteudosAdm = () => {
   const { enqueueSnackbar } = useSnackbar();
+
   const [formData, setFormData] = useState({
     titulo: '',
     descricao: '',
@@ -26,7 +35,6 @@ const ConteudosAdm = () => {
     link_referencia: '',
     outros: '',
   });
-
   const [formMessage, setFormMessage] = useState('');
   const [formMessageType, setFormMessageType] = useState('error');
   const [isLoading, setIsLoading] = useState(false);
@@ -180,13 +188,10 @@ const ConteudosAdm = () => {
     } catch (error) {
       const errorMessage =
         error?.response?.data?.error ||
-        error?.error ||
         'Erro ao publicar o conteúdo. Por favor tente mais tarde.';
       console.error('Erro na requisição:', error);
       setFormMessage(errorMessage);
       setFormMessageType('error');
-
-      enqueueSnackbar(errorMessage, { variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -337,15 +342,15 @@ const ConteudosAdm = () => {
       )}
 
       <DefaultDataPage
+        labelButton={'Adicionar Conteúdo'}
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={handlePageChange}
         dataList={conteudos}
-        onSearch={handleSearch}
-        query={query}
         order={order}
+        query={query}
+        onSearch={handleSearch}
+        onPageChange={handlePageChange}
         onOrderChange={handleOrderChange}
-        labelButton={'Adicionar Conteúdo'}
         onOpenCreate={() => {
           resetForm();
           setOpenModal(true);
@@ -373,15 +378,17 @@ const ConteudosAdm = () => {
             render: (item) => (
               <div className="flex justify-center gap-2">
                 <button
-                  className="text-brand-800 bg-brand-300 border border-brand-300 p-1 rounded-md hover:bg-brand-200 hover:border-brand-200 cursor-pointer"
+                  className="text-blue-800 bg-blue-50 border border-blue-200 p-1.5 rounded-md hover:bg-blue-100 transition cursor-pointer"
                   onClick={() => handleEdit(item)}
+                  title="Editar"
                   aria-label="Editar conteúdo"
                 >
                   <MdOutlineCreate size={18} />
                 </button>
                 <button
-                  className="text-brand-800 bg-red-400 border border-red-400 p-1 rounded-md hover:bg-red-300 hover:border-red-300 cursor-pointer"
+                  className="text-red-600 bg-red-50 border border-red-200 p-1.5 rounded-md hover:bg-red-100 transition cursor-pointer"
                   onClick={() => handleDelete(item.id)}
+                  title="Excluir"
                   aria-label="Excluir conteúdo"
                 >
                   <MdOutlineDelete size={18} />
