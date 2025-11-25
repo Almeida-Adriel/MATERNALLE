@@ -212,6 +212,7 @@ const loginUser = async (req, res) => {
 
         return res.status(200).json({
             message: 'Autenticação realizada com sucesso!', 
+            token: token,
             userPerfil: user.perfil.tipoPerfil,
             userRole: user.role,
             id: user.id,
@@ -229,7 +230,7 @@ const logoutUser = async (req, res) => {
     try {
         // Clear cookies using the same security options used when setting them.
         res.cookie('token', '', {
-            httpOnly: true,
+            httpOnly: false,
             expires: new Date(0), // Data no passado
             secure: isProduction,
             sameSite: isProduction ? 'none' : 'lax',

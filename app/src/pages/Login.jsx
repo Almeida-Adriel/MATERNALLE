@@ -38,6 +38,7 @@ const Login = () => {
       auth.saveDataLogin({
         userId: response.data.id,
         userRole: response.data.userRole,
+        token: response.data.token
       });
       if (response.data.userRole === 'ADMIN') {
         navigate('/dashboard', { replace: true });
