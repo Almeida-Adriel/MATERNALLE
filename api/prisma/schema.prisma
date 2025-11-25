@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Usuarios {
-  id                 String           @id @default(uuid())
+  id                 String            @id @default(uuid())
   nome               String
-  cpf                String           @unique
-  data_nascimento    DateTime         @db.Date
+  cpf                String            @unique
+  data_nascimento    DateTime          @db.Date
   email              String  
   lastLoginAt        DateTime
   passwordHash       String
   endereco           String
   telefone           String
+  role               role              @default(CLIENTE)
   perfil             Perfil?
   status_maternidade statusMaternidade @default(NENHUMA)
   dpp                DateTime?
@@ -25,12 +26,11 @@ model Usuarios {
 }
 
 model Perfil {
-  id                String          @id @default(uuid())
-  id_usuario        String          @unique
-  tipoPerfil        tipoPerfil      @default(BASICO)
-  role              role
-  data_expiracao    DateTime?       @db.Date
-  usuario           Usuarios        @relation(fields: [id_usuario], references: [id])
+  id                 String          @id @default(uuid())
+  id_usuario         String          @unique
+  tipoPerfil         tipoPerfil?      @default(BASICO)
+  data_expiracao     DateTime?       @db.Date
+  usuario            Usuarios        @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
 }

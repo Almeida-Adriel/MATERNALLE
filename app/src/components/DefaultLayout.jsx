@@ -53,7 +53,7 @@ const Layout = () => {
       const res = await service.get('usuarios', userId);
       setRes(res.data);
 
-      const perfilRole = res?.data.perfil.role;
+      const perfilRole = res?.data.role;
       let menu = [];
 
       if (perfilRole === 'ADMIN') {

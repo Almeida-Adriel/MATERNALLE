@@ -17,6 +17,7 @@ const register = async (req, res) => {
         dpp,
         confirmPassword,
         perfil,
+        role,
         filhos = [] 
     } = req.body;
 
@@ -43,8 +44,8 @@ const register = async (req, res) => {
             return res.status(422).json({ error: 'Data de previsão de parto é obrigatórios!' });
         case !perfil:
             return res.status(422).json({ error: 'Dados de perfil são obrigatórios!' });
-        case !perfil.tipoPerfil || !perfil.role:
-            return res.status(422).json({ error: 'Os campos tipoPerfil e role  são obrigatórios no Perfil.' });
+        case !perfil.tipoPerfil:
+            return res.status(422).json({ error: 'O campo tipoPerfil são obrigatórios no Perfil.' });
         default:
             break;
     }
@@ -102,10 +103,10 @@ const register = async (req, res) => {
                 status_maternidade,
                 dpp: dpp ? new Date(dpp) : null,
                 telefone,
+                role,
                 perfil: {
                     create: {
                         tipoPerfil: perfil.tipoPerfil,
-                        role: perfil.role,
                         data_expiracao: dataExpiracao,
                     }
                 },
@@ -187,7 +188,7 @@ const loginUser = async (req, res) => {
         const isProduction = req.secure || process.env.NODE_ENV === 'production';
 
         res.cookie('token', token, {
-            httpOnly: true, // Impede acesso via JavaScript (XSS Protection)
+            httpOnly: false,
             maxAge: tokenMaxAge, // Tempo de vida do cookie
             secure: isProduction, // only secure in production (HTTPS)
             sameSite: isProduction ? 'none' : 'lax',
@@ -212,7 +213,7 @@ const loginUser = async (req, res) => {
         return res.status(200).json({
             message: 'Autenticação realizada com sucesso!', 
             userPerfil: user.perfil.tipoPerfil,
-            userRole: user.perfil.role,
+            userRole: user.role,
             id: user.id,
         });
     }

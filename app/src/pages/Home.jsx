@@ -29,7 +29,7 @@ const Home = () => {
     try {
       const res = await service.get('usuarios', userId);
       setRes(res);
-      const perfil = res?.data.perfil.role;
+      const perfil = res?.data.role;
       let menu = [];
       switch (perfil) {
         case Object.keys(tipoUsuario)[1]:

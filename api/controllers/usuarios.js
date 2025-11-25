@@ -1,6 +1,5 @@
 import prisma from '../utils/prisma.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { cpf as cpfValidador } from 'cpf-cnpj-validator';
 import { statusMaternidadeEnum } from '../../app/src/utils/enum/statusMaternidade.js';
 
@@ -16,6 +15,7 @@ const postUsuario = async (req, res) => {
     status_maternidade,
     dpp,
     confirmPassword,
+    role,
     perfil,
   } = req.body;
 
@@ -40,10 +40,10 @@ const postUsuario = async (req, res) => {
         return res.status(422).json({ error: 'Status da maternidade é obrigatórios!' });
     case status_maternidade === Object.keys(statusMaternidadeEnum)[1] && !dpp:
         return res.status(422).json({ error: 'Data de previsão de parto é obrigatórios!' });
-    case !perfil:
+    case (role !== 'ADMIN' && !perfil):
         return res.status(422).json({ error: 'Dados de perfil são obrigatórios!' });
-    case !perfil.tipoPerfil || !perfil.role:
-        return res.status(422).json({ error: 'Os campos tipoPerfil e role  são obrigatórios no Perfil.' });
+    case (role !== 'ADMIN' && !perfil.tipoPerfil):
+        return res.status(422).json({ error: 'O campo tipoPerfil é obrigatórios no Perfil.' });
     default:
         break;
   }
@@ -59,20 +59,21 @@ const postUsuario = async (req, res) => {
 
   let dataExpiracao;
   const hoje = new Date();
-
-  switch (perfil.tipoPerfil) {
+  if (role !== 'ADMIN') {
+    switch (perfil.tipoPerfil) {
       case 'BASICO':
-          dataExpiracao = null;
-          break;
+        dataExpiracao = null;
+        break;
       case 'PREMIUM':
-          dataExpiracao = new Date(hoje.setMonth(hoje.getMonth() + 1));
-          break;
+        dataExpiracao = new Date(hoje.setMonth(hoje.getMonth() + 1));
+        break;
       case 'PREMIUM_ANUAL':
-          dataExpiracao = new Date(hoje.setFullYear(hoje.getFullYear() + 1));
-          break;
+        dataExpiracao = new Date(hoje.setFullYear(hoje.getFullYear() + 1));
+        break;
       default:
-          return res.status(422).json({ error: 'Perfil inválido!' });
-  }
+        return res.status(422).json({ error: 'Perfil inválido!' });
+    }
+  };
 
   try {
     const user = await prisma.usuarios.create({
@@ -87,10 +88,10 @@ const postUsuario = async (req, res) => {
         status_maternidade,
         dpp: dpp ? new Date(dpp) : null,
         telefone,
+        role,
         perfil: {
           create: {
             tipoPerfil: perfil.tipoPerfil,
-            role: perfil.role,
             data_expiracao: dataExpiracao,
           }
         },
@@ -169,6 +170,7 @@ const getUsuario = async (req, res) => {
         endereco: true,
         status_maternidade: true,
         dpp: true,
+        role: true,
         perfil: true,
         filhos: true,
         notas: true
@@ -188,6 +190,9 @@ const getUsuario = async (req, res) => {
 const deleteUsuario = async (req, res) => {
   const id = req.params.id;
   try {
+      await prisma.perfil.deleteMany({
+        where: { id_usuario: id },
+      });
       await prisma.usuarios.delete({
           where: { id: id },
       });
@@ -242,8 +247,8 @@ const updateUsuario = async (req, res) => {
         return res.status(400).json({ error: 'Data de previsão de parto é obrigatórios!' });
       case !perfil:
         return res.status(400).json({ error: 'Dados de perfil são obrigatórios!' });
-      case !perfil.tipoPerfil || !perfil.role:
-        return res.status(400).json({ error: 'Os campos tipoPerfil e role são obrigatórios no Perfil.' });
+      case !perfil.tipoPerfil:
+        return res.status(400).json({ error: 'O campo tipoPerfil é obrigatórios no Perfil.' });
       default:
         break;
     }
@@ -292,10 +297,10 @@ const updateUsuario = async (req, res) => {
             status_maternidade,
             dpp: dpp ? new Date(dpp) : null,
             telefone,
+            role,
             perfil: {
               update: {
                 tipoPerfil: perfil.tipoPerfil,
-                role: perfil.role,
                 data_expiracao: dataExpiracao,
               }
             },

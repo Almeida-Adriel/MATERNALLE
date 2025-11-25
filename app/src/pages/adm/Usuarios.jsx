@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DefaultDataPage from '../../components/DefaultDataPage';
+import Modal from '../../components/Modal';
 
 import Service from '../../utils/service/Service';
 import customTheme from '../../utils/CustomTheme';
@@ -46,9 +47,9 @@ const Usuarios = () => {
     dpp: '',
     password: '',
     confirmPassword: '',
+    role: 'CLIENTE',
     perfil: {
-      role: 'CLIENTE',
-      tipoPerfil: 'BASICO',
+      tipoPerfil: '',
       data_expiracao: '',
     },
   };
@@ -78,6 +79,7 @@ const Usuarios = () => {
           : name === 'telefone'
             ? mascaraTelefone(value)
             : value,
+      perfil: { ...prev.perfil, tipoPerfil: null }
     }));
   };
 
@@ -122,8 +124,8 @@ const Usuarios = () => {
       dpp: formatDateForInput(item.dpp),
       password: '',
       confirmPassword: '',
+      role: item.role || 'CLIENTE',
       perfil: {
-        role: item.perfil?.role || 'CLIENTE',
         tipoPerfil: item.perfil?.tipoPerfil || 'BASICO',
       },
     });
@@ -226,7 +228,7 @@ const Usuarios = () => {
         });
       } else {
         const res = await service.post(endpoint, payload);
-        const primerioNome = res.data.nome.split(' ');
+        const primerioNome = res.data.usario.nome.split(' ');
         enqueueSnackbar(`Criação de usuário ${primerioNome}.`, {
           variant: 'success',
         });
@@ -252,12 +254,12 @@ const Usuarios = () => {
       render: (item) => (
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            item.perfil?.role === 'ADMIN'
+            item.role === 'ADMIN'
               ? 'bg-purple-100 text-purple-800'
               : 'bg-blue-100 text-blue-800'
           }`}
         >
-          {item.perfil?.role || '-'}
+          {item.role || '-'}
         </span>
       ),
     },
@@ -308,224 +310,208 @@ const Usuarios = () => {
         </div>
       </div>
       {openModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
-            onClick={() => setOpenModal(false)}
-          />
-
-          <div className="relative z-10 w-full max-w-4xl bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-100 bg-white">
-              <h2 className="text-2xl font-bold text-gray-800">
-                {editingId ? 'Editar Usuário' : 'Novo Usuário'}
-              </h2>
+        <Modal 
+          open={openModal}
+          onClose={() => {
+            setOpenModal(false)
+            setEditingId(null)
+          }}
+          title={editingId ? 'Editar Usuário' : 'Novo Usuário'}
+        >
+          {formMessage && (
+            <Stack sx={{ width: '100%', mb: 3 }}>
+              <Alert severity={formMessageType} onClose={clearFormMessage}>
+                {formMessage}
+              </Alert>
+            </Stack>
+          )}
+          <form
+            id="userForm"
+            onSubmit={handleFormSubmit}
+            className="space-y-1"
+          >
+            {/* Dados Pessoais */}
+            <div className="p-4">
+              <h3 className="text-sm font-bold text-brand-600 uppercase tracking-wider mb-4">
+                Dados Pessoais
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <TextField
+                  label="Nome Completo"
+                  name="nome"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="CPF"
+                  name="cpf"
+                  value={formData.cpf}
+                  onChange={handleChange}
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Telefone"
+                  name="telefone"
+                  value={formData.telefone}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                <TextField
+                  label="Data de Nascimento"
+                  name="data_nascimento"
+                  type="date"
+                  value={formData.data_nascimento}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  label="Endereço"
+                  name="endereco"
+                  value={formData.endereco}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                />
+                {(!editingId ||
+                  (editingId &&
+                    (formData.password || formData.confirmPassword))) && (
+                    <>
+                      <TextField
+                        label="Senha"
+                        name="password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        fullWidth
+                        size="small"
+                        required={!editingId}
+                      />
+                      <TextField
+                        label="Confirmar Senha"
+                        name="confirmPassword"
+                        type="password"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        fullWidth
+                        size="small"
+                        required={!editingId}
+                      />
+                    </>
+                )}
+              </div>
             </div>
 
-            <div className="p-6 overflow-y-auto bg-white">
-              {formMessage && (
-                <Stack sx={{ width: '100%', mb: 3 }}>
-                  <Alert severity={formMessageType} onClose={clearFormMessage}>
-                    {formMessage}
-                  </Alert>
-                </Stack>
-              )}
+            {/* Acesso */}
+            <div className="p-4">
+              <h3 className="text-sm font-bold text-brand-600 uppercase tracking-wider mb-4">
+                Acesso e Plano
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <TextField
+                  select
+                  label="Permissão (Role)"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="small"
+                >
+                  <MenuItem value="CLIENTE">Cliente</MenuItem>
+                  <MenuItem value="ADMIN">Admin</MenuItem>
+                </TextField>
+                {formData.role !== 'ADMIN' &&
+                  <TextField
+                    select
+                    label="Tipo de Perfil"
+                    name="tipoPerfil"
+                    value={formData.perfil.tipoPerfil}
+                    onChange={handlePerfilChange}
+                    required
+                    fullWidth
+                    size="small"
+                  >
+                    <MenuItem value="BASICO">Básico</MenuItem>
+                    <MenuItem value="PREMIUM">Premium</MenuItem>
+                    <MenuItem value="PREMIUM_ANUAL">Premium Anual</MenuItem>
+                  </TextField>
+                }
+              </div>
+            </div>
 
-              <form
-                id="userForm"
-                onSubmit={handleFormSubmit}
-                className="space-y-6"
-              >
-                {/* Dados Pessoais */}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
-                    Dados Pessoais
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Maternidade */}
+            {formData.role !== 'ADMIN' &&
+              <div className="p-4">
+                <h3 className="text-sm font-bold text-brand-600 uppercase tracking-wider mb-4">
+                  Maternidade
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <TextField
+                    select
+                    label="Status Maternidade"
+                    name="status_maternidade"
+                    value={formData.status_maternidade}
+                    onChange={handleChange}
+                    fullWidth
+                    size="small"
+                  >
+                    <MenuItem value="NENHUMA">Nenhuma</MenuItem>
+                    <MenuItem value="GESTANTE">Gestante</MenuItem>
+                    <MenuItem value="PUERPERA">Puérpera</MenuItem>
+                  </TextField>
+
+                  {formData.status_maternidade === 'GESTANTE' && (
                     <TextField
-                      label="Nome Completo"
-                      name="nome"
-                      value={formData.nome}
-                      onChange={handleChange}
-                      required
-                      fullWidth
-                      size="small"
-                    />
-                    <TextField
-                      label="CPF"
-                      name="cpf"
-                      value={formData.cpf}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                    />
-                    <TextField
-                      label="Email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      fullWidth
-                      size="small"
-                    />
-                    <TextField
-                      label="Telefone"
-                      name="telefone"
-                      value={formData.telefone}
-                      onChange={handleChange}
-                      required
-                      fullWidth
-                      size="small"
-                    />
-                    <TextField
-                      label="Data de Nascimento"
-                      name="data_nascimento"
+                      label="Data Prevista do Parto (DPP)"
+                      name="dpp"
                       type="date"
-                      value={formData.data_nascimento}
+                      value={formData.dpp}
                       onChange={handleChange}
                       required
                       fullWidth
                       size="small"
                       InputLabelProps={{ shrink: true }}
                     />
-                    <TextField
-                      label="Endereço"
-                      name="endereco"
-                      value={formData.endereco}
-                      onChange={handleChange}
-                      required
-                      fullWidth
-                      size="small"
-                    />
-                  </div>
+                  )}
                 </div>
-
-                {(!editingId ||
-                  (editingId &&
-                    (formData.password || formData.confirmPassword))) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                    <TextField
-                      label="Senha"
-                      name="password"
-                      type="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      required={!editingId}
-                    />
-                    <TextField
-                      label="Confirmar Senha"
-                      name="confirmPassword"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                      required={!editingId}
-                    />
-                  </div>
-                )}
-
-                {/* Maternidade */}
-                <div className="bg-pink-50 p-4 rounded-lg border border-pink-100">
-                  <h3 className="text-sm font-bold text-pink-400 uppercase tracking-wider mb-4">
-                    Maternidade
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <TextField
-                      select
-                      label="Status Maternidade"
-                      name="status_maternidade"
-                      value={formData.status_maternidade}
-                      onChange={handleChange}
-                      fullWidth
-                      size="small"
-                    >
-                      <MenuItem value="NENHUMA">Nenhuma</MenuItem>
-                      <MenuItem value="GESTANTE">Gestante</MenuItem>
-                      <MenuItem value="PUERPERA">Puérpera</MenuItem>
-                    </TextField>
-
-                    {formData.status_maternidade === 'GESTANTE' && (
-                      <TextField
-                        label="Data Prevista do Parto (DPP)"
-                        name="dpp"
-                        type="date"
-                        value={formData.dpp}
-                        onChange={handleChange}
-                        required
-                        fullWidth
-                        size="small"
-                        InputLabelProps={{ shrink: true }}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Acesso */}
-                <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
-                  <h3 className="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-4">
-                    Acesso e Plano
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <TextField
-                      select
-                      label="Permissão (Role)"
-                      name="role"
-                      value={formData.perfil.role}
-                      onChange={handlePerfilChange}
-                      required
-                      fullWidth
-                      size="small"
-                    >
-                      <MenuItem value="CLIENTE">Cliente</MenuItem>
-                      <MenuItem value="ADMIN">Admin</MenuItem>
-                    </TextField>
-
-                    <TextField
-                      select
-                      label="Tipo de Perfil"
-                      name="tipoPerfil"
-                      value={formData.perfil.tipoPerfil}
-                      onChange={handlePerfilChange}
-                      required
-                      fullWidth
-                      size="small"
-                    >
-                      <MenuItem value="BASICO">Básico</MenuItem>
-                      <MenuItem value="PREMIUM">Premium</MenuItem>
-                      <MenuItem value="PREMIUM_ANUAL">Premium Anual</MenuItem>
-                    </TextField>
-                  </div>
-                </div>
-              </form>
-            </div>
-
-            <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
-              <Button
-                variant="outlined"
-                color="inherit"
-                onClick={() => setOpenModal(false)}
-                sx={{ borderColor: '#d1d5db', color: '#374151' }}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleFormSubmit}
-                disabled={isLoading}
-              >
-                {isLoading
-                  ? 'Salvando...'
-                  : editingId
-                    ? 'Atualizar Usuário'
-                    : 'Criar Usuário'}
-              </Button>
-            </div>
+              </div>
+            }
+          </form>
+          <div className="p-6 flex justify-end">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleFormSubmit}
+              disabled={isLoading}
+            >
+              {isLoading
+                ? 'Salvando...'
+                : editingId
+                  ? 'Atualizar Usuário'
+                  : 'Criar Usuário'}
+            </Button>
           </div>
-        </div>
+        </Modal>
       )}
       <DefaultDataPage
         labelButton={'Adicionar Usuário'}

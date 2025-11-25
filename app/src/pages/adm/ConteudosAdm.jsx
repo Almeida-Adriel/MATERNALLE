@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 //componentes
 import DefaultDataPage from '../../components/DefaultDataPage';
+import Modal from '../../components/Modal';
 
 // utils
 import Service from '../../utils/service/Service';

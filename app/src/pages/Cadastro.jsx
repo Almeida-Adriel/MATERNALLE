@@ -193,9 +193,9 @@ const Cadastro = () => {
         data_nascimento: form.dataNascimento,
         password: form.senha,
         confirmPassword: form.confirmarSenha,
+        role,
         perfil: {
           tipoPerfil: perfil.tipoPerfil,
-          role: perfil.role,
         },
         status_maternidade: statusMaternidade,
         dpp: statusMaternidade === keyStatus[1] ? form.dpp : null,
