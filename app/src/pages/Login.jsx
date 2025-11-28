@@ -35,11 +35,6 @@ const Login = () => {
 
     try {
       const response = await service.login(cpf, password);
-      auth.saveDataLogin({
-        userId: response.data.id,
-        userRole: response.data.userRole,
-        token: response.data.token
-      });
       if (response.data.userRole === 'ADMIN') {
         navigate('/dashboard', { replace: true });
       } else {
