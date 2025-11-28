@@ -7,11 +7,9 @@ import Collapse from '@mui/material/Collapse';
 import Perfil from '../../public/logo.png';
 import Logo from '../../public/maternalle.png';
 import Auth from '../utils/service/Auth';
-import Service from '../utils/service/Service';
 import { MdLogout, MdOutlinePersonOutline } from 'react-icons/md';
 import ListItemIcon from '@mui/material/ListItemIcon';
 
-const service = new Service();
 const auth = new Auth();
 
 const Header = ({ toggleSidebar }) => {
@@ -25,7 +23,7 @@ const Header = ({ toggleSidebar }) => {
   };
 
   const handleLogout = () => {
-    service.logout();
+    auth.clear();
     navigate('/login');
   };
 

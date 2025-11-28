@@ -1,25 +1,32 @@
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
-    // 1. Tenta obter o token do cookie
-    const token = req.cookies.token;
-
-    if (!token) {
-        return res.status(401).json({ error: 'Acesso negado. Token não fornecido.' });
-    }
-
     try {
+        // Obtém o header Authorization
+        const authHeader = req.headers.authorization;
+
+        if (!authHeader) {
+            return res.status(401).json({ error: 'Acesso negado. Token não fornecido.' });
+        }
+
+        // Formato esperado: "Bearer token_aqui"
+        const [, token] = authHeader.split(' ');
+
+        if (!token) {
+            return res.status(401).json({ error: 'Token inválido ou ausente.' });
+        }
+
         const secretKey = process.env.SECRET_KEY;
-        // 2. Verifica o token
+
+        // Verifica e decodifica o token
         const decoded = jwt.verify(token, secretKey);
-        
-        // 3. Anexa os dados do usuário à requisição
-        req.user = decoded; 
-        
-        // 4. Continua para a próxima função (o controller)
+
+        // Anexa dados do usuário à requisição
+        req.user = decoded;
+
         next();
     } catch (error) {
-        return res.status(401).json({ error: 'Token inválido.' });
+        return res.status(401).json({ error: 'Token expirado ou inválido.' });
     }
 };
 

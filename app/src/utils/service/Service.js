@@ -1,9 +1,9 @@
 import axios from "axios";
 import Auth from "./Auth";
 
-// const BASE_URL = "https://maternalle.onrender.com/"; // URL de produção
-// const BASE_URL = "http://192.168.1.17:5000/"; // URL de teste local
-const BASE_URL = "http://localhost:5000/";
+const BASE_URL = "https://maternalle.onrender.com/"; // URL de produção
+// const BASE_URL = "http://192.168.56.1:5000/"; // URL de teste local
+// const BASE_URL = "http://localhost:5000/";
 const auth = new Auth();
 
 const handle401Error = (error) => {
@@ -23,7 +23,14 @@ const handle401Error = (error) => {
 
 const api = axios.create({
     baseURL: BASE_URL,
-    withCredentials: true, 
+});
+
+api.interceptors.request.use((config) => {
+  const token = auth.getToken();
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
 });
 
 // Adiciona o interceptor de resposta para tratar erros 401 em todas as requisições 'api'
@@ -32,11 +39,12 @@ api.interceptors.response.use(
     handle401Error
 );
 
+
 // Instância para Requisições PÚBLICAS (Login/Cadastro)
 const publicApi = axios.create({
     baseURL: BASE_URL,
-    withCredentials: true, // Ainda é bom para receber o cookie de login
 });
+
 publicApi.interceptors.response.use(
     (response) => response,
     (error) => Promise.reject(error.response?.data || error)
@@ -86,25 +94,21 @@ class Service {
   }
 
   login(cpf, password) {
-    const data = { cpf, password }; 
-    return publicApi.post('auth/login', data);
+     return publicApi.post("auth/login", { cpf, password })
+      .then((res) => {
+        auth.saveDataLogin({
+          token: res.data.token,
+          id: res.data.id,
+          userRole: res.data.userRole
+        });
+
+      return res;
+    });
   }
   
   async logout() {
-    try {
-        const response = await publicApi.post('auth/logout'); 
-        
-        if (response.status === 200) { 
-          auth.clear();
-          return true;
-        } 
-    } catch (error) {
-      console.error('Erro ao tentar logout:', error);
-      
-      auth.clear();
-      
-      return false;
-    }
+    auth.clear();
+    return true;
   }
 }
 

@@ -1,9 +1,17 @@
 const adminAuthMiddleware = (req, res, next) => {
-    if (!req.user || req.user.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Acesso Proibido. Requer Permissão de Administrador.' });
-    }
+    try {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Acesso negado. Usuário não autenticado.' });
+        }
 
-    next();
+        if (req.user.role !== 'ADMIN') {
+            return res.status(403).json({ error: 'Acesso proibido. Permissão de administrador necessária.' });
+        }
+
+        next();
+    } catch (error) {
+        return res.status(500).json({ error: 'Erro ao verificar permissões.' });
+    }
 };
 
 export default adminAuthMiddleware;

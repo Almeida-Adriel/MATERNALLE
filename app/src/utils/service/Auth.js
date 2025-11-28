@@ -1,47 +1,43 @@
-import React from 'react';
-import Cookies from 'js-cookie';
-
 class Auth {
     constructor() {
-        this.COOKIE_EXPIRATION_DAYS = 1;
+        this.TOKEN_KEY = 'token';
+        this.USER_ID_KEY = 'userId';
         this.ROLE_KEY = 'userRole';
     }
 
+    // Verifica se existe token
     isAuthenticated() {
-        let id = this._getCookie('userId'); 
-
-        return id;
+        return !!localStorage.getItem(this.TOKEN_KEY);
     }
 
-    _getCookie(key) {
-        return Cookies.get(key); 
+    getToken() {
+        return localStorage.getItem(this.TOKEN_KEY);
     }
 
     getId() {
-        if(this.isAuthenticated()){
-            let userId = this._getCookie('userId')
-            return userId;
-        }
+        return localStorage.getItem(this.USER_ID_KEY);
     }
 
     getUserRole() {
-        return this._getCookie(this.ROLE_KEY);
+        return localStorage.getItem(this.ROLE_KEY);
     }
 
+    // Salva informações de login
     saveDataLogin(data) {
-        if (!!data) {
-            const options = { expires: this.COOKIE_EXPIRATION_DAYS, secure: true, sameSite: 'none' };
-            Cookies.set('userId', data.userId, options)
-            Cookies.set('token', data.token, options)
-            Cookies.set(this.ROLE_KEY, data.userRole, options);
-        }
+        if (!data) return;
+
+        localStorage.setItem(this.TOKEN_KEY, data.token);
+        localStorage.setItem(this.USER_ID_KEY, data.id || data.userId);
+        localStorage.setItem(this.ROLE_KEY, data.userRole);
     }
 
-    clear(){
-        Cookies.remove('userId');
-        Cookies.remove('token');
-        Cookies.remove(this.ROLE_KEY)
+    // Limpa dados da sessão
+    clear() {
+        localStorage.removeItem(this.TOKEN_KEY);
+        localStorage.removeItem(this.USER_ID_KEY);
+        localStorage.removeItem(this.ROLE_KEY);
+        sessionStorage.removeItem('flash');
     }
 }
 
-export default Auth
+export default Auth;

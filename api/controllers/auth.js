@@ -183,28 +183,6 @@ const loginUser = async (req, res) => {
             { expiresIn: expirationTime }
         );
 
-        const tokenMaxAge = 1000 * 60 * 60 * 24; 
-
-        const isProduction = req.secure || process.env.NODE_ENV === 'production';
-
-        res.cookie('token', token, {
-            httpOnly: false,
-            maxAge: tokenMaxAge, // Tempo de vida do cookie
-            secure: isProduction, // only secure in production (HTTPS)
-            sameSite: isProduction ? 'none' : 'lax',
-            path: '/'
-            // domain: isProduction ? undefined : '192.168.1.17',
-        });
-
-        res.cookie('userId', user.id, {
-            httpOnly: false,
-            maxAge: tokenMaxAge,
-            secure: isProduction,
-            sameSite: isProduction ? 'none' : 'lax',
-            path: '/'
-            // domain: isProduction ? undefined : '192.168.1.17',
-        });
-
         await prisma.usuarios.update({
             where: { id: user.id },
             data: { lastLoginAt: new Date() }
@@ -224,33 +202,4 @@ const loginUser = async (req, res) => {
     }
 }
 
-const logoutUser = async (req, res) => {
-    const isProduction = req.secure || process.env.NODE_ENV === 'production';
-    
-    try {
-        // Clear cookies using the same security options used when setting them.
-        res.cookie('token', '', {
-            httpOnly: false,
-            expires: new Date(0), // Data no passado
-            secure: isProduction,
-            sameSite: isProduction ? 'none' : 'lax',
-            path: '/'
-            // domain: isProduction ? undefined : '192.168.1.17',
-        });
-        res.cookie('userId', '', { 
-            httpOnly: false,
-            expires: new Date(0),
-            secure: isProduction,
-            sameSite: isProduction ? 'none' : 'lax',
-            path: '/'
-            // domain: isProduction ? undefined : '192.168.1.17',
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ error: 'Aconteceu um erro no servidor, tente novamente mais tarde!' });
-    }
-
-    return res.status(200).json({ message: 'Logout realizado com sucesso!' });
-}
-
-export { register, loginUser, logoutUser };
+export { register, loginUser };
