@@ -29,6 +29,7 @@ const DefaultDataPage = ({
   renderRow,
   emptyMessage = 'Nenhum registro encontrado',
   loading = false,
+  buttonCreate = true,
 }) => {
   const handlePrev = () => {
     if (currentPage > 1) onPageChange(currentPage - 1);
@@ -47,6 +48,7 @@ const DefaultDataPage = ({
         onOrderChange={onOrderChange}
         labelButton={labelButton}
         onOpenCreate={onOpenCreate}
+        buttonCreate={buttonCreate}
       />
 
       <Box mt={2}>

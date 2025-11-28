@@ -79,7 +79,7 @@ const Usuarios = () => {
           : name === 'telefone'
             ? mascaraTelefone(value)
             : value,
-      perfil: { ...prev.perfil, tipoPerfil: null }
+      perfil: { ...prev.perfil },
     }));
   };
 
@@ -147,7 +147,7 @@ const Usuarios = () => {
 
       await fetchUsuarios();
     } catch (error) {
-      const msg = error.response?.data?.error || 'Erro ao deletar usuário.';
+      const msg = error.error || 'Erro ao deletar usuário.';
       enqueueSnackbar(msg, { variant: 'error' });
     } finally {
       setIsLoading(false);
@@ -238,7 +238,7 @@ const Usuarios = () => {
       await fetchUsuarios();
     } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.error || 'Erro ao salvar usuário.';
+      const msg = error.error || 'Erro ao salvar usuário.';
       setFormMessage(msg);
       setFormMessageType('error');
     } finally {
@@ -310,11 +310,11 @@ const Usuarios = () => {
         </div>
       </div>
       {openModal && (
-        <Modal 
+        <Modal
           open={openModal}
           onClose={() => {
-            setOpenModal(false)
-            setEditingId(null)
+            setOpenModal(false);
+            setEditingId(null);
           }}
           title={editingId ? 'Editar Usuário' : 'Novo Usuário'}
         >
@@ -325,11 +325,7 @@ const Usuarios = () => {
               </Alert>
             </Stack>
           )}
-          <form
-            id="userForm"
-            onSubmit={handleFormSubmit}
-            className="space-y-1"
-          >
+          <form id="userForm" onSubmit={handleFormSubmit} className="space-y-1">
             {/* Dados Pessoais */}
             <div className="p-4">
               <h3 className="text-sm font-bold text-brand-600 uppercase tracking-wider mb-4">
@@ -395,28 +391,28 @@ const Usuarios = () => {
                 {(!editingId ||
                   (editingId &&
                     (formData.password || formData.confirmPassword))) && (
-                    <>
-                      <TextField
-                        label="Senha"
-                        name="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        fullWidth
-                        size="small"
-                        required={!editingId}
-                      />
-                      <TextField
-                        label="Confirmar Senha"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        fullWidth
-                        size="small"
-                        required={!editingId}
-                      />
-                    </>
+                  <>
+                    <TextField
+                      label="Senha"
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      required={!editingId}
+                    />
+                    <TextField
+                      label="Confirmar Senha"
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      fullWidth
+                      size="small"
+                      required={!editingId}
+                    />
+                  </>
                 )}
               </div>
             </div>
@@ -440,7 +436,7 @@ const Usuarios = () => {
                   <MenuItem value="CLIENTE">Cliente</MenuItem>
                   <MenuItem value="ADMIN">Admin</MenuItem>
                 </TextField>
-                {formData.role !== 'ADMIN' &&
+                {formData.role !== 'ADMIN' && (
                   <TextField
                     select
                     label="Tipo de Perfil"
@@ -455,12 +451,12 @@ const Usuarios = () => {
                     <MenuItem value="PREMIUM">Premium</MenuItem>
                     <MenuItem value="PREMIUM_ANUAL">Premium Anual</MenuItem>
                   </TextField>
-                }
+                )}
               </div>
             </div>
 
             {/* Maternidade */}
-            {formData.role !== 'ADMIN' &&
+            {formData.role !== 'ADMIN' && (
               <div className="p-4">
                 <h3 className="text-sm font-bold text-brand-600 uppercase tracking-wider mb-4">
                   Maternidade
@@ -495,7 +491,7 @@ const Usuarios = () => {
                   )}
                 </div>
               </div>
-            }
+            )}
           </form>
           <div className="p-6 flex justify-end">
             <Button

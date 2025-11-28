@@ -154,7 +154,7 @@ const getUsuario = async (req, res) => {
     const idDoUsuario = req.query.id; 
 
     if (!idDoUsuario) {
-        return res.status(400).json({ error: 'ID do usuário não fornecido na query.' });
+        return res.status(400).json({ error: 'ID do usuário não fornecido.' });
     }
 
     const usuario = await prisma.usuarios.findUnique({

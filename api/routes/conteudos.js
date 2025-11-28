@@ -1,13 +1,23 @@
 import express from 'express';
-import { postConteudos, getConteudos, getAllConteudos, deleteConteudo, updateConteudo } from '../controllers/conteudos.js';
+import { 
+  postConteudos,
+  getConteudo,
+  getConteudos, 
+  getAllConteudos, 
+  deleteConteudo, 
+  updateConteudo 
+} from '../controllers/conteudos.js';
+
 import authMiddleware from '../utils/middleaware.js';
+import upload from '../utils/upload.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, postConteudos);
-router.get('/', authMiddleware, getConteudos);
+router.post('/', authMiddleware, upload.single("imagem"), postConteudos);
+router.put('/:id', authMiddleware, upload.single("imagem"), updateConteudo);
 router.get('/todos', authMiddleware, getAllConteudos);
+router.get('/:id', authMiddleware, getConteudo);
+router.get('/', authMiddleware, getConteudos);
 router.delete('/:id', authMiddleware, deleteConteudo);
-router.put('/:id', authMiddleware, updateConteudo);
 
 export default router;

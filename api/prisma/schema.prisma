@@ -70,6 +70,7 @@ model Conteudos {
   descricao         String
   data_criacao      DateTime        @db.Date
   tipo_conteudo     TipoConteudo
+  imagemUrl         String?
   acesso            tipoPerfil
   outros            String?
   link_referencia   String?

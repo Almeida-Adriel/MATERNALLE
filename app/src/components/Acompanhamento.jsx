@@ -239,7 +239,7 @@ const Acompanhamento = ({ dados }) => {
                 )}
               </div>
             </>
-          ) : (
+          ) : filhos.nome ? (
             <>
               <div className="space-y-4">
                 <h3 className="text-3xl font-extrabold text-brand-900 mb-4 text-center">
@@ -293,6 +293,13 @@ const Acompanhamento = ({ dados }) => {
                 )}
               </div>
             </>
+          ) : (
+            <h1 className="text-brand-800 text-center">
+              Registre seus filhos para ter acompanhamento em{' '}
+              <a href="/perfil" className="underline hover:text-brand-500">
+                Perfil
+              </a>
+            </h1>
           )}
         </div>
 

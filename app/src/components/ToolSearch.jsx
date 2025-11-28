@@ -11,6 +11,7 @@ const ToolSearch = ({
   onOpenCreate = () => {},
   lembretes = false,
   labelButton,
+  buttonCreate,
 }) => {
   const [localSearch, setLocalSearch] = useState(search || '');
 
@@ -81,12 +82,14 @@ const ToolSearch = ({
             </button>
           )}
 
-          <button
-            onClick={onOpenCreate}
-            className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-sm"
-          >
-            <MdAdd size={18} /> {labelButton || 'Criar'}
-          </button>
+          {buttonCreate && (
+            <button
+              onClick={onOpenCreate}
+              className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-sm"
+            >
+              <MdAdd size={18} /> {labelButton || 'Criar'}
+            </button>
+          )}
         </div>
       </div>
     </div>

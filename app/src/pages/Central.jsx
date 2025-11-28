@@ -9,20 +9,12 @@ import {
 } from 'react-icons/md';
 import { statusMaternidadeEnum } from '../utils/enum/statusMaternidade';
 import Acompanhamento from '../components/Acompanhamento';
+import formatDateBR from '../utils/formatDateBR';
 import Auth from '../utils/service/Auth';
 
 const service = new Service();
 const auth = new Auth();
 
-const formatDateBR = (d) => {
-  try {
-    const dt = typeof d === 'string' || typeof d === 'number' ? new Date(d) : d;
-    if (isNaN(dt.getTime())) return '--/--/----';
-    return dt.toLocaleDateString('pt-BR');
-  } catch {
-    return '--/--/----';
-  }
-};
 const CompromissoCard = ({ tipo, data, descricao }) => (
   <div className="p-4 rounded-lg border border-brand-100 bg-white hover:shadow-md transition-shadow">
     <p className="text-sm text-slate-500 font-medium">
