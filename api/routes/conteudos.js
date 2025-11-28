@@ -3,7 +3,6 @@ import {
   postConteudos,
   getConteudo,
   getConteudos, 
-  getAllConteudos, 
   deleteConteudo, 
   updateConteudo 
 } from '../controllers/conteudos.js';
@@ -15,7 +14,6 @@ const router = express.Router();
 
 router.post('/', authMiddleware, upload.single("imagem"), postConteudos);
 router.put('/:id', authMiddleware, upload.single("imagem"), updateConteudo);
-router.get('/todos', authMiddleware, getAllConteudos);
 router.get('/:id', authMiddleware, getConteudo);
 router.get('/', authMiddleware, getConteudos);
 router.delete('/:id', authMiddleware, deleteConteudo);

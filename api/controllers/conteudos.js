@@ -78,7 +78,7 @@ const postConteudos = async (req, res) => {
 };
 
 const getConteudo = async (req, res) => {
-  const { id } = req.params;
+  const id = req.query.id;
 
   if (!id) {
     return res.status(400).json({ error: "ID do conteúdo não fornecido." });
@@ -107,6 +107,7 @@ const getConteudos = async (req, res) => {
   const { search, order = "desc", page = 1, limit = 10 } = req.query;
   const user = req.user;
   const tipoPerfil = user.perfil;
+  const role = user.role
 
   const niveisAcesso = {
     BASICO: ["BASICO"],
@@ -119,7 +120,7 @@ const getConteudos = async (req, res) => {
   try {
     const conteudos = await prisma.conteudos.findMany({
       where: {
-        acesso: { in: allowedAccess },
+        acesso: { in: role === 'ADMIN' ? undefined : allowedAccess },
         OR: [
           {
             titulo: {
@@ -174,69 +175,6 @@ const getConteudos = async (req, res) => {
   } catch (error) {
     console.error("Erro ao buscar conteúdos:", error);
     res.status(500).json({ error: "Erro ao buscar conteúdos" });
-  }
-};
-
-const getAllConteudos = async (req, res) => {
-  const { search, order = "desc", page = 1, limit = 8 } = req.query;
-
-  try {
-    const conteudos = await prisma.conteudos.findMany({
-      skip: (page - 1) * limit,
-      take: limit,
-      where: {
-        OR: [
-          {
-            titulo: {
-              contains: search || "",
-              mode: "insensitive",
-            },
-          },
-          {
-            descricao: {
-              contains: search || "",
-              mode: "insensitive",
-            },
-          },
-        ],
-      },
-      orderBy: {
-        data_criacao: order === "desc" ? "desc" : "asc",
-      },
-    });
-
-    const totalConteudos = await prisma.conteudos.count({
-      where: {
-        OR: [
-          {
-            titulo: {
-              contains: search || "",
-              mode: "insensitive",
-            },
-          },
-          {
-            descricao: {
-              contains: search || "",
-              mode: "insensitive",
-            },
-          },
-        ],
-      },
-    });
-
-    const totalPages = Math.ceil(totalConteudos / limit);
-
-    res.status(200).json({
-      conteudos,
-      pagination: {
-        currentPage: page,
-        totalPages: totalPages,
-        totalItems: totalConteudos,
-      },
-    });
-  } catch (error) {
-    console.error('Erro ao buscar conteúdos:', error);
-    res.status(500).json({ error: 'Erro ao buscar conteúdos' });
   }
 };
 
@@ -330,4 +268,4 @@ const updateConteudo = async (req, res) => {
     }
 };
 
-export { postConteudos, getConteudo, getConteudos, getAllConteudos, deleteConteudo, updateConteudo };
+export { postConteudos, getConteudo, getConteudos, deleteConteudo, updateConteudo };

@@ -112,7 +112,7 @@ const ConteudosAdm = () => {
   const fetchConteudos = async () => {
     setIsLoading(true);
     try {
-      const res = await service.getWithParams(`${ENDPOINT}/todos`, {
+      const res = await service.getWithParams(`${ENDPOINT}`, {
         search: query,
         order,
         page: currentPage,
