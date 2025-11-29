@@ -240,7 +240,7 @@ const Acompanhamento = ({ dados }) => {
                 )}
               </div>
             </>
-          ) : filhos[0].nome ? (
+          ) : filhos[0]?.nome ? (
             <>
               <div className="space-y-4">
                 <h3 className="text-3xl font-extrabold text-brand-900 mb-4 text-center">

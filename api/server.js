@@ -16,7 +16,7 @@ const app = express();
 app.set('trust proxy', 1)
 app.use(cookieParser());
 
-const whitelist = ['https://maternalle-bv99.onrender.com', 'https://almeida-adriel.github.io', 'http://192.168.56.1:5173', 'http://localhost:5174'];
+const whitelist = ['https://maternalle-bv99.onrender.com', 'https://almeida-adriel.github.io', 'http://192.168.56.1:5173', 'http://localhost:5173'];
 
 const corsOptions = {
   origin: function (origin, callback) {
