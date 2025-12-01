@@ -56,8 +56,7 @@ const Cadastro = () => {
   ]);
 
   const [perfil, setPerfil] = useState({
-    tipoPerfil: sessionStorage.getItem('plano') || tipoPerfil.BASICO,
-    role: 'CLIENTE',
+    tipoPerfil: sessionStorage.getItem('plano') || Object.keys(tipoPerfil)[0],
   });
 
   const [loading, setLoading] = useState(false);
@@ -193,7 +192,6 @@ const Cadastro = () => {
         data_nascimento: form.dataNascimento,
         password: form.senha,
         confirmPassword: form.confirmarSenha,
-        role,
         perfil: {
           tipoPerfil: perfil.tipoPerfil,
         },
@@ -214,6 +212,7 @@ const Cadastro = () => {
         sessionStorage.removeItem('plano');
       }, 400);
     } catch (err) {
+      console.log(err)
       const errorMessage =
         typeof err === 'object' && err !== null && err.error
           ? err.error
