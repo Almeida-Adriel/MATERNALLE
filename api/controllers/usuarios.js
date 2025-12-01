@@ -190,16 +190,23 @@ const getUsuario = async (req, res) => {
 const deleteUsuario = async (req, res) => {
   const id = req.params.id;
   try {
-      await prisma.perfil.deleteMany({
+    await prisma.$transaction(async (tx) => {
+      await tx.filhos.deleteMany({
         where: { id_usuario: id },
       });
-      await prisma.usuarios.delete({
-          where: { id: id },
+
+      await tx.perfil.deleteMany({
+        where: { id_usuario: id },
       });
-      res.status(200).json({ message: 'Conteúdo deletado com sucesso.' });
+
+      await tx.usuarios.delete({
+        where: { id },
+      });
+    });
+    res.status(200).json({ message: 'Conteúdo deletado com sucesso.' });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Erro ao deletar o conteúdo.' });
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao deletar o conteúdo.' });
   }
 };
 
