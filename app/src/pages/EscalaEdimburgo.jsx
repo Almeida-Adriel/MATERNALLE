@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { MdOutlineHealthAndSafety } from 'react-icons/md';
 import Service from '../utils/service/Service';
+import Auth from '../utils/service/Auth';
 
 const service = new Service();
+const auth = new Auth();
 
 const questions = [
   {
@@ -85,11 +87,13 @@ const questions = [
 
 const EscalaEdimburgo = () => {
   const [answers, setAnswers] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [resultado, setResultado] = useState({ total: 0, classificacao: '' });
 
-  const handleChange = (questionId, option) => {
+  const handleChange = (questionId, optionIndex) => {
     setAnswers((prev) => ({
       ...prev,
-      [questionId]: option, // <- apenas texto, igual ao schema
+      [questionId]: optionIndex,
     }));
   };
 
@@ -99,15 +103,22 @@ const EscalaEdimburgo = () => {
     }
 
     try {
-      const response = await service.post(
-        '/edimburgo/calcular',
-        JSON.stringify(answers)
-      );
+      const id_usuario = auth.getId();
 
-      const data = await response.json();
+      const payload = {
+        id_usuario,
+        ...answers,
+      };
+      const response = await service.post('/edimburgo', payload);
+
+      const data = await response.data;
       console.log(data);
 
-      alert(`Pontuação: ${data.total}\n${data.classificacao}`);
+      setResultado({
+        total: data.total,
+        classificacao: data.classificacao,
+      });
+      setShowModal(true);
     } catch (error) {
       console.error(error);
       alert('Erro ao enviar o formulário.');
@@ -164,10 +175,10 @@ const EscalaEdimburgo = () => {
                   <input
                     type="radio"
                     name={q.id}
-                    value={option}
+                    value={idx}
                     className="h-4 w-4 text-brand-600"
-                    onChange={() => handleChange(q.id, option)}
-                    checked={answers[q.id] === option}
+                    onChange={() => handleChange(q.id, idx)}
+                    checked={answers[q.id] === idx}
                     required
                   />
                   <span className="text-gray-700">{option}</span>
@@ -184,6 +195,31 @@ const EscalaEdimburgo = () => {
       >
         Enviar respostas
       </button>
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-xl animate-fade-in">
+            <h2 className="text-xl font-bold text-brand-800 mb-3">
+              Resultado do Teste
+            </h2>
+
+            <p className="text-lg font-semibold text-gray-700 mb-2">
+              Pontuação Total:{' '}
+              <span className="text-brand-600">{resultado.total}</span>
+            </p>
+
+            <p className="text-gray-700 whitespace-pre-line mb-6">
+              {resultado.classificacao}
+            </p>
+
+            <button
+              onClick={() => setShowModal(false)}
+              className="w-full bg-brand-600 text-white py-3 rounded-xl font-semibold hover:bg-brand-700 transition-all"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

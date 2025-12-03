@@ -173,7 +173,8 @@ const getUsuario = async (req, res) => {
         role: true,
         perfil: true,
         filhos: true,
-        notas: true
+        notas: true,
+        edimburgo: true
       }
     });
 

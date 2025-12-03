@@ -173,7 +173,7 @@ const Acompanhamento = ({ dados }) => {
     );
   };
   const textLink = () => {
-    navigate('/teste_edimburgo');
+    navigate('/escala_edimburgo');
   };
 
   return (
@@ -200,8 +200,8 @@ const Acompanhamento = ({ dados }) => {
                 </p>
                 <p className="text-lg text-slate-700">
                   <strong>Resultado do Teste de Edimburgo: </strong>
-                  {userData.resultado_teste_edimburgo ? (
-                    userData.resultado_teste_edimburgo
+                  {userData.edimburgo[0]?.resposta ? (
+                    userData.edimburgo[0].resposta
                   ) : (
                     <span>
                       Sem resultado.

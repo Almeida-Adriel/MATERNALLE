@@ -23,6 +23,7 @@ model Usuarios {
   dpp                DateTime?
   notas              Notas[]
   filhos             Filhos[]
+  edimburgo          Edimburgo[]
 }
 
 model Perfil {
@@ -76,7 +77,7 @@ model Conteudos {
   link_referencia   String?
 }
 
-model EdimburgoResposta {
+model Edimburgo {
   id            String    @id @default(uuid())
   id_usuario    String
   q1            String
@@ -88,6 +89,7 @@ model EdimburgoResposta {
   q7            String
   q8            String
   q9            String
+  resposta      String
   usuario       Usuarios  @relation(fields: [id_usuario], references: [id])
 
   @@index([id_usuario])
