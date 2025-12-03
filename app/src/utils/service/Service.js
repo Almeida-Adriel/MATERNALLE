@@ -1,9 +1,9 @@
 import axios from "axios";
 import Auth from "./Auth";
 
-// const BASE_URL = "https://maternalle.onrender.com/"; // produção
+const BASE_URL = "https://maternalle.onrender.com/"; // produção
 // const BASE_URL = "http://192.168.56.1:5000/"; // teste local
-const BASE_URL = "http://localhost:5000/";
+// const BASE_URL = "http://localhost:5000/";
 const auth = new Auth();
 
 const handle401Error = (error) => {
@@ -58,7 +58,7 @@ class Service {
         headers: { 'Content-Type': 'multipart/form-data' },
       };
     }
-    return { data }; 
+    return { data };
   }
 
   get(rota, id) {
