@@ -5,13 +5,12 @@ import DefaultDataPage from '../components/DefaultDataPage';
 
 // utils
 import Service from '../utils/service/Service';
-import formatDateBR from '../utils/formatDateBR';
 
 // icons
-import { MdVisibility } from 'react-icons/md';
+import { MdVisibility, MdOutlineLibraryBooks } from 'react-icons/md';
 
 const service = new Service();
-const ENDPOINT = '/conteudos';
+const ENDPOINT = '/conteudos/todos';
 
 const Conteudos = () => {
   const [conteudos, setConteudos] = useState([]);
@@ -48,9 +47,19 @@ const Conteudos = () => {
 
   return (
     <>
-      <h1 className="text-xl sm:text-2xl font-bold text-brand-800 mb-6">
-        Conteúdos Disponíveis
-      </h1>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-100">
+          <MdOutlineLibraryBooks size={22} />
+        </div>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-800">
+            Material de Apoio
+          </h1>
+          <p className="text-sm text-slate-500">
+            Conteúdos preparados e escolhidos por especialistas para você.
+          </p>
+        </div>
+      </div>
 
       <DefaultDataPage
         currentPage={currentPage}
@@ -72,18 +81,13 @@ const Conteudos = () => {
             header: 'Título',
           },
           {
-            key: 'tipo_conteudo',
-            header: 'Tipo',
+            key: 'descricao',
+            header: 'Descrição',
             render: (item) => (
-              <span className="text-gray-700 font-medium">
-                {item.tipo_conteudo}
+              <span className="text-gray-600 block max-w-md truncate">
+                {item.descricao}
               </span>
             ),
-          },
-          {
-            key: 'data_criacao',
-            header: 'Publicado em',
-            render: (item) => formatDateBR(item.data_criacao),
           },
           {
             key: 'acoes',

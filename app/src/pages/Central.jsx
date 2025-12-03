@@ -5,12 +5,13 @@ import {
   MdEditNote,
   MdOutlinePregnantWoman,
   MdOutlineChildCare,
-  MdAssessment,
+  MdOutlineLibraryBooks,
 } from 'react-icons/md';
 import { statusMaternidadeEnum } from '../utils/enum/statusMaternidade';
 import Acompanhamento from '../components/Acompanhamento';
 import formatDateBR from '../utils/formatDateBR';
 import Auth from '../utils/service/Auth';
+import CarrosselConteudos from '../components/carrossel';
 
 const service = new Service();
 const auth = new Auth();
@@ -34,9 +35,22 @@ const NotaCard = ({ titulo, descricao, data_criacao }) => (
 
 const Central = ({ data, loading }) => {
   const [compromissos, setCompromissos] = useState([]);
+  const [conteudos, setConteudos] = useState([]);
   const [loadingCompromissos, setLoadingCompromissos] = useState(false);
   const [notas, setNotas] = useState(data?.notas || []);
   const usuarioId = auth.getId();
+
+  const fetchConteudos = async () => {
+    try {
+      const res = await service.get('/conteudos/todos');
+
+      const { conteudos } = res.data;
+
+      setConteudos(conteudos || []);
+    } catch (error) {
+      console.error('Erro ao listar conteúdos:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchCompromissos = async () => {
@@ -75,6 +89,8 @@ const Central = ({ data, loading }) => {
         setLoadingCompromissos(false);
       }
     };
+
+    fetchConteudos();
 
     if (usuarioId) {
       fetchCompromissos();
@@ -199,15 +215,14 @@ const Central = ({ data, loading }) => {
         </div>
       </section>
 
-      {/* Seção Inferior: Gráficos Financeiros */}
       <section>
         <div className="bg-white rounded-2xl shadow p-6 border border-brand-100 min-h-80">
           <h2 className="text-xl font-bold text-brand-800 flex items-center mb-4">
-            <MdAssessment className="mr-2 text-brand-500" size={24} />
-            Análise Financeira
+            <MdOutlineLibraryBooks className="mr-2 text-brand-500" size={24} />
+            Material de Apoio
           </h2>
-          <div className="h-64 bg-gray-100/70 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-slate-500 italic p-4">
-            [Espaço Reservado para Gráficos com base em Finanças]
+          <div className="h-54 rounded-lg flex items-center justify-center">
+            <CarrosselConteudos conteudos={conteudos} />
           </div>
         </div>
       </section>

@@ -10,6 +10,7 @@ import usuarios from './routes/usuarios.js';
 import esqueciMinhaSenha from './routes/esqueci_minha_senha.js';
 import notasRoutes from './routes/notas.js';
 import conteudosRoutes from './routes/conteudos.js';
+import edimburgoRoutes from './routes/edimburgo.js'
 
 const app = express();
 
@@ -39,6 +40,7 @@ app.use('/usuarios', usuarios);
 app.use('/auth', esqueciMinhaSenha)
 app.use('/notas', notasRoutes);
 app.use('/conteudos', conteudosRoutes);
+app.use('/edimburgo', edimburgoRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

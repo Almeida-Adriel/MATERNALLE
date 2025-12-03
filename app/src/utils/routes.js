@@ -10,6 +10,7 @@ import Notas from "../pages/Notas";
 import AcessoNegado from "../pages/Error/AcessoNegado";
 import Usuarios from "../pages/adm/Usuarios"
 import ConteudoId from "../pages/ConteudosList";
+import EscalaEdimburgo from "../pages/EscalaEdimburgo";
 
 const routes = [
     {path: '/', name: 'Home', component: Home},
@@ -24,6 +25,7 @@ const routes = [
     {path: '/notas', name: 'Notas', component: Notas},
     {path: '/conteudos', name: 'Listagem de Material de Apoio', component: Conteudos},
     {path: '/conteudos/:id', name: 'Material de Apoio', component: ConteudoId},
+    {path: '/escala_edimburgo', name: 'Escala de Edimburgo', component: EscalaEdimburgo},
 ]
 
 export default routes;

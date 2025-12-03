@@ -1,30 +1,31 @@
 import axios from "axios";
 import Auth from "./Auth";
 
-const BASE_URL = "https://maternalle.onrender.com/"; // URL de produção
-// const BASE_URL = "http://192.168.56.1:5000/"; // URL de teste local
+const BASE_URL = "https://maternalle.onrender.com/"; // produção
+// const BASE_URL = "http://192.168.56.1:5000/"; // teste local
 // const BASE_URL = "http://localhost:5000/";
 const auth = new Auth();
 
 const handle401Error = (error) => {
-    // Verifica se a resposta existe e se o status é 401 (Unauthorized)
-    if (error.response && error.response.status === 401) {
-      sessionStorage.setItem(
-        'flash',
-        JSON.stringify({
-          type: 'warning',
-          description: 'Sessão expirada, por favor, faça login novamente. ' + `${JSON.stringify(error.response.data)}`,
-        })
-      );
-      window.location.href = '/login';
-    }
-    return Promise.reject(error.response?.data || error); 
+  if (error.response && error.response.status === 401) {
+    sessionStorage.setItem(
+      'flash',
+      JSON.stringify({
+        type: 'warning',
+        description: 'Sessão expirada, por favor, faça login novamente.',
+      })
+    );
+    window.location.href = '/login';
+  }
+  return Promise.reject(error.response?.data || error);
 };
 
+// INSTÂNCIA AUTENTICADA
 const api = axios.create({
-    baseURL: BASE_URL,
+  baseURL: BASE_URL,
 });
 
+// Interceptor para token
 api.interceptors.request.use((config) => {
   const token = auth.getToken();
   if (token) {
@@ -33,35 +34,46 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Adiciona o interceptor de resposta para tratar erros 401 em todas as requisições 'api'
+// Interceptor de resposta
 api.interceptors.response.use(
-    (response) => response,
-    handle401Error
+  (response) => response,
+  handle401Error
 );
 
-
-// Instância para Requisições PÚBLICAS (Login/Cadastro)
+// Instância pública (login)
 const publicApi = axios.create({
-    baseURL: BASE_URL,
+  baseURL: BASE_URL,
 });
 
 publicApi.interceptors.response.use(
-    (response) => response,
-    (error) => Promise.reject(error.response?.data || error)
+  (response) => response,
+  (error) => Promise.reject(error.response?.data || error)
 );
 
 class Service {
+  formatRequest(data) {
+    if (data instanceof FormData) {
+      return {
+        data,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      };
+    }
+    return { data }; 
+  }
+
   get(rota, id) {
-    const path = id ? `${rota}?id=${id}` : rota; 
+    const path = id ? `${rota}?id=${id}` : rota;
     return api.get(path);
   }
 
   post(rota, data) {
-    return api.post(rota, data);
+    const { data: formattedData, headers } = this.formatRequest(data);
+    return api.post(rota, formattedData, { headers });
   }
 
   put(rota, data) {
-    return api.put(rota, data);
+    const { data: formattedData, headers } = this.formatRequest(data);
+    return api.put(rota, formattedData, { headers });
   }
 
   delete(rota, id) {
@@ -71,9 +83,9 @@ class Service {
 
   requestWithParams(method, rota, params = {}) {
     return api.request({
-        method: method,
-        url: rota,
-        params: params, // Axios formata automaticamente como ?param1=valor1&param2=valor2
+      method,
+      url: rota,
+      params,
     });
   }
 
@@ -83,9 +95,9 @@ class Service {
 
   deleteWithParams(rota, params = {}) {
     return api.request({
-        method: 'delete',
-        url: rota,
-        params: params // Parâmetros vão para a URL: /rota?id=5
+      method: 'delete',
+      url: rota,
+      params,
     });
   }
 
@@ -94,18 +106,17 @@ class Service {
   }
 
   login(cpf, password) {
-     return publicApi.post("auth/login", { cpf, password })
+    return publicApi.post("auth/login", { cpf, password })
       .then((res) => {
         auth.saveDataLogin({
           token: res.data.token,
           id: res.data.id,
-          userRole: res.data.userRole
+          userRole: res.data.userRole,
         });
-
-      return res;
-    });
+        return res;
+      });
   }
-  
+
   async logout() {
     auth.clear();
     return true;

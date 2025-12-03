@@ -76,6 +76,23 @@ model Conteudos {
   link_referencia   String?
 }
 
+model EdimburgoResposta {
+  id            String    @id @default(uuid())
+  id_usuario    String
+  q1            String
+  q2            String
+  q3            String
+  q4            String
+  q5            String
+  q6            String
+  q7            String
+  q8            String
+  q9            String
+  usuario       Usuarios  @relation(fields: [id_usuario], references: [id])
+
+  @@index([id_usuario])
+}
+
 model RecoveryCode {
   id        String   @id @default(uuid())
   cpf       String   @unique

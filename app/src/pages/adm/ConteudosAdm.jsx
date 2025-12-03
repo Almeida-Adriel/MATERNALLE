@@ -35,6 +35,7 @@ const ConteudosAdm = () => {
     acesso: '',
     link_referencia: '',
     outros: '',
+    imagem: null,
   });
   const [formMessage, setFormMessage] = useState('');
   const [formMessageType, setFormMessageType] = useState('error');
@@ -65,6 +66,13 @@ const ConteudosAdm = () => {
     setFormData((prev) => ({ ...prev, [id || name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, imagem: file }));
+    }
+  };
+
   const handleEdit = (item) => {
     setEditingId(item.id);
     setFormData({
@@ -77,6 +85,31 @@ const ConteudosAdm = () => {
     });
     clearFormMessage();
     setOpenModal(true);
+  };
+
+  const handleDeleteImage = async (id) => {
+    const confirmar = window.confirm(
+      'Tem certeza que deseja excluir a imagem?'
+    );
+    if (!confirmar) return;
+
+    try {
+      setIsLoading(true);
+      const response = await service.delete(`${ENDPOINT}`, `${id}/imagem`);
+
+      const msg = response?.data?.message || 'Imagem deletado com sucesso.';
+      enqueueSnackbar(msg, { variant: 'success' });
+
+      await fetchConteudos();
+    } catch (error) {
+      console.error('Erro ao deletar conteúdo:', error);
+      const errorMessage =
+        error?.response?.data?.error ||
+        'Erro ao deletar o conteúdo. Tente novamente mais tarde.';
+      enqueueSnackbar(errorMessage, { variant: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async (id) => {
@@ -112,7 +145,7 @@ const ConteudosAdm = () => {
   const fetchConteudos = async () => {
     setIsLoading(true);
     try {
-      const res = await service.getWithParams(`${ENDPOINT}`, {
+      const res = await service.getWithParams(`${ENDPOINT}/todos`, {
         search: query,
         order,
         page: currentPage,
@@ -165,11 +198,23 @@ const ConteudosAdm = () => {
       return;
     }
 
-    const dataToSend = {
-      ...formData,
+    const dataToSend = new FormData();
+
+    Object.entries({
+      titulo: formData.titulo,
+      descricao: formData.descricao,
+      tipo_conteudo: formData.tipo_conteudo,
+      acesso: formData.acesso,
       link_referencia: formData.link_referencia || null,
       outros: formData.outros || null,
-    };
+    }).forEach(([key, value]) => {
+      dataToSend.append(key, value);
+    });
+
+    // adicionar imagem se existir
+    if (formData.imagem) {
+      dataToSend.append('imagem', formData.imagem);
+    }
 
     try {
       let response;
@@ -322,6 +367,32 @@ const ConteudosAdm = () => {
                     placeholder="https://fonte.com/recurso"
                     fullWidth
                   />
+                </div>
+                <div className="md:col-span-6">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Imagem (opcional)
+                  </label>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="block w-full text-sm text-slate-600
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-lg file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-pink-50 file:text-pink-700
+                              hover:file:bg-pink-100"
+                  />
+
+                  {/* <button
+                    className={`text-red-600 p-1.5 cursor-pointer relative -top-8 ${formData.imagem ? '-right-70' : '-right-80'}`}
+                    onClick={(item) => handleDeleteImage(item.id)}
+                    title="Excluir"
+                    aria-label="Excluir conteúdo"
+                  >
+                    <MdOutlineDelete size={18} />
+                  </button> */}
                 </div>
               </div>
 

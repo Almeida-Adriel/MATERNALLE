@@ -1,44 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-  Button,
-} from '@mui/material';
-import { Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Service from '../utils/service/Service';
+import { MdArrowBack } from 'react-icons/md';
 
 const service = new Service();
 
 const ConteudoId = () => {
-  const [conteudos, setConteudos] = useState([]);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [conteudo, setConteudo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchConteudos = async () => {
+  const fetchConteudo = async () => {
     try {
-      const pathSegments = window.location.pathname.split('/');
-      const idUrl = pathSegments[pathSegments.length - 1];
-      const response = await service.getWithParams('conteudos', { id: idUrl });
-      setConteudos(response.data.conteudos);
+      const response = await service.getWithParams('conteudos', { id });
+      const item = response?.data;
+
+      if (!item) {
+        setError('Conteúdo não encontrado.');
+      } else {
+        setConteudo(item);
+      }
     } catch (err) {
-      setError('Erro ao carregar conteúdos.');
+      console.error(err);
+      setError('Erro ao carregar conteúdo.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchConteudos();
-  }, []);
+    fetchConteudo();
+  }, [id]);
+
+  const formatDate = (iso) => {
+    return new Date(iso).toLocaleDateString('pt-BR');
+  };
+
+  if (loading) return <p className="p-6">Carregando conteúdo...</p>;
+  if (error) return <p className="p-6 text-red-600 font-medium">{error}</p>;
 
   return (
-    <div className="w-full p-6">
-      {loading && <p>Carregando conteúdos...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+    <div className="mx-auto py-8 px-4">
+      {/* Botão voltar */}
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-2 text-brand-600 font-medium hover:underline mb-6"
+      >
+        <MdArrowBack size={20} />
+        Voltar
+      </button>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      {/* Card principal */}
+      <div className="bg-white shadow rounded-xl p-6 border border-brand-100">
+        <div className="flex mb-4 justify-between">
+          {/* Título */}
+          <h1 className="text-3xl font-bold text-brand-700">
+            {conteudo.titulo}
+          </h1>
+
+          {/* Metadados */}
+          <div className="invisible md:visible">
+            <p className="text-sm text-slate-500 block">
+              Tipo:{' '}
+              <span className="font-medium">{conteudo.tipo_conteudo}</span>
+            </p>
+            <p className="text-sm text-slate-500 block">
+              Publicado em: {formatDate(conteudo.data_criacao)}
+            </p>
+          </div>
+        </div>
+
+        {/* Texto completo */}
+        <div className="max-w-none flex gap-4 whitespace-pre-line leading-relaxed text-slate-700">
+          {conteudo.descricao}
+          {/* Imagem (se existir) */}
+          {conteudo.imagemUrl && (
+            <img
+              src={conteudo.imagemUrl}
+              alt={conteudo.titulo}
+              className="w-40 h-38 rounded-lg mb-4 shadow"
+            />
+          )}
+        </div>
+
+        {/* Link de referência */}
+        {conteudo.link_referencia && (
+          <a
+            href={conteudo.link_referencia}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-6 inline-block text-brand-600 font-medium underline hover:text-brand-700"
+          >
+            Ver referência externa
+          </a>
+        )}
+      </div>
     </div>
   );
 };

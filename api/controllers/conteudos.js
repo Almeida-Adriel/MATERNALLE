@@ -181,15 +181,89 @@ const getConteudos = async (req, res) => {
 const deleteConteudo = async (req, res) => {
   const id = req.params.id;
   try {
-      await prisma.conteudos.delete({
-          where: { id: id },
-      });
-      res.status(200).json({ message: 'Conteúdo deletado com sucesso.' });
+    const conteudo = await prisma.conteudos.findUnique({
+      where: { id },
+    });
+
+    if (!conteudo) {
+      return res.status(404).json({ error: "Conteúdo não encontrado." });
+    }
+    if (conteudo.imagemUrl) {
+      const url = conteudo.imagemUrl;
+      const filePath = url.split("/conteudos-img/")[1]; // pega apenas "conteudos/arquivo.jpg"
+
+      if (filePath) {
+        const { error: deleteError } = await supabase.storage
+          .from("conteudos-img")
+          .remove([filePath]);
+
+        if (deleteError) {
+          console.error(deleteError);
+          return res.status(500).json({
+            error: "Erro ao deletar a imagem do armazenamento.",
+          });
+        }
+      }
+    }
+    
+    await prisma.conteudos.delete({
+      where: { id },
+    });
+
+    res.status(200).json({ message: 'Conteúdo e imagem deletado com sucesso.' });
   } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Erro ao deletar o conteúdo.' });
   }
 };
+
+const deleteImagemConteudo = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const conteudo = await prisma.conteudos.findUnique({
+      where: { id },
+    });
+
+    if (!conteudo) {
+      return res.status(404).json({ error: "Conteúdo não encontrado." });
+    }
+
+    if (!conteudo.imagemUrl) {
+      return res.status(400).json({ error: "Este conteúdo não possui imagem." });
+    }
+
+    // Extrair path da URL pública
+    const url = conteudo.imagemUrl;
+    const filePath = url.split("/conteudos-img/")[1];
+
+    if (filePath) {
+      const { error: deleteError } = await supabase.storage
+        .from("conteudos-img")
+        .remove([filePath]);
+
+      if (deleteError) {
+        console.error(deleteError);
+        return res.status(500).json({
+          error: "Erro ao deletar a imagem do armazenamento.",
+        });
+      }
+    }
+
+    // Remover referência da imagem no banco
+    await prisma.conteudos.update({
+      where: { id },
+      data: { imagemUrl: null },
+    });
+
+    res.status(200).json({ message: "Imagem deletada com sucesso." });
+
+  } catch (error) {
+    console.error("Erro ao deletar imagem:", error);
+    res.status(500).json({ error: "Erro ao deletar a imagem." });
+  }
+};
+
 
 const updateConteudo = async (req, res) => {
     const id = req.params.id;
@@ -268,4 +342,4 @@ const updateConteudo = async (req, res) => {
     }
 };
 
-export { postConteudos, getConteudo, getConteudos, deleteConteudo, updateConteudo };
+export { postConteudos, getConteudo, getConteudos, deleteConteudo, deleteImagemConteudo, updateConteudo };
